@@ -14,7 +14,7 @@ func NewRenderScene() *RenderScene {
 }
 
 func (s *RenderScene) Render(context RenderLayerContext) {
-	for _,r := range s.models {
+	for _, r := range s.models {
 		r.Render(context)
 	}
 }
@@ -28,7 +28,7 @@ type RenderModel struct {
 }
 
 func (m *RenderModel) Render(context RenderLayerContext) {
- 	 m.surface.Painter().Paint(m,context)
+	m.surface.Painter().Paint(m, context)
 }
 
 //----------------------------
