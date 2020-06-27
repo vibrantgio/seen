@@ -1,4 +1,2 @@
-/*
-Package render
-*/
+// Package render
 package render

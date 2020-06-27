@@ -1,4 +1,2 @@
-/*
-Package transform
-*/
+// Package transform
 package transform

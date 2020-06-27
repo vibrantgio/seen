@@ -1,4 +1,2 @@
-/*
-Package shapes contains primitive generation functions.
-*/
+// Package shapes contains primitive generation functions.
 package shapes
