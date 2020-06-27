@@ -23,11 +23,11 @@ type PathPainter interface {
 	Path(points []seen.Point)
 
 	// Fill the path
-	Fill(style map[string]string)
+	Fill(Style)
 
 	// Stroke the outline of the path.
 	// Key "stroke-width" is supported in style.
-	Stroke(style map[string]string)
+	Stroke(Style)
 }
 
 // RectPainter
@@ -36,12 +36,12 @@ type RectPainter interface {
 	CornerRadius(rx, ry float64)
 
 	// Fill the rect
-	Fill(style map[string]string)
+	Fill(Style)
 }
 
 // CirclePainter
 type CirclePainter interface {
-	Fill(style map[string]string)
+	Fill(Style)
 }
 
 // TextPainter
@@ -51,5 +51,7 @@ type TextPainter interface {
 	// text is the text to be painted.
 	// Style supports the following keys: fill, font, text-anchor
 
-	FillText(transform *affine.Matrix, text string, style map[string]string)
+	FillText(transform *affine.Matrix, text string, style Style)
 }
+
+type Style = map[string]string
