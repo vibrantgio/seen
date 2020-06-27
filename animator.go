@@ -1,22 +1,32 @@
 package seen
 
-type RenderAnimator interface {
-	OnFrame(handler func (t, dt float64))
+// The animator class is useful for creating an animation loop. We supply pre
+// and post events for apply animation changes between frames.
+type Animator interface {
+	OnFrame(Handler)
+
 	Start()
+	Stop()
 }
 
-type Animator struct {
-	onFrameHandler func (t, dt float64)
+type Handler func(t, dt float64)
+
+func MakeAnimator() Animator {
+	return &animator{}
 }
 
-func MakeAnimator() RenderAnimator {
-	return &Animator{}
+type animator struct {
+	handler Handler
 }
 
-func (a *Animator) OnFrame(handler func (t, dt float64)) {
-	a.onFrameHandler = handler
+func (a *animator) OnFrame(handler Handler) {
+	a.handler = handler
 }
 
-func (a *Animator) Start() {
+func (a *animator) Start() {
 
+}
+
+func (a *animator) Stop() {
+	
 }

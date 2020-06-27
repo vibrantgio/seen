@@ -1,18 +1,58 @@
-package render
+package svg
 
 import (
-	"os"
 	"math"
 	"math/rand"
+	"os"
 	"path"
 	"strconv"
 	"testing"
-	"github.com/reactivego/seen/document"
+
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/colors"
+	"github.com/reactivego/seen/document"
+	"github.com/reactivego/seen/render"
 	"github.com/reactivego/seen/shapes"
 	"github.com/reactivego/seen/transform"
 )
+
+// Mocks
+
+type MockRenderContextScene struct {
+}
+
+func (s *MockRenderContextScene) Paint(context render.PaintContext) {
+	// Generate a RenderModel for every Surface in the Scene.
+
+	// Sort the RenderModels based on z-depth back to front.
+
+	// Paint the RenderModels on the PaintContext.
+}
+
+// Tests
+
+func TestMakeRenderContext(t *testing.T) {
+	document.Reset()
+	svg := document.CreateElementNS(document.SVG_NS, "svg")
+	if svg == nil {
+		t.Error("Expected a valid svg element")
+	}
+	svg.SetAttribute("id", "my-3d-svg")
+
+	s := &MockRenderContextScene{}
+
+	c := MakeRenderContext("invalid", s)
+	if c != nil {
+		t.Error("Expected MakeRenderContext to return nil")
+	}
+
+	c = MakeRenderContext("my-3d-svg", s)
+	if c == nil {
+		t.Error("Expected to get a render context for valid svg element.")
+	}
+
+	c.Render()
+}
 
 func TestDemoEmpty(t *testing.T) {
 	// Clear the current document (really needed!)
@@ -22,12 +62,12 @@ func TestDemoEmpty(t *testing.T) {
 	const height = 200
 
 	_, err := document.MakeSVG("my-3d-svg", width, height)
-	if  err != nil {
+	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	s := MakeRenderScene()
+	s := render.MakeRenderScene()
 	if s == nil {
 		t.Error("unable to create render scene")
 		return
@@ -58,19 +98,19 @@ func TestDemoSimple(t *testing.T) {
 		return
 	}
 
-	context := MakeRenderContext(svgId, MakeFillLayer(width,height,8,8,"#eeddff"))
+	context := MakeRenderContext(svgId, render.MakeFillLayer(width, height, 8, 8, "#eeddff"))
 	if context == nil {
 		t.Error("Expected to be able to create RenderContext")
 		return
 	}
 
 	// Create the scene to render
-	s := MakeRenderScene()
+	s := render.MakeRenderScene()
 	s.FractionalPoints = true
 	s.Model = seen.MakeDefaultModel()
 	s.Shader = seen.MakePhongShader()
 	s.Camera = seen.MakeCameraWithProjection(seen.MakeDefaultPerspectiveProjection())
-	s.Camera.SetTranslation(0,0,-550)
+	s.Camera.SetTranslation(0, 0, -550)
 
 	colorReader := colors.MakeRandomColorReader2(colors.ColorDrift(0.03), colors.ColorSat(0.5))
 
@@ -82,7 +122,7 @@ func TestDemoSimple(t *testing.T) {
 	}
 	scale := float64(400) * 0.3
 	icosahedron.SetScale(scale, scale, scale)
-	icosahedron.SetRotation(transform.MakeQuatAxisAngle(1,1,0,0.25 * math.Pi))
+	icosahedron.SetRotation(transform.MakeQuatAxisAngle(1, 1, 0, 0.25*math.Pi))
 	err = icosahedron.ColorSurfaces(colorReader)
 	if err != nil {
 		t.Error(err)
@@ -96,9 +136,9 @@ func TestDemoSimple(t *testing.T) {
 		t.Fail()
 		return
 	}
-	cube.SetScale(scale,scale,scale)
-	cube.SetRotation(transform.MakeQuatAxisAngle(0.1,1,0,0.1 * math.Pi))
-	cube.SetTranslation(-350,0,0)
+	cube.SetScale(scale, scale, scale)
+	cube.SetRotation(transform.MakeQuatAxisAngle(0.1, 1, 0, 0.1*math.Pi))
+	cube.SetTranslation(-350, 0, 0)
 	err = cube.ColorSurfaces(colorReader)
 	if err != nil {
 		t.Error(err)
@@ -121,53 +161,21 @@ func TestDemoSimple(t *testing.T) {
 	}
 }
 
-func TestDemoSimpleInteractive(t *testing.T) {
-/*
-  width  = 900
-  height = 500
-
-  # Create sphere shape with randomly colored surfaces
-  shape = seen.Shapes.sphere(2).scale(height * 0.4)
-  seen.Colors.randomSurfaces2(shape)
-
-  # Create scene and add shape to model
-  scene = new seen.Scene
-    model    : seen.Models.default().add(shape)
-    viewport : seen.Viewports.center(width, height)
-
-  # Create render context from canvas
-  context = seen.Context('seen-canvas', scene).render()
-
-  # Slowly rotate sphere
-  context.animate()
-    .onBefore((t, dt) -> shape.rotx(dt*1e-4).roty(0.7*dt*1e-4))
-    .start()
-
-  # Enable drag-to-rotate on the canvas
-  dragger = new seen.Drag('seen-canvas', {inertia : true})
-  dragger.on('drag.rotate', (e) ->
-    xform = seen.Quaternion.xyToTransform(e.offsetRelative...)
-    shape.transform(xform)
-    context.render()
-  )
-*/
-}
-
 func TestDemoSvgCanvas(t *testing.T) {
 	// Clear the current document (really needed!)
 	document.Reset()
 
 	const width = 450
 	const height = 200
-	
+
 	html, err := document.MakeHTML()
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	for i:=0; i<4; i++ {
-		html.AddCanvas("seen-canvas-"+strconv.Itoa(i),width,height)
-		html.AddSVG("seen-svg-"+strconv.Itoa(i),width,height)
+	for i := 0; i < 4; i++ {
+		html.AddCanvas("seen-canvas-"+strconv.Itoa(i), width, height)
+		html.AddSVG("seen-svg-"+strconv.Itoa(i), width, height)
 	}
 
 	// Create one shape to be shared between the SVG and Canvas
@@ -186,9 +194,9 @@ func TestDemoSvgCanvas(t *testing.T) {
 	}
 
 	// Create one scene for each shape
-	scenes := []*RenderScene{}
+	scenes := []*render.RenderScene{}
 	for _, sphere := range spheres {
-		s := MakeRenderScene()
+		s := render.MakeRenderScene()
 		s.Shader = seen.MakePhongShader()
 		s.FractionalPoints = true
 		s.Model = seen.MakeDefaultModel()
@@ -198,7 +206,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 	}
 
 	// Create a render context for each SVG and Canvas
-	contexts := []RenderContext{}
+	contexts := []render.RenderContext{}
 	for i, scene := range scenes {
 		for _, kind := range []string{ /*"canvas",*/ "svg"} {
 			elementId := "seen-" + kind + "-" + strconv.Itoa(i)
@@ -233,53 +241,53 @@ func TestDemoText(t *testing.T) {
 	// Clear the current document (really needed!)
 	document.Reset()
 
-	const width  = 900
+	const width = 900
 	const height = 500
 
 	svg, err := document.MakeSVG("seen-svg", width, height)
-	if  err != nil {
+	if err != nil {
 		t.Error(err)
 		return
 	}
 
 	// Generate some random data points
-	var data []float64 
-	for  i:=0; i<10; i++ {
-		data = append(data, rand.Float64() * 80.0 + 20.0)
+	var data []float64
+	for i := 0; i < 10; i++ {
+		data = append(data, rand.Float64()*80.0+20.0)
 	}
 
 	// Create scene model
 	model := seen.MakeDefaultModel()
 
 	// Draw bars for data
-	for i,d := range data {
+	for i, d := range data {
 		uc := shapes.MakeUnitCube()
 		uc.SetScale(20.0, d, 20.0)
-		uc.SetTranslation(float64(i) * 30.0, 0, 0)
+		uc.SetTranslation(float64(i)*30.0, 0, 0)
 		uc.SetFillMaterial("#0088FF")
 		model.Add(uc)
 	}
 
 	// Draw text above bars
-	for i,d := range data {
-		opts := map[string]string {
-			"font": "10px Roboto",
+	for i, d := range data {
+		opts := map[string]string{
+			"font":   "10px Roboto",
 			"anchor": "middle",
 		}
 		t := shapes.MakeText(strconv.FormatFloat(d, 'f', 1, 64), opts)
 		t.SetShowBackfaces(true)
-		t.SetTranslation(float64(i) * 30 + 10, d + 10, 10)
+		t.SetTranslation(float64(i)*30+10, d+10, 10)
 		t.SetFillMaterial("#000000")
 		model.Add(t)
 	}
 
 	// Create scene
-	scene := MakeRenderScene()
+	scene := render.MakeRenderScene()
 	model.SetTranslation(-150, -50, 0)
-	model.SetScale(2,2,2)
+	model.SetScale(2, 2, 2)
 	scene.Model = model
 	scene.Viewport = seen.MakeCenterViewport(0, 0, width, height)
-	scene.Camera.SetRotation(transform.MakeQuatAxisAngle(0.1,1,0,math.Pi *0.2))
+	scene.Camera.SetRotation(transform.MakeQuatAxisAngle(0.1, 1, 0, math.Pi*0.2))
 
 	// Create render context from canvas
 	context := MakeRenderContext("seen-svg", scene)
@@ -289,15 +297,15 @@ func TestDemoText(t *testing.T) {
 	}
 	context.Render()
 
-/*
-	// Enable drag-to-rotate on the canvas
-	dragger = new seen.Drag('seen-canvas', {inertia : true})
-	dragger.on('drag.rotate', (e) ->
-		xform = seen.Quaternion.xyToTransform(e.offsetRelative...)
-		model.transform(xform)
-		context.render()
-	)
-*/
+	/*
+		// Enable drag-to-rotate on the canvas
+		dragger = new seen.Drag('seen-canvas', {inertia : true})
+		dragger.on('drag.rotate', (e) ->
+			xform = seen.Quaternion.xyToTransform(e.offsetRelative...)
+			model.transform(xform)
+			context.render()
+		)
+	*/
 
 	// Save the generated svg to file
 	err = svg.SaveToFile(path.Join(os.Getenv("HOME"), "TestDemoText.svg"))
