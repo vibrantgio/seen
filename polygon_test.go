@@ -2,7 +2,7 @@ package seen
 
 import (
 	"testing"
-	"xpt.nl/float"
+	"github.com/reactivego/seen/float"
 )
 
 func TestPolygonVertPointers(t *testing.T) {

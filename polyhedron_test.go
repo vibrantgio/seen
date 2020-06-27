@@ -30,30 +30,22 @@ func TestPolyhedronSetPolygon(t *testing.T) {
 	}
 	const ICOS_X = 0.525731112119133606
 	const ICOS_Z = 0.850650808352039932
-	ICOSAHEDRON_VERTICES := [...]Vertex {
-		{-ICOS_X, 0.0,     -ICOS_Z},
-		{ICOS_X,  0.0,     -ICOS_Z},
-		{-ICOS_X, 0.0,     ICOS_Z},
-		{ICOS_X,  0.0,     ICOS_Z},
-		{0.0,     ICOS_Z,  -ICOS_X},
-		{0.0,     ICOS_Z,  ICOS_X},
-		{0.0,     -ICOS_Z, -ICOS_X},
-		{0.0,     -ICOS_Z, ICOS_X},
-		{ICOS_Z,  ICOS_X,  0.0},
-		{-ICOS_Z, ICOS_X,  0.0},
-		{ICOS_Z,  -ICOS_X, 0.0},
+	ICOSAHEDRON_VERTICES := [...]Vertex{
+		{-ICOS_X, 0.0, -ICOS_Z},
+		{ICOS_X, 0.0, -ICOS_Z},
+		{-ICOS_X, 0.0, ICOS_Z},
+		{ICOS_X, 0.0, ICOS_Z},
+		{0.0, ICOS_Z, -ICOS_X},
+		{0.0, ICOS_Z, ICOS_X},
+		{0.0, -ICOS_Z, -ICOS_X},
+		{0.0, -ICOS_Z, ICOS_X},
+		{ICOS_Z, ICOS_X, 0.0},
+		{-ICOS_Z, ICOS_X, 0.0},
+		{ICOS_Z, -ICOS_X, 0.0},
 		{-ICOS_Z, -ICOS_X, 0.0},
 	}
 
 	p := Polyhedron{}
-	p.SetPolygons(ICOSAHEDRON_VERTICES[:],ICOSAHEDRON_POLYGONS[:])
-
-
-
-
+	p.SetPolygons(ICOSAHEDRON_VERTICES[:], ICOSAHEDRON_POLYGONS[:])
 
 }
-
-
-
-
