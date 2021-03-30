@@ -20,11 +20,11 @@ func (s *Shape) Init(kind string, surfaces []Surface) {
 }
 
 // ColorSurfaces sets a color on every surface of the Shape by 
-// reading it from the passed in ColorReader.
-func (s *Shape) ColorSurfaces(reader colors.ColorReader) (err error) {
+// reading it from the passed in colors.Source.
+func (s *Shape) ColorSurfaces(source colors.Source) (err error) {
 	err = nil
 	for i := range s.Surfaces {
-		if err = s.Surfaces[i].SetFillMaterial(reader.ReadColor()); err != nil {
+		if err = s.Surfaces[i].SetFillMaterial(source.Read()); err != nil {
 			return
 		}
 	}

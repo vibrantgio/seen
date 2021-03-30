@@ -112,7 +112,7 @@ func TestDemoSimple(t *testing.T) {
 	s.Camera = seen.MakeCameraWithProjection(seen.MakeDefaultPerspectiveProjection())
 	s.Camera.SetTranslation(0, 0, -550)
 
-	colorReader := colors.MakeRandomColorReader2(colors.ColorDrift(0.03), colors.ColorSat(0.5))
+	source := colors.MakeRandomSource2(colors.Drift(0.03), colors.Sat(0.5))
 
 	// Add icosahedron to the scene
 	icosahedron := shapes.MakeIcosahedron()
@@ -123,7 +123,7 @@ func TestDemoSimple(t *testing.T) {
 	scale := float64(400) * 0.3
 	icosahedron.SetScale(scale, scale, scale)
 	icosahedron.SetRotation(transform.MakeQuatAxisAngle(1, 1, 0, 0.25*math.Pi))
-	err = icosahedron.ColorSurfaces(colorReader)
+	err = icosahedron.ColorSurfaces(source)
 	if err != nil {
 		t.Error(err)
 		return
@@ -139,7 +139,7 @@ func TestDemoSimple(t *testing.T) {
 	cube.SetScale(scale, scale, scale)
 	cube.SetRotation(transform.MakeQuatAxisAngle(0.1, 1, 0, 0.1*math.Pi))
 	cube.SetTranslation(-350, 0, 0)
-	err = cube.ColorSurfaces(colorReader)
+	err = cube.ColorSurfaces(source)
 	if err != nil {
 		t.Error(err)
 		return
@@ -184,8 +184,8 @@ func TestDemoSvgCanvas(t *testing.T) {
 		sphere := shapes.MakeSphere(i)
 		scale := float64(height) * 0.4
 		sphere.SetScale(scale, scale, scale)
-		colorReader := colors.MakeRandomColorReader2(colors.ColorDrift(0.03), colors.ColorSat(0.5))
-		err := sphere.ColorSurfaces(colorReader)
+		source := colors.MakeRandomSource2(colors.Drift(0.03), colors.Sat(0.5))
+		err := sphere.ColorSurfaces(source)
 		if err != nil {
 			t.Error(err)
 			return

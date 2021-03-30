@@ -56,12 +56,12 @@ func TestColorStringGeneration(t *testing.T) {
 }
 
 
-func TestMakeRandomColorReader2(t *testing.T) {
-	r := MakeRandomColorReader2()
-	c0 := r.ReadColor()
-	c1 := r.ReadColor()
-	c2 := r.ReadColor()
-	c3 := r.ReadColor()
+func TestMakeRandomSource2(t *testing.T) {
+	r := MakeRandomSource2()
+	c0 := r.Read()
+	c1 := r.Read()
+	c2 := r.Read()
+	c3 := r.Read()
 	if c0.Equal(c1) && c1.Equal(c2) && c2.Equal(c3) {
 		t.Fail()
 	}

@@ -76,8 +76,8 @@ func TestDemoSvgCanvas(t *testing.T) {
 		sphere := shapes.MakeSphere(i)
 		scale := float64(height) * 0.4
 		sphere.SetScale(scale, scale, scale)
-		colorReader := colors.MakeRandomColorReader2(colors.ColorDrift(0.03), colors.ColorSat(0.5))
-		err := sphere.ColorSurfaces(colorReader)
+		source := colors.MakeRandomSource2(colors.Drift(0.03), colors.Sat(0.5))
+		err := sphere.ColorSurfaces(source)
 		if err != nil {
 			t.Error(err)
 			return

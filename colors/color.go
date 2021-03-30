@@ -7,13 +7,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
 	"github.com/reactivego/seen/float"
 )
 
-// ColorReader is an interface used to read colors from a source.
-// Used for reading of randomized colors for coloring surfaces.
-type ColorReader interface {
-	ReadColor() *Color
+// Source is an interface to a color source. It is used for generating
+// a sequence of random colors that are slightly different.
+type Source interface {
+	Read() *Color
 }
 
 // Color objects store RGB and Alpha values with components in range [0..1]
@@ -159,54 +160,54 @@ func (l Color) Clamp(min, max float64) *Color {
 }
 
 // init will seed the default random generator with the current time.
-// This is needed by the RandomColorReader2 struct below.
+// This is needed by the RandomSource2 struct below.
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-// ColorOption is the interface type for passing in color options for RandomSurfaces2
-type ColorOption interface{}
+// Option is the interface type for passing in color options for RandomSource2
+type Option interface{}
 
-// ColorDrift default is 0.03
-type ColorDrift float64
+// Drift default is 0.03
+type Drift float64
 
-//ColorSat default is 0.5
-type ColorSat float64
+// Sat default is 0.5
+type Sat float64
 
-// ColorLit default is 0.4
-type ColorLit float64
+// Lit default is 0.4
+type Lit float64
 
-// RandomColorReader2 is a source of random colors. It implements the ColorReader interface.
-type RandomColorReader2 struct {
+// RandomSource2 is a source of random colors. It implements the Source interface.
+type RandomSource2 struct {
 	drift, sat, lit, hue float64
 }
 
-// MakeRandomColorReader2 generates a random hue then randomly drifts the hue every time a Color is read.
-func MakeRandomColorReader2(options ...ColorOption) ColorReader {
-	r := &RandomColorReader2{}
+// MakeRandomSource2 generates a random hue then randomly drifts the hue every time a Color is read.
+func MakeRandomSource2(options ...Option) Source {
+	r := &RandomSource2{}
 	r.Init()
 	return r
 }
 
 // Init is used to intialize the instance of a RandomColorSource2
-func (c *RandomColorReader2) Init(options ...ColorOption) {
+func (c *RandomSource2) Init(options ...Option) {
 	c.drift = 0.03
 	c.sat = 0.5
 	c.lit = 0.4
 	for _, opt := range options {
 		switch o := opt.(type) {
-		case ColorDrift:
+		case Drift:
 			c.drift = float64(o)
-		case ColorSat:
+		case Sat:
 			c.sat = float64(o)
-		case ColorLit:
+		case Lit:
 			c.lit = float64(o)
 		}
 	}
 	c.hue = rand.Float64()
 }
 
-func (c *RandomColorReader2) ReadColor() *Color {
+func (c *RandomSource2) Read() *Color {
 	c.hue += (rand.Float64() - 0.5) * c.drift
 	for c.hue < 0 {
 		c.hue += 1
