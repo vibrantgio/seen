@@ -42,9 +42,11 @@ func EqualPairs(f ...float64) bool {
 
 // EqualThreshold is a utility function to compare floats.
 // It's inspired by code from http://floating-point-gui.de/errors/comparison/
-// I've change the way the
 //
-// This differs from Equal in that it lets you pass in your comparison threshold, so that you can adjust the comparison value to your specific needs
+// This differs from Equal in that it lets you pass in your comparison
+// threshold, so that you can adjust the comparison value to your specific
+// needs
+//
 // Parameter a represents the measured or approximated value being tested
 // Parameter b represents the true value being tested against.
 // Parameter epsilon is the allowed error specified as a percentage of the value of b.
