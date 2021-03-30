@@ -297,16 +297,6 @@ func TestDemoText(t *testing.T) {
 	}
 	context.Render()
 
-	/*
-		// Enable drag-to-rotate on the canvas
-		dragger = new seen.Drag('seen-canvas', {inertia : true})
-		dragger.on('drag.rotate', (e) ->
-			xform = seen.Quaternion.xyToTransform(e.offsetRelative...)
-			model.transform(xform)
-			context.render()
-		)
-	*/
-
 	// Save the generated svg to file
 	err = svg.SaveToFile(path.Join(os.Getenv("HOME"), "TestDemoText.svg"))
 	if err != nil {
