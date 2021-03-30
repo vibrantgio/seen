@@ -10,14 +10,14 @@ type RenderAnimator interface {
 
 	// OnBefore is called before every Render call. Hook this to change the
 	// scene.
-	OnBefore(func())
+	OnBefore(func(d,dt float64))
 
 	// OnAfter is called after every Render call.
 	OnAfter(func())
 }
 
 type Animator struct {
-	onBefore func()
+	onBefore func(d,dt float64)
 	onAfter func()
 }
 
@@ -33,7 +33,7 @@ func (a *Animator) Stop() {
 
 }
 
-func (a * Animator) OnBefore(cb func()) {
+func (a * Animator) OnBefore(cb func(t,dt float64)) {
 	a.onBefore = cb
 }
 
