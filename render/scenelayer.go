@@ -6,24 +6,22 @@ import (
 	"github.com/reactivego/seen"
 )
 
-// RenderScene extends seen.Scene with a function to paint the
+// SceneLayer extends seen.Scene with a function to paint the
 // the scene on a PaintContext. By implementing this function the
-// scene also implements the RenderLayer interface.
-type RenderScene struct {
+// SceneLayer implements the RenderLayer interface.
+type SceneLayer struct {
 	*seen.Scene
 	renderModels     []*RenderModel
 	renderModelCache map[string]*RenderModel
 }
 
-type SceneLayer = RenderScene
-
 func MakeSceneLayer(scene *seen.Scene) *SceneLayer {
-	s := &RenderScene{Scene: scene}
+	s := &SceneLayer{Scene: scene}
 	s.Init()
 	return s
 }
 
-func (s *RenderScene) Init() {
+func (s *SceneLayer) Init() {
 	s.renderModels = make([]*RenderModel, 0, 32)
 	s.renderModelCache = make(map[string]*RenderModel)
 }
@@ -31,7 +29,7 @@ func (s *RenderScene) Init() {
 // Paint creates a RenderModel for every Surface in the scene's models.
 // When encountering a TextShape assign a TextPainter to the RenderModel.
 // When encountering any other shape assign a PathPainter to the RenderModel.
-func (s *RenderScene) Paint(context PaintContext) {
+func (s *SceneLayer) Paint(context PaintContext) {
 	// projection matrix transforms points from world space into camera space and then
 	// trhough viewport prescale and projection matrix into normalized screen space.
 	projection := s.Camera.Projection.Mul(s.Viewport.Prescale).Mul(s.Camera.Matrix())
@@ -100,7 +98,7 @@ func (s *RenderScene) Paint(context PaintContext) {
 // makeRenderModel will get or create the rendermodel for
 // the given surface. If Regenerate is false, we cache
 // these models to reduce object creation and recomputation.
-func (s *RenderScene) makeRenderModel(surface *seen.Surface, transform, projection, viewport *seen.Matrix) *RenderModel {
+func (s *SceneLayer) makeRenderModel(surface *seen.Surface, transform, projection, viewport *seen.Matrix) *RenderModel {
 	if s.Regenerate {
 		// No caching
 		return MakeRenderModel(surface, transform, projection, viewport)
@@ -120,7 +118,7 @@ func (s *RenderScene) makeRenderModel(surface *seen.Surface, transform, projecti
 // FlushCache removes all elements from the cache. This may be necessary
 // if you add and remove many shapes from the scene's models since this
 // cache has no eviction policy.
-func (s *RenderScene) FlushCache() {
+func (s *SceneLayer) FlushCache() {
 	s.renderModelCache = make(map[string]*RenderModel)
 }
 
