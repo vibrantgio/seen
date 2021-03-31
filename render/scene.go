@@ -2,6 +2,7 @@ package render
 
 import (
 	"sort"
+
 	"github.com/reactivego/seen"
 )
 
@@ -9,19 +10,20 @@ import (
 // the scene on a PaintContext. By implementing this function the
 // scene also implements the RenderLayer interface.
 type RenderScene struct {
-	seen.Scene
+	*seen.Scene
 	renderModels     []*RenderModel
 	renderModelCache map[string]*RenderModel
 }
 
-func MakeRenderScene() *RenderScene {
-	s := &RenderScene{}
+type SceneLayer = RenderScene
+
+func MakeSceneLayer(scene *seen.Scene) *SceneLayer {
+	s := &RenderScene{Scene: scene}
 	s.Init()
 	return s
 }
 
 func (s *RenderScene) Init() {
-	s.Scene.Init()
 	s.renderModels = make([]*RenderModel, 0, 32)
 	s.renderModelCache = make(map[string]*RenderModel)
 }

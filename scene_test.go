@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestRenderScene(t *testing.T) {
+func TestScene(t *testing.T) {
 
 	// create a scene.
 	// create a context.

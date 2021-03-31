@@ -42,8 +42,6 @@ type Scene struct {
 }
 
 // MakeScene returns a new Scene that has a default Model, Camera, Viewport and Shader.
-// To create a Scene that can also be rendered use render.MakeRenderScene() which will
-// create a fully initialized RenderScene.
 func MakeScene() *Scene {
 	s := &Scene{}
 	s.Init()
@@ -53,6 +51,6 @@ func MakeScene() *Scene {
 func (s *Scene) Init() {
 	s.Model = MakeModel()
 	s.Camera = MakeCamera()
-	s.Viewport = MakeOriginViewport(0,0,1,1)
+	s.Viewport = MakeOriginViewport(0, 0, 1, 1)
 	s.Shader = MakePhongShader()
 }

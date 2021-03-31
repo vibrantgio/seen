@@ -67,13 +67,19 @@ func TestDemoEmpty(t *testing.T) {
 		return
 	}
 
-	s := render.MakeRenderScene()
+	s := seen.MakeScene()
 	if s == nil {
-		t.Error("unable to create render scene")
+		t.Error("unable to create scene")
 		return
 	}
 
-	c := MakeRenderContext("my-3d-svg", s)
+	l := render.MakeSceneLayer(s)
+	if l == nil {
+		t.Error("unable to create scene layer")
+		return
+	}
+
+	c := MakeRenderContext("my-3d-svg", l)
 	if c == nil {
 		t.Error("unable to find element my-3d-svg")
 		return
@@ -105,7 +111,7 @@ func TestDemoSimple(t *testing.T) {
 	}
 
 	// Create the scene to render
-	s := render.MakeRenderScene()
+	s := seen.MakeScene()
 	s.FractionalPoints = true
 	s.Model = seen.MakeDefaultModel()
 	s.Shader = seen.MakePhongShader()
@@ -148,7 +154,7 @@ func TestDemoSimple(t *testing.T) {
 
 	s.Viewport = seen.MakeCenterViewport(0, 0, width, height)
 	// Add scene as a layer to the render context
-	context.Layer(s)
+	context.Layer(render.MakeSceneLayer(s))
 
 	// Actually render the scene on the context
 	context.Render()
@@ -194,15 +200,15 @@ func TestDemoSvgCanvas(t *testing.T) {
 	}
 
 	// Create one scene for each shape
-	scenes := []*render.RenderScene{}
+	scenes := []*render.SceneLayer{}
 	for _, sphere := range spheres {
-		s := render.MakeRenderScene()
+		s := seen.MakeScene()
 		s.Shader = seen.MakePhongShader()
 		s.FractionalPoints = true
 		s.Model = seen.MakeDefaultModel()
 		s.Model.Add(sphere)
 		s.Viewport = seen.MakeCenterViewport(0, 0, width, height)
-		scenes = append(scenes, s)
+		scenes = append(scenes, render.MakeSceneLayer(s))
 	}
 
 	// Create a render context for each SVG and Canvas
@@ -282,7 +288,7 @@ func TestDemoText(t *testing.T) {
 	}
 
 	// Create scene
-	scene := render.MakeRenderScene()
+	scene := seen.MakeScene()
 	model.SetTranslation(-150, -50, 0)
 	model.SetScale(2, 2, 2)
 	scene.Model = model
@@ -290,7 +296,7 @@ func TestDemoText(t *testing.T) {
 	scene.Camera.SetRotation(transform.MakeQuatAxisAngle(0.1, 1, 0, math.Pi*0.2))
 
 	// Create render context from canvas
-	context := MakeRenderContext("seen-svg", scene)
+	context := MakeRenderContext("seen-svg", render.MakeSceneLayer(scene))
 	if context == nil {
 		t.Error("Render context is nil")
 		return

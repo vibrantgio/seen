@@ -86,15 +86,15 @@ func TestDemoSvgCanvas(t *testing.T) {
 	}
 
 	// Create one scene for each shape
-	scenes := []*render.RenderScene{}
+	scenes := []*render.SceneLayer{}
 	for _, sphere := range spheres {
-		s := render.MakeRenderScene()
+		s := seen.MakeScene()
 		s.Shader = seen.MakePhongShader()
 		s.FractionalPoints = true
 		s.Model = seen.MakeDefaultModel()
 		s.Model.Add(sphere)
 		s.Viewport = seen.MakeCenterViewport(0, 0, width, height)
-		scenes = append(scenes, s)
+		scenes = append(scenes, render.MakeSceneLayer(s))
 	}
 
 	// Create a render context for each SVG and Canvas
