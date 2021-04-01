@@ -1,7 +1,7 @@
 package colors
 
 import (
-	"errors"
+	"image/color"
 	"math"
 	"math/rand"
 	"strconv"
@@ -10,6 +10,14 @@ import (
 
 	"github.com/reactivego/seen/float"
 )
+
+type ColorError string
+
+func (e ColorError) Error() string { return string(e) }
+
+const ExpectedHash = ColorError("Parse Error: expected # as first character for color reference")
+const InvalidLength = ColorError("Parse Error: color reference does not have a valid length")
+const InvalidPattern = ColorError("Parse Error: color reference does not match pattern #rrggbbaa or #rrggbb")
 
 // Source is an interface to a color source. It is used for generating
 // a sequence of random colors that are slightly different.
@@ -76,29 +84,54 @@ func hue2rgb(p, q, t float64) float64 {
 	}
 }
 
-// MakeColorWithString creates a color based on a string pattern #rrggbb or #rrggbbaa
-// where the color components are hexadecimal values between 0 and 0xff. e.g. #ffffffff
-// is white fully opaque
+// MakeColorWithString creates a color based on a string pattern #rgb, #rgba, #rrggbb
+// or #rrggbbaa where the color components are hexadecimal values between 0 and 0xff.
+// e.g. #ffffffff is white fully opaque.
 func MakeColorWithString(s string) (c *Color, err error) {
 	if !strings.HasPrefix(s, "#") {
-		return nil, errors.New("Parse Error: expected # as first character for color reference")
+		return nil, ExpectedHash
 	}
-	if len(s) != 9 && len(s) != 7 {
-		return nil, errors.New("Parse Error: color reference does not match pattern #rrggbbaa or #rrggbb")
-	}
-	if len(s) != 9 {
-		s += "FF"
-	}
-	h, err := strconv.ParseUint(s[1:], 16, 32)
-	if err != nil {
-		return nil, err
+	nibble := func(b byte) byte {
+		switch {
+		case b >= '0' && b <= '9':
+			return b - '0'
+		case b >= 'a' && b <= 'f':
+			return b - 'a' + 10
+		case b >= 'A' && b <= 'F':
+			return b - 'A' + 10
+		}
+		err = InvalidPattern
+		return 0
 	}
 	c = &Color{}
-	c.R = float64(h&0xFF000000) / 0xFF000000
-	c.G = float64(h&0x00FF0000) / 0x00FF0000
-	c.B = float64(h&0x0000FF00) / 0x0000FF00
-	c.A = float64(h&0x000000FF) / 0x000000FF
-	return c, nil
+	switch len(s) {
+	case 9:
+		c.R = float64(nibble(s[1])<<4+nibble(s[2])) / 255
+		c.G = float64(nibble(s[3])<<4+nibble(s[4])) / 255
+		c.B = float64(nibble(s[5])<<4+nibble(s[6])) / 255
+		c.A = float64(nibble(s[7])<<4+nibble(s[8])) / 255
+	case 7:
+		c.R = float64(nibble(s[1])<<4+nibble(s[2])) / 255
+		c.G = float64(nibble(s[3])<<4+nibble(s[4])) / 255
+		c.B = float64(nibble(s[5])<<4+nibble(s[6])) / 255
+		c.A = 1.0
+	case 5:
+		c.R = float64(nibble(s[1])*17) / 255
+		c.G = float64(nibble(s[2])*17) / 255
+		c.B = float64(nibble(s[3])*17) / 255
+		c.A = float64(nibble(s[4])*17) / 255
+	case 4:
+		c.R = float64(nibble(s[1])*17) / 255
+		c.G = float64(nibble(s[2])*17) / 255
+		c.B = float64(nibble(s[3])*17) / 255
+		c.A = 1.0
+	default:
+		err = InvalidLength
+	}
+	if err != nil {
+		c = nil
+	}
+	return c, err
 }
 
 // Hex returns a color string according to the following pattern #rrggbb
@@ -110,6 +143,11 @@ func (c Color) Hex() string {
 		uint64(c.B*0x0000FF)&0x0000FF
 	s := strings.ToUpper(strconv.FormatUint(h, 16))
 	return "#000000"[:7-len(s)] + s
+}
+
+// NRGBA returns the color as an NRGBA value.
+func (c Color) NRGBA() color.NRGBA {
+	return color.NRGBA{uint8(c.R * 255), uint8(c.G * 255), uint8(c.B * 255), uint8(c.A * 255)}
 }
 
 // Equal returns true when the colors have both equal color components as well as equal alpha value.
