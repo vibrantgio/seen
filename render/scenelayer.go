@@ -89,7 +89,7 @@ func (s *SceneLayer) Paint(context PaintContext) {
 	// farthest from the eye are painted first. (Painter's Algorithm)
 	sort.Sort(ByZ(s.renderModels))
 
-	// Now for every render model, render it on the given RenderLayerContext
+	// Now for every render model, render it on the given PaintContext
 	for _, m := range s.renderModels {
 		m.Paint(context)
 	}
