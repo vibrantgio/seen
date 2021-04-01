@@ -1,15 +1,13 @@
 package seen
 
-import (
-	"github.com/reactivego/seen/colors"
-)
+import "github.com/reactivego/seen/colors"
 
 // Shape contains a collection of surfaces. They may create a closed 3D
 // shape, but not necessarily. For example, a cube is a closed shape, but a
 // patch is not.
 type Shape struct {
 	Object
-	Kind string
+	Kind     string
 	Surfaces []Surface
 }
 
@@ -19,7 +17,7 @@ func (s *Shape) Init(kind string, surfaces []Surface) {
 	s.Surfaces = surfaces
 }
 
-// ColorSurfaces sets a color on every surface of the Shape by 
+// ColorSurfaces sets a color on every surface of the Shape by
 // reading it from the passed in colors.Source.
 func (s *Shape) ColorSurfaces(source colors.Source) (err error) {
 	err = nil

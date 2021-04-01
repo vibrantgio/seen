@@ -1,8 +1,6 @@
 package render
 
-import (
-	"github.com/reactivego/seen/affine"
-)
+import "github.com/reactivego/seen/affine"
 
 // PathRender renders a RenderModel for a Path surface onto a Painter.
 func PathRender(model *RenderModel, painter Painter) {

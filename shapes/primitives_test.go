@@ -1,8 +1,6 @@
 package shapes
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestPrimitives(t *testing.T) {
 

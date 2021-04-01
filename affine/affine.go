@@ -1,8 +1,6 @@
 package affine
 
-import (
-	"github.com/reactivego/seen"
-)
+import "github.com/reactivego/seen"
 
 // This is the set of points that must be used by a surface that will use an
 // affine transform for rendering.
@@ -20,14 +18,14 @@ var ORTHONORMAL_BASIS = []seen.Point{
 // | A C E |
 // | B D F |
 // | 0 0 1 |
-// An affine transformation respresented with a matrix uses homogeneous 
-// coordinates. A column vector [x,y] is extended with a homogeneous 
+// An affine transformation respresented with a matrix uses homogeneous
+// coordinates. A column vector [x,y] is extended with a homogeneous
 // component w set to 1 like so: [x,y,1].
 // Transforming the vector with the matrix will perform a 2x2 matrix
-// operation with the top left 2x2 matrix [A,B,C,D] followed by adding 
+// operation with the top left 2x2 matrix [A,B,C,D] followed by adding
 // the translation [E,F] to produce [x',y',1]
 type Matrix struct {
-	A,B,C,D,E,F float64
+	A, B, C, D, E, F float64
 }
 
 // SolveForAffineTransform
@@ -36,13 +34,13 @@ type Matrix struct {
 // going right, positive y going up and positive z coming  out of the
 // screen. Note that the Z component is not used for solving the affine
 // transform.
-// Returns affine transform matrix(A,B,C,D,E,F) interpreted as follows: 
+// Returns affine transform matrix(A,B,C,D,E,F) interpreted as follows:
 //	| A C E |
 //	| B D F |
 //	| 0 0 1 |
-// A scale, skew and rotation is the 2x2 matrix at the upper left and 
+// A scale, skew and rotation is the 2x2 matrix at the upper left and
 // a translation vector is at the upper right.
-// NOTE! the coordinate system for homogeneous vectors that can be 
+// NOTE! the coordinate system for homogeneous vectors that can be
 // transformed using this matrix have the positive x-axis going right
 // but the positive y axis going down!
 func SolveForAffineTransform(points []seen.Point) *Matrix {
@@ -62,16 +60,16 @@ func SolveForAffineTransform(points []seen.Point) *Matrix {
 	// Use back substitution to solve A*x=b for x
 	var x [6]float64
 	n := len(A)
-	for i:=n-1; i>=0; i-- {
+	for i := n - 1; i >= 0; i-- {
 		x[i] = b[i]
-		for j:=i+1; j<n; j++ {
+		for j := i + 1; j < n; j++ {
 			x[i] -= A[i][j] * x[j]
 		}
 		x[i] /= A[i][i]
 	}
 	// To use the affine transform, we flip y:
 	//   x[0], x[3], -x[1], -x[4], x[2], x[5]
-	return &Matrix{x[0],x[3],-x[1],-x[4],x[2],x[5]}
+	return &Matrix{x[0], x[3], -x[1], -x[4], x[2], x[5]}
 }
 
 // _INITIAL_STATE_MATRIX is built using the method from this StackOverflow answer:
@@ -79,11 +77,11 @@ func SolveForAffineTransform(points []seen.Point) *Matrix {
 // We further re-arranged the rows to avoid having to do any matrix factorization.
 // The matrix consists of the ORTHONORMAL_BASIS vectors minus the Z component written in a
 // different form that is appropriate for solving the affine transform.
-var _INITIAL_STATE_MATRIX = [][]float64 {
-	{20,  0, 1,  0,  0, 0},
-	{ 0, 20, 1,  0,  0, 0},
-	{ 0,  0, 1,  0,  0, 0},
-	{ 0,  0, 0, 20,  0, 1},
-	{ 0,  0, 0,  0, 20, 1},
-	{ 0,  0, 0,  0,  0, 1},
+var _INITIAL_STATE_MATRIX = [][]float64{
+	{20, 0, 1, 0, 0, 0},
+	{0, 20, 1, 0, 0, 0},
+	{0, 0, 1, 0, 0, 0},
+	{0, 0, 0, 20, 0, 1},
+	{0, 0, 0, 0, 20, 1},
+	{0, 0, 0, 0, 0, 1},
 }

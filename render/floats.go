@@ -1,8 +1,6 @@
 package render
 
-import (
-	"strconv"
-)
+import "strconv"
 
 func Ftoa(v float64) string {
 	return strconv.FormatFloat(v, 'f', -1, 64)

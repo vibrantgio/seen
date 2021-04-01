@@ -1,8 +1,6 @@
 package float
 
-import (
-	"math"
-)
+import "math"
 
 // Epsilon is some tiny value that determines how precisely equal we want our floats to be
 // This is exported and left as a variable in case you want to change the default threshold for the
@@ -29,11 +27,11 @@ func Equal(a, b float64) bool {
 // EqualPairs is  a utility function to compare pairs of floats.
 func EqualPairs(f ...float64) bool {
 	flen := len(f)
-	if flen % 2 != 0 {
+	if flen%2 != 0 {
 		return false // didn't supply an even number of floats
 	}
-	for i:=0; i<len(f); i += 2 {
-		if !EqualThreshold(f[i],f[i+1], Epsilon) {
+	for i := 0; i < len(f); i += 2 {
+		if !EqualThreshold(f[i], f[i+1], Epsilon) {
 			return false // at least 1 pair didn't equate
 		}
 	}

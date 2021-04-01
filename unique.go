@@ -1,8 +1,6 @@
 package seen
 
-import (
-	"strconv"
-)
+import "strconv"
 
 var NEXT_UNIQUE_ID int
 

@@ -1,8 +1,6 @@
 package seen
 
-import (
-	"github.com/reactivego/seen/transform"
-)
+import "github.com/reactivego/seen/transform"
 
 var defaultProjection = &transform.Projection{R: 1, T: 1, N: 1, F: 100}
 

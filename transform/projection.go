@@ -1,8 +1,6 @@
 package transform
 
-import (
-	"math"
-)
+import "math"
 
 type Projection struct {
 	R, T, N, F float64
@@ -14,7 +12,7 @@ func MakeProjection(fovy, aspect, near, far float64) *Projection {
 	return &Projection{r, t, near, far}
 }
 
-// Perspective will project points inside the cube specified by l,r,b,t,n,f = -r,r,-t,t,-n,-f 
+// Perspective will project points inside the cube specified by l,r,b,t,n,f = -r,r,-t,t,-n,-f
 // to clip coordinates. For all valid (non clipped) coordinates the following condition
 //  holds: -wc < xc,yc,zc < wc
 // All coordinates for which this condition doesn't hold need to be clipped.
@@ -33,10 +31,10 @@ func (p *Projection) Perspective(xe, ye, ze float64) (xc, yc, zc, wc float64) {
 func (p Projection) PerspectiveMat4x4() *Mat4x4 {
 	r, t, n, f := p.R, p.T, p.N, p.F
 	return &Mat4x4{
-		n/r, 0, 0, 0,
-		0, n/t, 0, 0,
-		0, 0, (f+n)/(n-f),2*f*n/(n-f),
-		0,0,-1,0,
+		n / r, 0, 0, 0,
+		0, n / t, 0, 0,
+		0, 0, (f + n) / (n - f), 2 * f * n / (n - f),
+		0, 0, -1, 0,
 	}
 }
 
@@ -49,11 +47,11 @@ func (p *Projection) Orthographic(xe, ye, ze float64) (xc, yc, zc float64) {
 }
 
 func (p Projection) OrthographicMat4x4() *Mat4x4 {
-    r, t, n, f := p.R, p.T, p.N, p.F
+	r, t, n, f := p.R, p.T, p.N, p.F
 	return &Mat4x4{
-		1/r, 0, 0, 0,
-		0, 1/t, 0, 0,
-		0, 0, 2/(n-f), (f+n)/(n-f),
+		1 / r, 0, 0, 0,
+		0, 1 / t, 0, 0,
+		0, 0, 2 / (n - f), (f + n) / (n - f),
 		0, 0, 0, 1,
 	}
 }

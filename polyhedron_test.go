@@ -1,8 +1,6 @@
 package seen
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestPolyhedronSetPolygon(t *testing.T) {
 	// From seenjs.io

@@ -1,8 +1,6 @@
 package seen
 
-import (
-	"github.com/reactivego/seen/colors"
-)
+import "github.com/reactivego/seen/colors"
 
 // Model is the object model class. It stores Shapes, Lights, and other Models as
 // well as a transformation matrix.
@@ -25,27 +23,27 @@ func MakeModel() *Model {
 
 // MakeDefaultModel creates a default model that contains standard Hollywood-style 3-part lighting
 func MakeDefaultModel() *Model {
-    model := MakeModel()
+	model := MakeModel()
 
-    // Key light
-    l := MakeDirectionalLight()
-    l.Normal = Point{-1, 1, 1}.Normalize()
-    l.Color = colors.MakeColorHsl(0.1, 0.3, 0.7, 1.0)
-    l.Intensity = 1.0 // 0.004 * 255.0
-    model.Add(l)
+	// Key light
+	l := MakeDirectionalLight()
+	l.Normal = Point{-1, 1, 1}.Normalize()
+	l.Color = colors.MakeColorHsl(0.1, 0.3, 0.7, 1.0)
+	l.Intensity = 1.0 // 0.004 * 255.0
+	model.Add(l)
 
-    // Back light
-    l = MakeDirectionalLight()
-    l.Normal = Point{1, 1, -1}.Normalize()
-    l.Intensity = 0.765 // 0.003 * 255.0
-    model.Add(l)
+	// Back light
+	l = MakeDirectionalLight()
+	l.Normal = Point{1, 1, -1}.Normalize()
+	l.Intensity = 0.765 // 0.003 * 255.0
+	model.Add(l)
 
-    // Fill light
-    l = MakeAmbientLight()
-    l.Intensity = 0.3825 // 0.0015 * 255.0
-    model.Add(l)
+	// Fill light
+	l = MakeAmbientLight()
+	l.Intensity = 0.3825 // 0.0015 * 255.0
+	model.Add(l)
 
-    return model
+	return model
 }
 
 // Add a `Shape`, `Light`, and other `Model` as a child of this `Model`

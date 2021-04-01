@@ -1,8 +1,6 @@
 package seen
 
-import (
-	"math"
-)
+import "math"
 
 type Bounds struct {
 	Min, Max *Point

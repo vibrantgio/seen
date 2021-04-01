@@ -1,27 +1,25 @@
 package seen
 
-import (
-	"github.com/reactivego/seen/colors"
-)
+import "github.com/reactivego/seen/colors"
 
 // Light model object holds the attributes and transformation of a light source.
 type Light struct {
 	Object
-	Kind           string
-	Id             string
-	Point          *Point
+	Kind  string
+	Id    string
+	Point *Point
 
 	// Color is the color of the light.
-	Color          *colors.Color
+	Color *colors.Color
 
 	// Intensity should be a value between 0.0 and 1.0 that determines the
 	// ammount of light contributed by this light. An intensity of 0.0
-	// effectively turns the light off while a value of 1.0 will add the 
+	// effectively turns the light off while a value of 1.0 will add the
 	// value of the Color field to the surface being lit.
-	Intensity      float64
+	Intensity float64
 
-	Normal         *Point
-	Enabled        bool
+	Normal  *Point
+	Enabled bool
 }
 
 func MakeLight(kind string) *Light {
@@ -47,7 +45,7 @@ func (l *Light) Init(kind string) {
 // though, that it may also be moved through the transformation of the light.
 func MakePointLight() *Light {
 	return MakeLight("point")
-} 
+}
 
 // MakeDirectionalLight() makes a light that emits light in parallel lines,
 // not eminating from any single point. For these lights, only the Normal

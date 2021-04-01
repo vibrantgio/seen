@@ -1,13 +1,11 @@
 package seen
 
-import (
-	"github.com/reactivego/seen/transform"
-)
+import "github.com/reactivego/seen/transform"
 
 // Object base class extended by Shape and Model.
 // Uses a double quaternion for specifying the transform.
 type Object struct {
-	dq *transform.DualQuaternion
+	dq    *transform.DualQuaternion
 	scale *transform.Mat4x4
 }
 
@@ -38,16 +36,16 @@ func (t *Object) SetRotation(r *transform.Quaternion) {
 
 // Translation returns the tx,ty,tz values that indicate the offset of the
 // Object w.r.t. its parent object.
-func (t *Object) Translation() (tx,ty,tz float64) {
+func (t *Object) Translation() (tx, ty, tz float64) {
 	return t.dq.Translation()
 }
 
 // SetTranslation replaces the translation part of the dual quaternion with a new translation.
-func (t *Object) SetTranslation(tx,ty,tz float64) {
+func (t *Object) SetTranslation(tx, ty, tz float64) {
 	t.dq = transform.MakeDualQuatRXYZ(t.dq.Rotation(), tx, ty, tz)
 }
 
-func (t *Object) Scale() (sx,sy,sz float64) {
+func (t *Object) Scale() (sx, sy, sz float64) {
 	if t.scale != nil {
 		return t.scale[0], t.scale[5], t.scale[10]
 	} else {
@@ -56,11 +54,11 @@ func (t *Object) Scale() (sx,sy,sz float64) {
 }
 
 // SetScale sets the scaling to apply
-func (t *Object) SetScale(sx,sy,sz float64) {
+func (t *Object) SetScale(sx, sy, sz float64) {
 	t.scale = &transform.Mat4x4{
-		sx,0,0,0,
-		0,sy,0,0,
-		0,0,sz,0,
-		0,0,0,1,
+		sx, 0, 0, 0,
+		0, sy, 0, 0,
+		0, 0, sz, 0,
+		0, 0, 0, 1,
 	}
 }

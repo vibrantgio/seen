@@ -1,8 +1,6 @@
 package seen
 
-import (
-	"github.com/reactivego/seen/colors"
-)
+import "github.com/reactivego/seen/colors"
 
 // Material objects hold the attributes that desribe the color and finish of a surface.
 type Material struct {
