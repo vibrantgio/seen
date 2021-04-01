@@ -1,9 +1,11 @@
 package render
 
+import "github.com/reactivego/seen"
+
 // RenderContext
 type RenderContext interface {
 	Render()
-	Animate() RenderAnimator
+	Animate() seen.Animator
 	Layer(RenderLayer)
 
 	Reset()

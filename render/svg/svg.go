@@ -46,7 +46,7 @@ func (c *SvgRenderContext) Render() {
 	c.Cleanup()
 }
 
-func (c *SvgRenderContext) Animate() render.RenderAnimator {
+func (c *SvgRenderContext) Animate() seen.Animator {
 	return nil
 }
 

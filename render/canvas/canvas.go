@@ -3,6 +3,7 @@ package canvas
 import (
 	"strings"
 
+	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/affine"
 	"github.com/reactivego/seen/document"
 	"github.com/reactivego/seen/render"
@@ -43,8 +44,8 @@ func (c *CanvasRenderContext) Render() {
 
 }
 
-func (c *CanvasRenderContext) Animate() render.RenderAnimator {
-	return render.MakeAnimator()
+func (c *CanvasRenderContext) Animate() seen.Animator {
+	return render.MakeRenderAnimator(c)
 }
 
 func (c *CanvasRenderContext) Layer(layer render.RenderLayer) {
