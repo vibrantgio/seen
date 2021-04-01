@@ -18,10 +18,10 @@ import (
 
 // Mocks
 
-type MockRenderContextScene struct {
+type MockSceneLayer struct {
 }
 
-func (s *MockRenderContextScene) Paint(context render.PaintContext) {
+func (s *MockSceneLayer) Paint(painter render.Painter) {
 	// Generate a RenderModel for every Surface in the Scene.
 
 	// Sort the RenderModels based on z-depth back to front.
@@ -31,7 +31,7 @@ func (s *MockRenderContextScene) Paint(context render.PaintContext) {
 
 // Tests
 
-func TestMakeRenderContext(t *testing.T) {
+func TestMakeContext(t *testing.T) {
 	document.Reset()
 	svg := document.CreateElementNS(document.SVG_NS, "svg")
 	if svg == nil {
@@ -39,14 +39,14 @@ func TestMakeRenderContext(t *testing.T) {
 	}
 	svg.SetAttribute("id", "my-3d-svg")
 
-	s := &MockRenderContextScene{}
+	s := &MockSceneLayer{}
 
-	c := MakeRenderContext("invalid", s)
+	c := MakeContext("invalid", s)
 	if c != nil {
-		t.Error("Expected MakeRenderContext to return nil")
+		t.Error("Expected MakeContext to return nil")
 	}
 
-	c = MakeRenderContext("my-3d-svg", s)
+	c = MakeContext("my-3d-svg", s)
 	if c == nil {
 		t.Error("Expected to get a render context for valid svg element.")
 	}
@@ -79,7 +79,7 @@ func TestDemoEmpty(t *testing.T) {
 		return
 	}
 
-	c := MakeRenderContext("my-3d-svg", l)
+	c := MakeContext("my-3d-svg", l)
 	if c == nil {
 		t.Error("unable to find element my-3d-svg")
 		return
@@ -104,7 +104,7 @@ func TestDemoSimple(t *testing.T) {
 		return
 	}
 
-	context := MakeRenderContext(svgId, render.MakeFillLayer(width, height, 8, 8, "#eeddff"))
+	context := MakeContext(svgId, render.MakeFillLayer(width, height, 8, 8, "#eeddff"))
 	if context == nil {
 		t.Error("Expected to be able to create RenderContext")
 		return
@@ -216,7 +216,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 	for i, scene := range scenes {
 		for _, kind := range []string{ /*"canvas",*/ "svg"} {
 			elementId := "seen-" + kind + "-" + strconv.Itoa(i)
-			context := MakeRenderContext(elementId, scene)
+			context := MakeContext(elementId, scene)
 			if context == nil {
 				t.Errorf("Expected %q to be present", elementId)
 				return
@@ -296,7 +296,7 @@ func TestDemoText(t *testing.T) {
 	scene.Camera.SetRotation(transform.MakeQuatAxisAngle(0.1, 1, 0, math.Pi*0.2))
 
 	// Create render context from canvas
-	context := MakeRenderContext("seen-svg", render.MakeSceneLayer(scene))
+	context := MakeContext("seen-svg", render.MakeSceneLayer(scene))
 	if context == nil {
 		t.Error("Render context is nil")
 		return

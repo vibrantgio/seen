@@ -4,9 +4,10 @@ import (
 	"github.com/reactivego/seen/affine"
 )
 
-// RenderPainter interface is set as a field on a RenderModel to take care of painting the model.
-type RenderPainter interface {
-	Paint(model *RenderModel, context PaintContext)
+// ModelPainter interface is set as a field on a RenderModel to take care of painting
+// the model on a Painter.
+type ModelPainter interface {
+	Paint(*RenderModel, Painter)
 }
 
 // RenderPathPainter
@@ -14,12 +15,12 @@ type RenderPathPainter struct {
 }
 
 // Paint
-func (p *RenderPathPainter) Paint(model *RenderModel, context PaintContext) {
-	painter := context.Path()
-	painter.Path(model.ProjectedPoints)
+func (p *RenderPathPainter) Paint(model *RenderModel, painter Painter) {
+	path := painter.Path()
+	path.Path(model.ProjectedPoints)
 
 	if model.Fill != nil {
-		painter.Fill(map[string]string{
+		path.Fill(map[string]string{
 			"fill":         model.Fill.Hex(),
 			"fill-opacity": Ftoa(model.Fill.A),
 		})
@@ -30,7 +31,7 @@ func (p *RenderPathPainter) Paint(model *RenderModel, context PaintContext) {
 		if v, ok := model.Surface.Options["stroke-width"]; ok {
 			strokeWidth = v
 		}
-		painter.Stroke(map[string]string{
+		path.Stroke(map[string]string{
 			"fill":         "none",
 			"stroke":       model.Stroke.Hex(),
 			"stroke-width": strokeWidth,
@@ -38,12 +39,12 @@ func (p *RenderPathPainter) Paint(model *RenderModel, context PaintContext) {
 	}
 }
 
-// RenderTextPainter
+// RenderTextPainter paints a RenderModel for a Text Surface onto a Painter.
 type RenderTextPainter struct {
 }
 
 // Paint
-func (p *RenderTextPainter) Paint(model *RenderModel, context PaintContext) {
+func (p *RenderTextPainter) Paint(model *RenderModel, painter Painter) {
 	fill := "none"
 	if model.Fill != nil {
 		fill = model.Fill.Hex()
@@ -62,6 +63,6 @@ func (p *RenderTextPainter) Paint(model *RenderModel, context PaintContext) {
 		"text-anchor": anchor,
 	}
 	xform := affine.SolveForAffineTransform(model.ProjectedPoints)
-	text :=  model.Surface.Options["text"]
-	context.Text().FillText(xform, text, style)
+	text := model.Surface.Options["text"]
+	painter.Text().FillText(xform, text, style)
 }

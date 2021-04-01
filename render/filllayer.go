@@ -12,11 +12,11 @@ func MakeFillLayer(width, height, rx, ry float64, fill string) *FillLayer {
 	return &FillLayer{width, height, rx, ry, fill}
 }
 
-func (l *FillLayer) Paint(context PaintContext) {
-	rectPainter := context.Rect()
-	rectPainter.Size(l.Width, l.Height)
+func (l *FillLayer) Paint(painter Painter) {
+	rect := painter.Rect()
+	rect.Size(l.Width, l.Height)
 	if l.Rx != 0.0 || l.Ry != 0.0 {
-		rectPainter.CornerRadius(l.Rx, l.Ry)
+		rect.CornerRadius(l.Rx, l.Ry)
 	}
-	rectPainter.Fill(map[string]string{"fill": l.Fill})
+	rect.Fill(map[string]string{"fill": l.Fill})
 }

@@ -17,8 +17,8 @@ import (
 // RenderModel manages the painting of a single Surface.
 type RenderModel struct {
 	// Painter is a reference to a specific painter to be used to paint
-	// the RenderModel on a PaintContext.
-	Painter RenderPainter
+	// the RenderModel on a Painter.
+	Painter ModelPainter
 
 	// Surface is a reference to the Surface that is being painted.
 	// The reference is retained so it can be checked for the Dirty flag.
@@ -36,8 +36,8 @@ type RenderModel struct {
 	ShaderData *seen.SurfaceShaderData
 
 	ProjectedPoints []seen.Point
-	Barycenter *seen.Point
-	Normal *seen.Point
+	Barycenter      *seen.Point
+	Normal          *seen.Point
 
 	InFrustrum bool
 
@@ -61,8 +61,8 @@ func (m *RenderModel) Init(surface *seen.Surface, transform, projection, viewpor
 	m.update()
 }
 
-func (m *RenderModel) Paint(context PaintContext) {
-	m.Painter.Paint(m, context)
+func (m *RenderModel) Paint(painter Painter) {
+	m.Painter.Paint(m, painter)
 }
 
 func (m *RenderModel) Update(transform, projection, viewport *seen.Matrix) {
@@ -77,9 +77,9 @@ func (m *RenderModel) Update(transform, projection, viewport *seen.Matrix) {
 func (m *RenderModel) update() {
 
 	// Apply model transform to surface points. Calculates transformed points and barycenter
-	worldSpacePoints,baryCenter := m.Transform.TransformPoints(m.Points)
+	worldSpacePoints, baryCenter := m.Transform.TransformPoints(m.Points)
 	// Initialize the shader data with the baryCenter and the normal of the transformed points.
-	m.ShaderData = &seen.SurfaceShaderData{ baryCenter, seen.MakePointNormal(worldSpacePoints) }
+	m.ShaderData = &seen.SurfaceShaderData{baryCenter, seen.MakePointNormal(worldSpacePoints)}
 
 	// Transform into camera space and check whether points are inside the frustrum along the way.
 	var cameraSpaceCoords = make([]seen.Coordinate, len(worldSpacePoints))
@@ -91,7 +91,7 @@ func (m *RenderModel) update() {
 		}
 		cameraSpaceCoords[i] = *c
 	}
-	
+
 	// Project camera space points into screen space
 	m.ProjectedPoints, m.Barycenter = m.Viewport.ProjectCoordinatesToPoints(cameraSpaceCoords)
 	// Compute the surface normal in screen space.
@@ -100,4 +100,3 @@ func (m *RenderModel) update() {
 	// Surface has been updated, we can clear the Dirty flag
 	m.Surface.Dirty = false
 }
-

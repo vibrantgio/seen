@@ -1,7 +1,6 @@
-package render 
+package render
 
 // RenderLayer
 type RenderLayer interface {
-	Paint(PaintContext)
+	Paint(Painter)
 }
-

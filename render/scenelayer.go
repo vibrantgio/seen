@@ -7,7 +7,7 @@ import (
 )
 
 // SceneLayer extends seen.Scene with a function to paint the
-// the scene on a PaintContext. By implementing this function the
+// the scene on a Painter. By implementing this function the
 // SceneLayer implements the RenderLayer interface.
 type SceneLayer struct {
 	*seen.Scene
@@ -29,7 +29,7 @@ func (s *SceneLayer) Init() {
 // Paint creates a RenderModel for every Surface in the scene's models.
 // When encountering a TextShape assign a TextPainter to the RenderModel.
 // When encountering any other shape assign a PathPainter to the RenderModel.
-func (s *SceneLayer) Paint(context PaintContext) {
+func (s *SceneLayer) Paint(painter Painter) {
 	// projection matrix transforms points from world space into camera space and then
 	// trhough viewport prescale and projection matrix into normalized screen space.
 	projection := s.Camera.Projection.Mul(s.Viewport.Prescale).Mul(s.Camera.Matrix())
@@ -89,9 +89,9 @@ func (s *SceneLayer) Paint(context PaintContext) {
 	// farthest from the eye are painted first. (Painter's Algorithm)
 	sort.Sort(ByZ(s.renderModels))
 
-	// Now for every render model, render it on the given PaintContext
+	// Now for every render model, render it on the given Painter
 	for _, m := range s.renderModels {
-		m.Paint(context)
+		m.Paint(painter)
 	}
 }
 

@@ -5,8 +5,8 @@ import (
 	"github.com/reactivego/seen/affine"
 )
 
-// PaintContext
-type PaintContext interface {
+// Painter
+type Painter interface {
 	Path() PathPainter
 	Rect() RectPainter
 	Circle() CirclePainter
@@ -18,7 +18,7 @@ type PaintContext interface {
 
 // PathPainter
 type PathPainter interface {
-	// Set up the path to be painted. Then use Fill and/or Stroke to 
+	// Set up the path to be painted. Then use Fill and/or Stroke to
 	// actually paint it.
 	Path(points []seen.Point)
 

@@ -9,9 +9,15 @@ import (
 	"github.com/reactivego/seen/render"
 )
 
-// MakeRenderContext creates a render context for the element with the
+// Context
+type Context struct {
+	svg    *document.Element
+	render []func()
+}
+
+// MakeContext creates a render context for the element with the
 // specified 'elementId'. This element should be an 'svg' element.
-func MakeRenderContext(elementId string, layer render.RenderLayer) render.RenderContext {
+func MakeContext(elementId string, layer render.RenderLayer) render.RenderContext {
 	e := document.GetElementById(elementId)
 	if e == nil {
 		return nil
@@ -19,7 +25,7 @@ func MakeRenderContext(elementId string, layer render.RenderLayer) render.Render
 	tag := strings.ToUpper(e.Tag)
 	var context render.RenderContext
 	if tag == "SVG" || tag == "G" {
-		context = &SvgRenderContext{svg: document.GetElementById(elementId)}
+		context = &Context{svg: document.GetElementById(elementId)}
 	}
 	if context == nil {
 		return nil
@@ -30,50 +36,39 @@ func MakeRenderContext(elementId string, layer render.RenderLayer) render.Render
 	return context
 }
 
-// SvgRenderContext
-type SvgRenderContext struct {
-	layerAndContexts []svgLayerAndContext
-	svg              *document.Element
-}
-
-func (c *SvgRenderContext) Render() {
+func (c *Context) Render() {
 	c.Reset()
-	for _, lc := range c.layerAndContexts {
-		lc.context.Reset()
-		lc.layer.Paint(lc.context)
-		lc.context.Cleanup()
+	for _, render := range c.render {
+		render()
 	}
 	c.Cleanup()
 }
 
-func (c *SvgRenderContext) Animate() seen.Animator {
+func (c *Context) Animate() seen.Animator {
 	return nil
 }
 
-func (c *SvgRenderContext) Layer(layer render.RenderLayer) {
+func (c *Context) Layer(layer render.RenderLayer) {
 	group := document.CreateElementNS(document.SVG_NS, "g")
 	c.svg.AppendChild(group)
-	lc := svgLayerAndContext{layer, MakeSvgPaintContext(group)}
-	c.layerAndContexts = append(c.layerAndContexts, lc)
+	painter := MakeSvgPainter(group)
+	c.render = append(c.render, func() {
+		painter.Reset()
+		layer.Paint(painter)
+		painter.Cleanup()
+	})
 }
 
-func (c *SvgRenderContext) Reset() {
+func (c *Context) Reset() {
 
 }
 
-func (c *SvgRenderContext) Cleanup() {
+func (c *Context) Cleanup() {
 
 }
 
-// svgLayerAndContext
-type svgLayerAndContext struct {
-	layer   render.RenderLayer
-	context render.PaintContext
-}
-
-// SvgPaintContext
-// implements PaintContext
-type SvgPaintContext struct {
+// SvgPainter
+type SvgPainter struct {
 	group         *document.Element
 	pathPainter   render.PathPainter
 	textPainter   render.TextPainter
@@ -82,8 +77,8 @@ type SvgPaintContext struct {
 	i             int
 }
 
-func MakeSvgPaintContext(group *document.Element) render.PaintContext {
-	c := &SvgPaintContext{}
+func MakeSvgPainter(group *document.Element) render.Painter {
+	c := &SvgPainter{}
 	c.group = group
 	c.pathPainter = MakeSvgPathPainter(c.elementFactory)
 	c.textPainter = MakeSvgTextPainter(c.elementFactory)
@@ -99,7 +94,7 @@ func MakeSvgPaintContext(group *document.Element) render.PaintContext {
 // and return it. If an element exists at the current index and it is the
 // same tag, we return that. If the element is a different type, we create
 // one and replace it then return it.
-func (c *SvgPaintContext) elementFactory(tag string) *document.Element {
+func (c *SvgPainter) elementFactory(tag string) *document.Element {
 	children := c.group.ChildNodes
 	if c.i >= len(children) {
 		path := document.CreateElementNS(document.SVG_NS, tag)
@@ -120,27 +115,27 @@ func (c *SvgPaintContext) elementFactory(tag string) *document.Element {
 	return path
 }
 
-func (c *SvgPaintContext) Path() render.PathPainter {
+func (c *SvgPainter) Path() render.PathPainter {
 	return c.pathPainter
 }
 
-func (c *SvgPaintContext) Rect() render.RectPainter {
+func (c *SvgPainter) Rect() render.RectPainter {
 	return c.rectPainter
 }
 
-func (c *SvgPaintContext) Circle() render.CirclePainter {
+func (c *SvgPainter) Circle() render.CirclePainter {
 	return c.circlePainter
 }
 
-func (c *SvgPaintContext) Text() render.TextPainter {
+func (c *SvgPainter) Text() render.TextPainter {
 	return c.textPainter
 }
 
-func (c *SvgPaintContext) Reset() {
+func (c *SvgPainter) Reset() {
 	c.i = 0
 }
 
-func (c *SvgPaintContext) Cleanup() {
+func (c *SvgPainter) Cleanup() {
 	children := c.group.ChildNodes
 	for c.i < len(children) {
 		children[c.i].SetAttribute("style", "display: none;")
@@ -148,15 +143,15 @@ func (c *SvgPaintContext) Cleanup() {
 	}
 }
 
-// SvgPainter
-type SvgPainter struct {
+// SvgCommonPainter
+type SvgCommonPainter struct {
 	svgTag         string
 	elementFactory func(tag string) *document.Element
 	attributes     map[string]string
 }
 
-func MakeSvgPainter(svgTag string, elementFactory func(tag string) *document.Element) *SvgPainter {
-	p := &SvgPainter{}
+func MakeSvgCommonPainter(svgTag string, elementFactory func(tag string) *document.Element) *SvgCommonPainter {
+	p := &SvgCommonPainter{}
 	if svgTag != "" {
 		p.svgTag = svgTag
 	} else {
@@ -167,19 +162,19 @@ func MakeSvgPainter(svgTag string, elementFactory func(tag string) *document.Ele
 	return p
 }
 
-func (p *SvgPainter) Clear() {
+func (p *SvgCommonPainter) Clear() {
 	p.attributes = make(map[string]string)
 }
 
-func (p *SvgPainter) Fill(style map[string]string) {
+func (p *SvgCommonPainter) Fill(style map[string]string) {
 	p.Paint(style)
 }
 
-func (p *SvgPainter) Stroke(style map[string]string) {
+func (p *SvgCommonPainter) Stroke(style map[string]string) {
 	p.Paint(style)
 }
 
-func (p *SvgPainter) Paint(style map[string]string) {
+func (p *SvgCommonPainter) Paint(style map[string]string) {
 	el := p.elementFactory(p.svgTag)
 
 	str := ""
@@ -195,11 +190,11 @@ func (p *SvgPainter) Paint(style map[string]string) {
 
 // SvgPathPainter
 type SvgPathPainter struct {
-	*SvgPainter
+	*SvgCommonPainter
 }
 
 func MakeSvgPathPainter(elementFactory func(tag string) *document.Element) *SvgPathPainter {
-	return &SvgPathPainter{MakeSvgPainter("path", elementFactory)}
+	return &SvgPathPainter{MakeSvgCommonPainter("path", elementFactory)}
 }
 
 func (p *SvgPathPainter) Path(points []seen.Point) {
@@ -212,11 +207,11 @@ func (p *SvgPathPainter) Path(points []seen.Point) {
 
 // SvgTextPainter
 type SvgTextPainter struct {
-	*SvgPainter
+	*SvgCommonPainter
 }
 
 func MakeSvgTextPainter(elementFactory func(tag string) *document.Element) *SvgTextPainter {
-	return &SvgTextPainter{&SvgPainter{svgTag: "text", elementFactory: elementFactory}}
+	return &SvgTextPainter{&SvgCommonPainter{svgTag: "text", elementFactory: elementFactory}}
 }
 
 func (p *SvgTextPainter) FillText(t *affine.Matrix, text string, style render.Style) {
@@ -239,20 +234,20 @@ func (p *SvgTextPainter) FillText(t *affine.Matrix, text string, style render.St
 
 // SvgCirclePainter
 type SvgCirclePainter struct {
-	*SvgPainter
+	*SvgCommonPainter
 }
 
 func MakeSvgCirclePainter(elementFactory func(tag string) *document.Element) *SvgCirclePainter {
-	return &SvgCirclePainter{MakeSvgPainter("circle", elementFactory)}
+	return &SvgCirclePainter{MakeSvgCommonPainter("circle", elementFactory)}
 }
 
 // SvgRectPainter
 type SvgRectPainter struct {
-	*SvgPainter
+	*SvgCommonPainter
 }
 
 func MakeSvgRectPainter(elementFactory func(tag string) *document.Element) *SvgRectPainter {
-	return &SvgRectPainter{MakeSvgPainter("rect", elementFactory)}
+	return &SvgRectPainter{MakeSvgCommonPainter("rect", elementFactory)}
 }
 
 func (p *SvgRectPainter) Size(width, height float64) {
