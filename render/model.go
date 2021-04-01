@@ -24,14 +24,13 @@ type RenderModel struct {
 	// The reference is retained so it can be checked for the Dirty flag.
 	// When the Dirty flag is set, the RenderModel needs to be regenerated.
 	Surface *seen.Surface
+	Points  []seen.Point
 
 	Transform *seen.Matrix
 
 	Projection *seen.Matrix
 
 	Viewport *seen.Matrix
-
-	Points []seen.Point
 
 	ShaderData *seen.SurfaceShaderData
 
@@ -54,10 +53,11 @@ func MakeRenderModel(surface *seen.Surface, transform, projection, viewport *see
 
 func (m *RenderModel) Init(surface *seen.Surface, transform, projection, viewport *seen.Matrix) {
 	m.Surface = surface
+	m.Points = surface.Points
+
 	m.Transform = transform
 	m.Projection = projection
 	m.Viewport = viewport
-	m.Points = surface.Points
 	m.update()
 }
 
@@ -75,11 +75,10 @@ func (m *RenderModel) Update(transform, projection, viewport *seen.Matrix) {
 }
 
 func (m *RenderModel) update() {
-
 	// Apply model transform to surface points. Calculates transformed points and barycenter
 	worldSpacePoints, baryCenter := m.Transform.TransformPoints(m.Points)
 	// Initialize the shader data with the baryCenter and the normal of the transformed points.
-	m.ShaderData = &seen.SurfaceShaderData{baryCenter, seen.MakePointNormal(worldSpacePoints)}
+	m.ShaderData = &seen.SurfaceShaderData{Barycenter: baryCenter, Normal: seen.MakePointNormal(worldSpacePoints)}
 
 	// Transform into camera space and check whether points are inside the frustrum along the way.
 	var cameraSpaceCoords = make([]seen.Coordinate, len(worldSpacePoints))
