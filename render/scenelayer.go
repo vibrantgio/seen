@@ -53,12 +53,12 @@ func (s *SceneLayer) Paint(painter Painter) {
 			for _, surface := range shape.Surfaces {
 				renderModel := s.makeRenderModel(&surface, transform, projection, viewport)
 
-				// Assign the correct painter to the render model
+				// Assign the correct render function to the render model
 				switch shape.Kind {
 				case "text":
-					renderModel.Painter = &RenderTextPainter{}
+					renderModel.Render = TextRender
 				default:
-					renderModel.Painter = &RenderPathPainter{}
+					renderModel.Render = PathRender
 				}
 
 				// Test projected normal's z-coordinate for culling (if enabled).

@@ -4,18 +4,8 @@ import (
 	"github.com/reactivego/seen/affine"
 )
 
-// ModelPainter interface is set as a field on a RenderModel to take care of painting
-// the model on a Painter.
-type ModelPainter interface {
-	Paint(*RenderModel, Painter)
-}
-
-// RenderPathPainter
-type RenderPathPainter struct {
-}
-
-// Paint
-func (p *RenderPathPainter) Paint(model *RenderModel, painter Painter) {
+// PathRender renders a RenderModel for a Path surface onto a Painter.
+func PathRender(model *RenderModel, painter Painter) {
 	path := painter.Path()
 	path.Path(model.ProjectedPoints)
 
@@ -39,12 +29,8 @@ func (p *RenderPathPainter) Paint(model *RenderModel, painter Painter) {
 	}
 }
 
-// RenderTextPainter paints a RenderModel for a Text Surface onto a Painter.
-type RenderTextPainter struct {
-}
-
-// Paint
-func (p *RenderTextPainter) Paint(model *RenderModel, painter Painter) {
+// TextRender renders a RenderModel for a Text Surface onto a Painter.
+func TextRender(model *RenderModel, painter Painter) {
 	fill := "none"
 	if model.Fill != nil {
 		fill = model.Fill.Hex()

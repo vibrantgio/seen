@@ -16,9 +16,9 @@ import (
 //
 // RenderModel manages the painting of a single Surface.
 type RenderModel struct {
-	// Painter is a reference to a specific painter to be used to paint
+	// Render is a reference to a specific render function to be used to render
 	// the RenderModel on a Painter.
-	Painter ModelPainter
+	Render func(*RenderModel, Painter)
 
 	// Surface is a reference to the Surface that is being painted.
 	// The reference is retained so it can be checked for the Dirty flag.
@@ -62,7 +62,7 @@ func (m *RenderModel) Init(surface *seen.Surface, transform, projection, viewpor
 }
 
 func (m *RenderModel) Paint(painter Painter) {
-	m.Painter.Paint(m, painter)
+	m.Render(m, painter)
 }
 
 func (m *RenderModel) Update(transform, projection, viewport *seen.Matrix) {
