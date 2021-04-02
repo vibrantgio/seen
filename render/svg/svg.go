@@ -36,18 +36,6 @@ func MakeContext(elementId string, layer render.RenderLayer) render.RenderContex
 	return context
 }
 
-func (c *Context) Render() {
-	c.Reset()
-	for _, render := range c.render {
-		render()
-	}
-	c.Cleanup()
-}
-
-func (c *Context) Animate() seen.Animator {
-	return nil
-}
-
 func (c *Context) Layer(layer render.RenderLayer) {
 	group := document.CreateElementNS(document.SVG_NS, "g")
 	c.svg.AppendChild(group)
@@ -59,12 +47,16 @@ func (c *Context) Layer(layer render.RenderLayer) {
 	})
 }
 
-func (c *Context) Reset() {
-
+func (c *Context) Render() {
+	c.Reset()
+	for _, render := range c.render {
+		render()
+	}
+	c.Cleanup()
 }
 
-func (c *Context) Cleanup() {
-
+func (c *Context) Animate() seen.Animator {
+	return nil
 }
 
 // SvgPainter

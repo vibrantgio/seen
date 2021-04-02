@@ -35,22 +35,14 @@ func MakeContext(elementId string, layer render.RenderLayer) render.RenderContex
 	return context
 }
 
-func (c *Context) Render() {
+func (c *Context) Layer(layer render.RenderLayer) {
+}
 
+func (c *Context) Render() {
 }
 
 func (c *Context) Animate() seen.Animator {
-	return render.MakeRenderAnimator(c)
-}
-
-func (c *Context) Layer(layer render.RenderLayer) {
-
-}
-
-func (c *Context) Reset() {
-
-}
-
-func (c *Context) Cleanup() {
-
+	animator := seen.MakeAnimator()
+	animator.OnFrame(func(d, dt float64) { c.Render() })
+	return animator
 }
