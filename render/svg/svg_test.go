@@ -7,6 +7,7 @@ import (
 	"path"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/colors"
@@ -238,6 +239,8 @@ func TestDemoSvgCanvas(t *testing.T) {
 		}
 	})
 	a.Start()
+	time.Sleep(100 * time.Millisecond)
+	a.Stop()
 
 	// Save the generated html element to file
 	html.SaveToFile(path.Join(os.Getenv("HOME"), "TestDemoSvgCanvas.html"))
