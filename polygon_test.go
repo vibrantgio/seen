@@ -2,6 +2,7 @@ package seen
 
 import (
 	"testing"
+
 	"github.com/reactivego/seen/float"
 )
 
@@ -19,7 +20,7 @@ func TestPolygonVertPointers(t *testing.T) {
 
 func TestPolygonCreation(t *testing.T) {
 	p := &Polygon{}
-	p.V = []*Vertex{&Vertex{1, 2, 3}, &Vertex{4, 5, 6}}
+	p.V = []*Vertex{{1, 2, 3}, {4, 5, 6}}
 }
 
 func TestPolygonIcosahedron(t *testing.T) {
