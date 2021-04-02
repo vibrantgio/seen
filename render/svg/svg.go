@@ -48,11 +48,9 @@ func (c *Context) Layer(layer render.RenderLayer) {
 }
 
 func (c *Context) Render() {
-	c.Reset()
 	for _, render := range c.render {
 		render()
 	}
-	c.Cleanup()
 }
 
 func (c *Context) Animate() seen.Animator {
