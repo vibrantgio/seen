@@ -35,7 +35,8 @@ func MakeMaterial(source interface{}) (m *Material, err error) {
 	case Material:
 		m = &s
 	case *Material:
-		m = &*s
+		mc := *s
+		m = &mc
 	case colors.Color:
 		m = &Material{}
 		m.Init(&s)
