@@ -17,9 +17,9 @@ func (t *Object) Init() {
 // for the transform. This method makes Object a Transformable.
 func (t *Object) Matrix() Matrix {
 	if t.scale != nil {
-		return Matrix{t.dq.Mat3x4().Mat4x4().Mul(*t.scale)}
+		return Matrix{t.dq.Mat4x4().Mul(*t.scale)}
 	} else {
-		return Matrix{t.dq.Mat3x4().Mat4x4()}
+		return Matrix{t.dq.Mat4x4()}
 	}
 }
 

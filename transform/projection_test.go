@@ -104,5 +104,5 @@ func TestFrustrum(t *testing.T) {
 	p := Frustrum(fovy, 4.0/3.0, 100.0, 200.0)
 	t.Log(p)
 
-	// Actually test something
+	// TODO: Actually test something
 }

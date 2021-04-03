@@ -51,9 +51,9 @@ func TestMat4x4Multiplication(t *testing.T) {
 	dq3 := DualQuatRXYZ(QuatAxisAngle(0, 1, 1, math.Pi/3.0), 100, 110, 120)
 	dq := dq1.Mul(dq2).Mul(dq3)
 
-	m1 := dq1.Mat3x4().Mat4x4()
-	m2 := dq2.Mat3x4().Mat4x4()
-	m3 := dq3.Mat3x4().Mat4x4()
+	m1 := dq1.Mat4x4()
+	m2 := dq2.Mat4x4()
+	m3 := dq3.Mat4x4()
 	m := m1.Mul(m2).Mul(m3)
 
 	dx, dy, dz := dq.Transform(7, 8, 9)
