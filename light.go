@@ -7,10 +7,10 @@ type Light struct {
 	Object
 	Kind  string
 	Id    string
-	Point *Point
+	Point Point
 
 	// Color is the color of the light.
-	Color *colors.Color
+	Color colors.Color
 
 	// Intensity should be a value between 0.0 and 1.0 that determines the
 	// ammount of light contributed by this light. An intensity of 0.0
@@ -18,7 +18,7 @@ type Light struct {
 	// value of the Color field to the surface being lit.
 	Intensity float64
 
-	Normal  *Point
+	Normal  Point
 	Enabled bool
 }
 
@@ -32,10 +32,10 @@ func (l *Light) Init(kind string) {
 	l.Object.Init()
 	l.Kind = kind
 	l.Id = UniqueId("l")
-	l.Point = MakePointZero()
+	l.Point = PointZero
 	l.Color = colors.White
 	l.Intensity = 0.5
-	l.Normal = &Point{1, -1, -1}
+	l.Normal = Point{1, -1, -1}
 	l.Normal.Normalize()
 	l.Enabled = true
 }
@@ -65,25 +65,25 @@ func MakeAmbientLight() *Light {
 // surfaces with the supplied Light
 type LightRenderData struct {
 	Light          *Light
-	ColorIntensity *colors.Color
+	ColorIntensity colors.Color
 	Kind           string
 	Intensity      float64
-	Point          *Point
-	Normal         *Point
+	Point          Point
+	Normal         Point
 }
 
-func MakeLightRenderData(light *Light, transform *Matrix) *LightRenderData {
+func MakeLightRenderData(light *Light, transform Matrix) *LightRenderData {
 	l := &LightRenderData{}
 	l.Init(light, transform)
 	return l
 }
 
-func (l *LightRenderData) Init(light *Light, transform *Matrix) {
+func (l *LightRenderData) Init(light *Light, transform Matrix) {
 	l.Light = light
 	l.ColorIntensity = light.Color.Scale(light.Intensity)
 	l.Kind = light.Kind
 	l.Intensity = light.Intensity
 	l.Point = transform.TransformPoint(light.Point)
-	origin := transform.TransformPoint(MakePointZero())
+	origin := transform.TransformPoint(PointZero)
 	l.Normal = transform.TransformPoint(light.Normal).Subtract(origin).Normalize()
 }

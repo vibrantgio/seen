@@ -204,7 +204,7 @@ func MakeSvgTextPainter(elementFactory func(tag string) *document.Element) *SvgT
 	return &SvgTextPainter{&SvgCommonPainter{svgTag: "text", elementFactory: elementFactory}}
 }
 
-func (p *SvgTextPainter) FillText(t *affine.Matrix, text string, style render.Style) {
+func (p *SvgTextPainter) FillText(t affine.Matrix, text string, style render.Style) {
 	el := p.elementFactory(p.svgTag)
 
 	// set the transform attribute given the matrix m

@@ -8,13 +8,13 @@ type Scene struct {
 
 	// Camera which defines the projection transformation.
 	// The default projection is perspective.
-	Camera *Camera
+	Camera Camera
 
 	// Viewport defines the projection from shape-space to
 	// projection-space then to screen-space. The default viewport is on a
 	// space from (0,0,0) to (1,1,1). To map more naturally to pixels, create a
 	// viewport with the same width/height as the DOM element.
-	Viewport *Viewport
+	Viewport Viewport
 
 	// Shader determines which lighting model is used.
 	Shader Shader
@@ -50,7 +50,7 @@ func MakeScene() *Scene {
 
 func (s *Scene) Init() {
 	s.Model = MakeModel()
-	s.Camera = MakeCamera()
-	s.Viewport = MakeOriginViewport(0, 0, 1, 1)
-	s.Shader = MakePhongShader()
+	s.Camera = DefaultCamera
+	s.Viewport = OriginViewport(0, 0, 1, 1)
+	s.Shader = PhongShader
 }

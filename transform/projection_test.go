@@ -3,6 +3,7 @@ package transform
 import (
 	"math"
 	"testing"
+
 	"github.com/reactivego/seen/float"
 )
 
@@ -17,17 +18,17 @@ func TestProjectionPerspective(t *testing.T) {
 		top            = 0.5 * height
 		bottom         = -top
 	)
-	p := &Projection{right, top, near, far}
+	p := Projection{right, top, near, far}
 
 	// Check zero value for x,y,z
 	x, y, z, w := p.Perspective(0, 0, 0)
-	if !float.EqualPairs(x,0,y,0,z,-400,w,0) {
+	if !float.EqualPairs(x, 0, y, 0, z, -400, w, 0) {
 		t.Fail()
 	}
 
 	// Check that positive edges are equal to w value
 	x, y, z, w = p.Perspective(right, top, -near)
-	if !float.EqualPairs(x,w, y,w, z,-w) {
+	if !float.EqualPairs(x, w, y, w, z, -w) {
 		t.Fail()
 	}
 
@@ -42,12 +43,12 @@ func TestProjectionPerspective(t *testing.T) {
 
 	// check that negative edges are equal to negative w value
 	x, y, z, w = p.Perspective(left, bottom, -near)
-	if !float.EqualPairs(x,-w, y,-w, z,-w) {
+	if !float.EqualPairs(x, -w, y, -w, z, -w) {
 		t.Fail()
 	}
 
 	// check that clipping works by nudging outside the edge
-	x, y, z, w = p.Perspective(left-1.0, bottom-1.0, -near)
+	x, y, _, w = p.Perspective(left-1.0, bottom-1.0, -near)
 	if x >= -w {
 		t.Fail()
 	}
@@ -67,29 +68,29 @@ func TestProjectionPerspectiveMat4x4(t *testing.T) {
 		top            = 0.5 * height
 		bottom         = -top
 	)
-	p := &Projection{right, top, near, far}
+	p := Projection{right, top, near, far}
 	m := p.PerspectiveMat4x4()
 
 	// Check that zero value for x,y,z returns the correct values
 	x, y, z, w := m.Transform(0, 0, 0, 1)
-	if !float.EqualPairs(x,0,y,0,z,-400,w,0) {
+	if !float.EqualPairs(x, 0, y, 0, z, -400, w, 0) {
 		t.Fail()
 	}
 
 	// Check that positive edges are equal to w value
 	x, y, z, w = m.Transform(right, top, -near, 1)
-	if !float.EqualPairs(x,w, y,w, z,-w) {
+	if !float.EqualPairs(x, w, y, w, z, -w) {
 		t.Fail()
 	}
 
 	// check that negative edges are equal to negative w value
 	x, y, z, w = m.Transform(left, bottom, -near, 1)
-	if !float.EqualPairs(x,-w, y,-w, z,-w) {
+	if !float.EqualPairs(x, -w, y, -w, z, -w) {
 		t.Fail()
 	}
 
 	// check that clipping works by nudging outside the edge
-	x, y, z, w = m.Transform(left-1.0, bottom-1.0, -near, 1)
+	x, y, _, w = m.Transform(left-1.0, bottom-1.0, -near, 1)
 	if x >= -w {
 		t.Fail()
 	}
@@ -98,9 +99,9 @@ func TestProjectionPerspectiveMat4x4(t *testing.T) {
 	}
 }
 
-func TestMakeProjectionFov(t *testing.T) {
+func TestFrustrum(t *testing.T) {
 	fovy := 135.0 * (math.Pi / 180.0)
-	p := MakeProjection(fovy, 4.0/3.0, 100.0, 200.0)
+	p := Frustrum(fovy, 4.0/3.0, 100.0, 200.0)
 	t.Log(p)
 
 	// Actually test something

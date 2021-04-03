@@ -28,7 +28,7 @@ func MakeDefaultModel() *Model {
 	// Key light
 	l := MakeDirectionalLight()
 	l.Normal = Point{-1, 1, 1}.Normalize()
-	l.Color = colors.MakeColorHsl(0.1, 0.3, 0.7, 1.0)
+	l.Color = colors.ColorHsl(0.1, 0.3, 0.7, 1.0)
 	l.Intensity = 1.0 // 0.004 * 255.0
 	model.Add(l)
 
@@ -61,8 +61,8 @@ func (m *Model) Add(childs ...Transformable) {
 	}
 }
 
-type LightFunc func(light *Light, transform *Matrix) *LightRenderData
-type ShapeFunc func(shape *Shape, lights []*LightRenderData, transform *Matrix)
+type LightFunc func(light *Light, transform Matrix) *LightRenderData
+type ShapeFunc func(shape *Shape, lights []*LightRenderData, transform Matrix)
 
 // EachRenderable visits each Light and Shape, accumulating the recursive transformation
 // matrices along the way. The light callback will be called with each light
@@ -74,7 +74,7 @@ func (m *Model) EachRenderable(light LightFunc, shape ShapeFunc) {
 }
 
 // Go through the model depth first recursively and call either the light or shape function.
-func (m *Model) eachRenderable(light LightFunc, shape ShapeFunc, lightModels []*LightRenderData, transform *Matrix) {
+func (m *Model) eachRenderable(light LightFunc, shape ShapeFunc, lightModels []*LightRenderData, transform Matrix) {
 	for _, l := range m.Lights {
 		if l.Enabled {
 			lightModels = append(lightModels, light(l, transform.Mul(l.Matrix())))

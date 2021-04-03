@@ -26,17 +26,17 @@ type RenderModel struct {
 	Surface *seen.Surface
 	Points  []seen.Point
 
-	Transform *seen.Matrix
+	Transform seen.Matrix
 
-	Projection *seen.Matrix
+	Projection seen.Matrix
 
-	Viewport *seen.Matrix
+	Viewport seen.Matrix
 
 	ShaderData *seen.SurfaceShaderData
 
 	ProjectedPoints []seen.Point
-	Barycenter      *seen.Point
-	Normal          *seen.Point
+	Barycenter      seen.Point
+	Normal          seen.Point
 
 	InFrustrum bool
 
@@ -45,13 +45,13 @@ type RenderModel struct {
 	Stroke *colors.Color
 }
 
-func MakeRenderModel(surface *seen.Surface, transform, projection, viewport *seen.Matrix) *RenderModel {
+func MakeRenderModel(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderModel {
 	m := &RenderModel{}
 	m.Init(surface, transform, projection, viewport)
 	return m
 }
 
-func (m *RenderModel) Init(surface *seen.Surface, transform, projection, viewport *seen.Matrix) {
+func (m *RenderModel) Init(surface *seen.Surface, transform, projection, viewport seen.Matrix) {
 	m.Surface = surface
 	m.Points = surface.Points
 
@@ -65,7 +65,7 @@ func (m *RenderModel) Paint(painter Painter) {
 	m.Render(m, painter)
 }
 
-func (m *RenderModel) Update(transform, projection, viewport *seen.Matrix) {
+func (m *RenderModel) Update(transform, projection, viewport seen.Matrix) {
 	if m.Surface.Dirty || !transform.Equal(m.Transform) || !projection.Equal(m.Projection) || !viewport.Equal(m.Viewport) {
 		m.Transform = transform
 		m.Projection = projection
@@ -78,7 +78,7 @@ func (m *RenderModel) update() {
 	// Apply model transform to surface points. Calculates transformed points and barycenter
 	worldSpacePoints, baryCenter := m.Transform.TransformPoints(m.Points)
 	// Initialize the shader data with the baryCenter and the normal of the transformed points.
-	m.ShaderData = &seen.SurfaceShaderData{Barycenter: baryCenter, Normal: seen.MakePointNormal(worldSpacePoints)}
+	m.ShaderData = &seen.SurfaceShaderData{Barycenter: baryCenter, Normal: seen.PointNormal(worldSpacePoints)}
 
 	// Transform into camera space and check whether points are inside the frustrum along the way.
 	var cameraSpaceCoords = make([]seen.Coordinate, len(worldSpacePoints))
@@ -88,13 +88,13 @@ func (m *RenderModel) update() {
 		if c.Z <= -2 {
 			m.InFrustrum = false
 		}
-		cameraSpaceCoords[i] = *c
+		cameraSpaceCoords[i] = c
 	}
 
 	// Project camera space points into screen space
 	m.ProjectedPoints, m.Barycenter = m.Viewport.ProjectCoordinatesToPoints(cameraSpaceCoords)
 	// Compute the surface normal in screen space.
-	m.Normal = seen.MakePointNormal(m.ProjectedPoints)
+	m.Normal = seen.PointNormal(m.ProjectedPoints)
 
 	// Surface has been updated, we can clear the Dirty flag
 	m.Surface.Dirty = false

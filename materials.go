@@ -1,11 +1,13 @@
 package seen
 
-import "github.com/reactivego/seen/colors"
+import (
+	"github.com/reactivego/seen/colors"
+)
 
 // Material objects hold the attributes that desribe the color and finish of a surface.
 type Material struct {
 	// The base color of the material.
-	Color *colors.Color
+	Color colors.Color
 
 	// Metallic property determines how the specular highlights are
 	// calculated. Normally, specular highlights are the color of the light
@@ -14,7 +16,7 @@ type Material struct {
 	Metallic bool
 
 	// The color used for specular highlights when `metallic` is true.
-	SpecularColor *colors.Color
+	SpecularColor colors.Color
 
 	// SpecularExponent determines how "shiny" the material is. A low
 	// exponent will create a low-intesity, diffuse specular shine. A high
@@ -39,12 +41,9 @@ func MakeMaterial(source interface{}) (m *Material, err error) {
 		m = &mc
 	case colors.Color:
 		m = &Material{}
-		m.Init(&s)
-	case *colors.Color:
-		m = &Material{}
 		m.Init(s)
 	case string:
-		c, err := colors.MakeColorWithString(s)
+		c, err := colors.ColorWithString(s)
 		if err == nil {
 			m = &Material{}
 			m.Init(c)
@@ -56,7 +55,7 @@ func MakeMaterial(source interface{}) (m *Material, err error) {
 	return
 }
 
-func (m *Material) Init(color *colors.Color) {
+func (m *Material) Init(color colors.Color) {
 	m.Color = color
 	m.SpecularColor = colors.White
 	m.SpecularExponent = 15.0
@@ -64,12 +63,13 @@ func (m *Material) Init(color *colors.Color) {
 
 // Render applies the shader's shading to this material, with the option to override
 // the shader with the material's shader (if defined).
-func (m *Material) Render(lights []*LightRenderData, shader Shader, surface *SurfaceShaderData) (color *colors.Color) {
+func (m *Material) Render(lights []*LightRenderData, shader Shader, surface *SurfaceShaderData) colors.Color {
+	var color colors.Color
 	if m.Shader != nil {
 		color = m.Shader.Shade(lights, surface, m)
 	} else {
 		color = shader.Shade(lights, surface, m)
 	}
 	color.A = m.Color.A
-	return
+	return color
 }

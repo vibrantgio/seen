@@ -2,11 +2,12 @@ package transform
 
 import (
 	"testing"
+
 	"github.com/reactivego/seen/float"
 )
 
 func TestViewport(t *testing.T) {
-	v := &Viewport{0, 0, 400, 300, 0, 1}
+	v := Viewport{0, 0, 400, 300, 0, 1}
 
 	x, y, z := v.Convert(-1, 1, -1)
 	t.Log(x, y, z)

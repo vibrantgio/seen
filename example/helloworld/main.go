@@ -55,7 +55,7 @@ func Setup(window *app.Window) *gio.Context {
 	scene := seen.MakeScene()
 	scene.Model = seen.MakeDefaultModel()
 	scene.Model.Add(shape)
-	scene.Viewport = seen.MakeCenterViewport(0, 0, WidthDp, HeightDp)
+	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create a render layer and render context
 	layer := render.MakeSceneLayer(scene)
@@ -64,7 +64,7 @@ func Setup(window *app.Window) *gio.Context {
 	// Slowly rotate sphere
 	animator := context.Animate()
 	animator.OnBefore(func(t, dt float64) {
-		ryrx := transform.MakeQuatRotY(0.7 * dt * 1e-4).MulRotX(dt * 1e-4)
+		ryrx := transform.QuatRotY(0.7 * dt * 1e-4).MulRotX(dt * 1e-4)
 		shape.SetRotation(ryrx.Mul(shape.Rotation()))
 	})
 	animator.Start()
@@ -73,7 +73,7 @@ func Setup(window *app.Window) *gio.Context {
 	drag := context.Drag(seen.Inertia(true))
 	drag.On(func(e seen.DragEvent) {
 		dx, dy := e.OffsetRelativeX/150, e.OffsetRelativeY/150
-		ryrx := transform.MakeQuatRotY(dx).MulRotX(dy)
+		ryrx := transform.QuatRotY(dx).MulRotX(dy)
 		shape.SetRotation(ryrx.Mul(shape.Rotation()))
 		context.Render()
 	})

@@ -2,48 +2,39 @@ package seen
 
 import (
 	"math"
+
 	"github.com/reactivego/seen/colors"
 )
 
 // Shader implements the Shade method
-type Shader interface {
-	// Shade
-	// `lights` is an object containing the ambient, point, and directional light sources.
-	// `surface` is an instance of `SurfaceShaderData` and contains the transformed and projected surface data.
-	// `material` is an instance of `Material` and contains the color and other attributes for determining how light reflects off the surface.
-	Shade(lights []*LightRenderData, surface *SurfaceShaderData, material *Material) *colors.Color
+type Shader func(lights []*LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color
+
+// Shade
+// `lights` is an object containing the ambient, point, and directional light sources.
+// `surface` is an instance of `SurfaceShaderData` and contains the transformed and projected surface data.
+// `material` is an instance of `Material` and contains the color and other attributes for determining how light reflects off the surface.
+func (shade Shader) Shade(lights []*LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color {
+	return shade(lights, surface, material)
 }
 
 // SurfaceShaderData
 type SurfaceShaderData struct {
-	Barycenter *Point
-	Normal     *Point
-}
-
-// FlatShader
-type FlatShader struct {
-}
-
-func MakeFlatShader() Shader {
-	return &FlatShader{}
+	Barycenter Point
+	Normal     Point
 }
 
 // Shade for the `Flat` shader colors surfaces with the material color, disregarding all
 // light sources.
-func (s *FlatShader) Shade(lights []*LightRenderData, surface *SurfaceShaderData, material *Material) *colors.Color {
+var FlatShader = Shader(Flat)
+
+func Flat(lights []*LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color {
 	return material.Color
 }
 
-// AmbientShader
-type AmbientShader struct {
-}
+// AmbientShader for the `Ambient` shader colors surfaces from ambient light only.
+var AmbientShader = Shader(Ambient)
 
-func MakeAmbientShader() Shader {
-	return &AmbientShader{}
-}
-
-// Shade for the `Ambient` shader colors surfaces from ambient light only.
-func (s *AmbientShader) Shade(lights []*LightRenderData, surface *SurfaceShaderData, material *Material) *colors.Color {
+func Ambient(lights []*LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color {
 	c := colors.Black
 	for _, light := range lights {
 		if light.Kind == "ambient" {
@@ -55,14 +46,9 @@ func (s *AmbientShader) Shade(lights []*LightRenderData, surface *SurfaceShaderD
 
 // DiffusePhong shader implements the Phong shading model with a diffuse
 // and ambient term (no specular).
-type DiffusePhongShader struct {
-}
+var DiffusePhongShader = Shader(DiffusePhong)
 
-func MakeDiffusePhongShader() Shader {
-	return &DiffusePhongShader{}
-}
-
-func (s *DiffusePhongShader) Shade(lights []*LightRenderData, surface *SurfaceShaderData, material *Material) *colors.Color {
+func DiffusePhong(lights []*LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color {
 	c := colors.Black
 	for _, light := range lights {
 		switch light.Kind {
@@ -72,7 +58,7 @@ func (s *DiffusePhongShader) Shade(lights []*LightRenderData, surface *SurfaceSh
 			c = applyDiffuse(c, light, light.Normal, surface.Normal, material)
 		case "point":
 			lightNormal := light.Point.Subtract(surface.Barycenter).Normalize()
-			c  = applyDiffuse(c, light, lightNormal, surface.Normal, material)
+			c = applyDiffuse(c, light, lightNormal, surface.Normal, material)
 		}
 	}
 	return c.MultiplyChannels(material.Color).Clamp(0, 1.0)
@@ -81,18 +67,11 @@ func (s *DiffusePhongShader) Shade(lights []*LightRenderData, surface *SurfaceSh
 // PhongShader implements the Phong shading model with a diffuse,
 // specular, and ambient term.
 // See https://en.wikipedia.org/wiki/Phong_reflection_model for more information
-type PhongShader struct {
-}
+var PhongShader = Shader(Phong)
 
-// MakePhongShader
-func MakePhongShader() Shader {
-	return &PhongShader{}
-}
-
-// Shade
-func (s *PhongShader) Shade(lights []*LightRenderData, surface *SurfaceShaderData, material *Material) *colors.Color {
+func Phong(lights []*LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color {
 	c := colors.Black
-	for _,light := range lights {
+	for _, light := range lights {
 		switch light.Kind {
 		case "ambient":
 			c = applyAmbient(c, light)
@@ -111,12 +90,12 @@ func (s *PhongShader) Shade(lights []*LightRenderData, surface *SurfaceShaderDat
 }
 
 // applyAmbient applies ambient shading
-func applyAmbient(c *colors.Color, light *LightRenderData) *colors.Color {
+func applyAmbient(c colors.Color, light *LightRenderData) colors.Color {
 	return c.AddChannels(light.ColorIntensity)
 }
 
 // applyDiffuse applies diffuse phong shading
-func applyDiffuse(c *colors.Color, light *LightRenderData, lightNormal, surfaceNormal *Point, material *Material) *colors.Color {
+func applyDiffuse(c colors.Color, light *LightRenderData, lightNormal, surfaceNormal Point, material *Material) colors.Color {
 	dot := lightNormal.Dot(surfaceNormal)
 	if dot <= 0.0 {
 		return c
@@ -127,7 +106,7 @@ func applyDiffuse(c *colors.Color, light *LightRenderData, lightNormal, surfaceN
 }
 
 // applyDiffuseAndSpecular applies diffuse phong shading and specular phong shading.
-func applyDiffuseAndSpecular(c *colors.Color, light *LightRenderData, lightNormal, surfaceNormal *Point, material *Material) *colors.Color {
+func applyDiffuseAndSpecular(c colors.Color, light *LightRenderData, lightNormal, surfaceNormal Point, material *Material) colors.Color {
 	dot := lightNormal.Dot(surfaceNormal)
 	if dot <= 0.0 {
 		return c
@@ -138,7 +117,7 @@ func applyDiffuseAndSpecular(c *colors.Color, light *LightRenderData, lightNorma
 
 	// Compute and apply specular phong shading
 	reflectionNormal := surfaceNormal.Scale(dot * 2.0).Subtract(lightNormal)
-	specularIntensity := math.Pow(0.5 + reflectionNormal.Dot(MakePointZ()), material.SpecularExponent) / 255.0
+	specularIntensity := math.Pow(0.5+reflectionNormal.Dot(PointZ), material.SpecularExponent) / 255.0
 	specularColor := material.SpecularColor.Scale(specularIntensity * light.Intensity)
 	return c.AddChannels(specularColor)
 }

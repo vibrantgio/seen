@@ -17,7 +17,7 @@ type Viewport struct {
 }
 
 // Convert converts a projected coordinate to screen space.
-func (v *Viewport) Convert(x, y, z float64) (xs, ys, zs float64) {
+func (v Viewport) Convert(x, y, z float64) (xs, ys, zs float64) {
 	xs = v.X + x*0.5*v.W + 0.5*v.W
 	ys = v.Y - y*0.5*v.H + 0.5*v.H
 	zs = z*0.5*(v.F-v.N) + 0.5*(v.F+v.N)

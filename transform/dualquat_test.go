@@ -3,6 +3,7 @@ package transform
 import (
 	"math"
 	"testing"
+
 	"github.com/reactivego/seen/float"
 )
 
@@ -29,19 +30,10 @@ Matrix m = m0 * m1 * m2;
 
 */
 
-func TestCreationDQ(t *testing.T) {
-
-	d := IdentDualQuaternion
-
-	if d == nil {
-		t.Fail()
-	}
-}
-
 func TestInitializationDQ(t *testing.T) {
 
-	r := (&Quaternion{1, 2, 3, 4}).Normalize()
-	dq := MakeDualQuatRXYZ(r, 5, 6, 7)
+	r := Quaternion{1, 2, 3, 4}.Normalize()
+	dq := DualQuatRXYZ(r, 5, 6, 7)
 	x, y, z := dq.Translation()
 	if !float.Equal(x, 5) {
 		t.Fail()
@@ -56,7 +48,7 @@ func TestInitializationDQ(t *testing.T) {
 
 func TestTransformRotateDQ(t *testing.T) {
 
-	dq := MakeDualQuatRXYZ(MakeQuatAxisAngle(1, 0, 0, math.Pi/2), 0, 0, 0)
+	dq := DualQuatRXYZ(QuatAxisAngle(1, 0, 0, math.Pi/2), 0, 0, 0)
 	x, y, z := dq.Transform(0, 1, 0)
 
 	t.Log(dq, x, y, z)
@@ -74,7 +66,7 @@ func TestTransformRotateDQ(t *testing.T) {
 
 func TestTransformTranslateDQ(t *testing.T) {
 
-	dq := MakeDualQuatRXYZ(IdentQuaternion, 1, 2, 3)
+	dq := DualQuatRXYZ(IdentQuaternion, 1, 2, 3)
 	x, y, z := dq.Transform(4, 5, 6)
 
 	if !float.Equal(x, 5) {
@@ -90,7 +82,7 @@ func TestTransformTranslateDQ(t *testing.T) {
 
 func TestTransformCombinedDQ(t *testing.T) {
 
-	dq := MakeDualQuatRXYZ(MakeQuatAxisAngle(1, 0, 0, math.Pi/2), 1, 2, 3)
+	dq := DualQuatRXYZ(QuatAxisAngle(1, 0, 0, math.Pi/2), 1, 2, 3)
 	x, y, z := dq.Transform(4, 5, 6)
 
 	// Point 4,5,6 in object space has been rotated around x axis by 90 degrees and then translated with vector 1,2,3
@@ -111,11 +103,11 @@ func TestTransformCombinedDQ(t *testing.T) {
 func TestTransformStacked(t *testing.T) {
 
 	// dq0 transforms from world space to view space
-	dq0 := MakeDualQuatRXYZ(MakeQuatAxisAngle(0, 0, 1, math.Pi), 100, 100, 100)
+	dq0 := DualQuatRXYZ(QuatAxisAngle(0, 0, 1, math.Pi), 100, 100, 100)
 	// dq1 transforms from intermediate space to world space
-	dq1 := MakeDualQuatRXYZ(MakeQuatAxisAngle(1, 0, 0, -math.Pi/2), 20, 20, 20)
+	dq1 := DualQuatRXYZ(QuatAxisAngle(1, 0, 0, -math.Pi/2), 20, 20, 20)
 	// dq2 transforms from object space to intermediate space
-	dq2 := MakeDualQuatRXYZ(MakeQuatAxisAngle(1, 0, 0, math.Pi/2), 1, 2, 3)
+	dq2 := DualQuatRXYZ(QuatAxisAngle(1, 0, 0, math.Pi/2), 1, 2, 3)
 
 	// dq12 transforms from object space to world space.
 	dq12 := dq1.Mul(dq2)

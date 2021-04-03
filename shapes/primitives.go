@@ -8,34 +8,34 @@ import (
 // MakeCube returns a 2x2x2 cube, centered on the origin.
 func MakeCube() *seen.Shape {
 	points := [...]seen.Point{
-	  {-1, -1, -1},
-	  {-1, -1,  1},
-	  {-1,  1, -1},
-	  {-1,  1,  1},
-	  { 1, -1, -1},
-	  { 1, -1,  1},
-	  { 1,  1, -1},
-	  { 1,  1,  1},
+		{-1, -1, -1},
+		{-1, -1, 1},
+		{-1, 1, -1},
+		{-1, 1, 1},
+		{1, -1, -1},
+		{1, -1, 1},
+		{1, 1, -1},
+		{1, 1, 1},
 	}
 	s := &seen.Shape{}
-	s.Init("cube", seen.MakeSurfaces(points[:],_CUBE_COORDINATE_MAP[:]))
+	s.Init("cube", seen.MakeSurfaces(points[:], _CUBE_COORDINATE_MAP[:]))
 	return s
 }
 
 // MakeUnitCube returns a 1x1x1 cube from the origin [0,0,0] to [1, 1, 1].
 func MakeUnitCube() *seen.Shape {
 	points := [...]seen.Point{
-	  {0, 0, 0},
-	  {0, 0, 1},
-	  {0, 1, 0},
-	  {0, 1, 1},
-	  {1, 0, 0},
-	  {1, 0, 1},
-	  {1, 1, 0},
-	  {1, 1, 1},
+		{0, 0, 0},
+		{0, 0, 1},
+		{0, 1, 0},
+		{0, 1, 1},
+		{1, 0, 0},
+		{1, 0, 1},
+		{1, 1, 0},
+		{1, 1, 1},
 	}
 	s := &seen.Shape{}
-	s.Init("unitcube", seen.MakeSurfaces(points[:],_CUBE_COORDINATE_MAP[:]))
+	s.Init("unitcube", seen.MakeSurfaces(points[:], _CUBE_COORDINATE_MAP[:]))
 	return s
 }
 
@@ -70,19 +70,19 @@ func MakeIcosahedron() *seen.Shape {
 // of 4 will generated 256 triangles for every original triangle.
 func MakeSphere(subdivisions int) *seen.Shape {
 
-	triangles := make([][3]seen.Point,len(_ICOSAHEDRON_COORDINATE_MAP))
-	for i,coords := range _ICOSAHEDRON_COORDINATE_MAP {
-		for j,c := range coords {
+	triangles := make([][3]seen.Point, len(_ICOSAHEDRON_COORDINATE_MAP))
+	for i, coords := range _ICOSAHEDRON_COORDINATE_MAP {
+		for j, c := range coords {
 			triangles[i][j] = _ICOSAHEDRON_POINTS[c]
 		}
 	}
 
-	for i:=0; i<subdivisions; i++ {
+	for i := 0; i < subdivisions; i++ {
 		triangles = sphereSubdivideTriangles(triangles)
 	}
 
 	surfaces := make([]seen.Surface, len(triangles))
-	for i,triangle := range triangles {
+	for i, triangle := range triangles {
 		surfaces[i] = *seen.MakeSurface(triangle[:])
 	}
 
@@ -99,27 +99,27 @@ func MakeSphere(subdivisions int) *seen.Shape {
 // to unit length. The resulting mesh will therefore more and more start to approximate
 // a unit sphere ater each call to sphereSubdivideTriangles.
 func sphereSubdivideTriangles(triangles [][3]seen.Point) [][3]seen.Point {
-	newTriangles := make([][3]seen.Point,0,len(triangles)*4)
-	for _,tri := range triangles {
-		v01 := tri[0].Add(&tri[1]).Normalize() // pull point back onto unit sphere.
-		v12 := tri[1].Add(&tri[2]).Normalize()
-		v20 := tri[2].Add(&tri[0]).Normalize()
-		newTriangles = append(newTriangles, [3]seen.Point{tri[0], *v01, *v20})
-		newTriangles = append(newTriangles, [3]seen.Point{tri[1], *v12, *v01})
-		newTriangles = append(newTriangles, [3]seen.Point{tri[2], *v20, *v12})
-		newTriangles = append(newTriangles, [3]seen.Point{*v01,   *v12, *v20})
+	newTriangles := make([][3]seen.Point, 0, len(triangles)*4)
+	for _, tri := range triangles {
+		v01 := tri[0].Add(tri[1]).Normalize() // pull point back onto unit sphere.
+		v12 := tri[1].Add(tri[2]).Normalize()
+		v20 := tri[2].Add(tri[0]).Normalize()
+		newTriangles = append(newTriangles, [3]seen.Point{tri[0], v01, v20})
+		newTriangles = append(newTriangles, [3]seen.Point{tri[1], v12, v01})
+		newTriangles = append(newTriangles, [3]seen.Point{tri[2], v20, v12})
+		newTriangles = append(newTriangles, [3]seen.Point{v01, v12, v20})
 	}
 	return newTriangles
 }
 
 // Map to points in the surfaces of a cube
 var _CUBE_COORDINATE_MAP = [...][]int{
-  {0, 1, 3, 2}, // left
-  {5, 4, 6, 7}, // right
-  {1, 0, 4, 5}, // bottom
-  {2, 3, 7, 6}, // top
-  {3, 1, 5, 7}, // front
-  {0, 2, 6, 4}, // back
+	{0, 1, 3, 2}, // left
+	{5, 4, 6, 7}, // right
+	{1, 0, 4, 5}, // bottom
+	{2, 3, 7, 6}, // top
+	{3, 1, 5, 7}, // front
+	{0, 2, 6, 4}, // back
 }
 
 const (

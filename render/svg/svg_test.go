@@ -115,8 +115,8 @@ func TestDemoSimple(t *testing.T) {
 	s := seen.MakeScene()
 	s.FractionalPoints = true
 	s.Model = seen.MakeDefaultModel()
-	s.Shader = seen.MakePhongShader()
-	s.Camera = seen.MakeCameraWithProjection(seen.MakeDefaultPerspectiveProjection())
+	s.Shader = seen.PhongShader
+	s.Camera = seen.CameraWithProjection(seen.DefaultPerspectiveProjection)
 	s.Camera.SetTranslation(0, 0, -550)
 
 	source := colors.MakeRandomSource2(colors.Drift(0.03), colors.Sat(0.5))
@@ -129,7 +129,7 @@ func TestDemoSimple(t *testing.T) {
 	}
 	scale := float64(400) * 0.3
 	icosahedron.SetScale(scale, scale, scale)
-	icosahedron.SetRotation(transform.MakeQuatAxisAngle(1, 1, 0, 0.25*math.Pi))
+	icosahedron.SetRotation(transform.QuatAxisAngle(1, 1, 0, 0.25*math.Pi))
 	err = icosahedron.ColorSurfaces(source)
 	if err != nil {
 		t.Error(err)
@@ -144,7 +144,7 @@ func TestDemoSimple(t *testing.T) {
 		return
 	}
 	cube.SetScale(scale, scale, scale)
-	cube.SetRotation(transform.MakeQuatAxisAngle(0.1, 1, 0, 0.1*math.Pi))
+	cube.SetRotation(transform.QuatAxisAngle(0.1, 1, 0, 0.1*math.Pi))
 	cube.SetTranslation(-350, 0, 0)
 	err = cube.ColorSurfaces(source)
 	if err != nil {
@@ -153,7 +153,7 @@ func TestDemoSimple(t *testing.T) {
 	}
 	s.Model.Add(cube)
 
-	s.Viewport = seen.MakeCenterViewport(0, 0, width, height)
+	s.Viewport = seen.CenterViewport(0, 0, width, height)
 	// Add scene as a layer to the render context
 	context.Layer(render.MakeSceneLayer(s))
 
@@ -204,11 +204,11 @@ func TestDemoSvgCanvas(t *testing.T) {
 	scenes := []*render.SceneLayer{}
 	for _, sphere := range spheres {
 		s := seen.MakeScene()
-		s.Shader = seen.MakePhongShader()
+		s.Shader = seen.PhongShader
 		s.FractionalPoints = true
 		s.Model = seen.MakeDefaultModel()
 		s.Model.Add(sphere)
-		s.Viewport = seen.MakeCenterViewport(0, 0, width, height)
+		s.Viewport = seen.CenterViewport(0, 0, width, height)
 		scenes = append(scenes, render.MakeSceneLayer(s))
 	}
 
@@ -231,7 +231,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 	a := seen.MakeAnimator()
 	a.OnFrame(func(t, dt float64) {
 		for _, sphere := range spheres {
-			ryrx := transform.MakeQuatRotY(dt * 2e-4).MulRotX(dt * 3e-4)
+			ryrx := transform.QuatRotY(dt * 2e-4).MulRotX(dt * 3e-4)
 			sphere.SetRotation(ryrx.Mul(sphere.Rotation()))
 		}
 		for _, context := range contexts {
@@ -295,8 +295,8 @@ func TestDemoText(t *testing.T) {
 	model.SetTranslation(-150, -50, 0)
 	model.SetScale(2, 2, 2)
 	scene.Model = model
-	scene.Viewport = seen.MakeCenterViewport(0, 0, width, height)
-	scene.Camera.SetRotation(transform.MakeQuatAxisAngle(0.1, 1, 0, math.Pi*0.2))
+	scene.Viewport = seen.CenterViewport(0, 0, width, height)
+	scene.Camera.SetRotation(transform.QuatAxisAngle(0.1, 1, 0, math.Pi*0.2))
 
 	// Create render context from canvas
 	context := MakeContext("seen-svg", render.MakeSceneLayer(scene))

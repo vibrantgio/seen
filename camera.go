@@ -15,20 +15,18 @@ package seen
 // screen coordinates in the z = 0 plane.
 type Camera struct {
 	Object
-	Projection *Matrix
+	Projection Matrix
 }
 
-func MakeCamera() *Camera {
-	return MakeCameraWithProjection(MakeDefaultPerspectiveProjection())
-}
+var DefaultCamera = CameraWithProjection(DefaultPerspectiveProjection)
 
-func MakeCameraWithProjection(projection *Matrix) *Camera {
-	c := &Camera{}
+func CameraWithProjection(projection Matrix) Camera {
+	c := Camera{}
 	c.Init(projection)
 	return c
 }
 
-func (c *Camera) Init(projection *Matrix) {
+func (c *Camera) Init(projection Matrix) {
 	c.Object.Init()
 	c.Projection = projection
 }

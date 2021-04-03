@@ -1,35 +1,36 @@
 package seen
 
 import (
-	"testing"
 	"math"
+	"testing"
+
 	"github.com/reactivego/seen/transform"
 )
 
 var mock_LightCount int
 var mock_ShapeCount int
 
-func mock_ModelLightFunc (light *Light, transform *Matrix) *LightRenderData {
+func mock_ModelLightFunc(light *Light, transform Matrix) *LightRenderData {
 	mock_LightCount++
 	l := &LightRenderData{}
-	l.Init(light,transform)
+	l.Init(light, transform)
 	return l
 }
 
-func mock_ModelShapeFunc (shape *Shape, lights []*LightRenderData, transform *Matrix) {
+func mock_ModelShapeFunc(shape *Shape, lights []*LightRenderData, transform Matrix) {
 	mock_ShapeCount++
 }
 
 func mock_MakeRectangle() *Shape {
 	points := []Point{
-		{0,0,0},
-		{0,0.5,0},
-		{0.5,0,0},
-		{0.5,0.5,0},
+		{0, 0, 0},
+		{0, 0.5, 0},
+		{0.5, 0, 0},
+		{0.5, 0.5, 0},
 	}
-	coords := [][]int {
-		{0,1,2},
-		{2,1,3},
+	coords := [][]int{
+		{0, 1, 2},
+		{2, 1, 3},
 	}
 	s := &Shape{}
 	s.Init("rectangle", MakeSurfaces(points, coords))
@@ -38,9 +39,9 @@ func mock_MakeRectangle() *Shape {
 
 func mock_MakeText(message string) *Shape {
 	points := []Point{
-		{0,0,0},
-		{0,0.5,0},
-		{0.5,0,0},
+		{0, 0, 0},
+		{0, 0.5, 0},
+		{0.5, 0, 0},
 	}
 	t := &Shape{}
 	s := MakeSurface(points)
@@ -58,14 +59,14 @@ func TestModelAdding(t *testing.T) {
 
 	// Rotate around y axis (rhs coord system with +y pointing up,
 	// +x pointing right and +z pointing out of the screen)
-	r := transform.MakeQuatAxisAngle(0,1,0,math.Pi / 4.0)
+	r := transform.QuatAxisAngle(0, 1, 0, math.Pi/4.0)
 	m2.SetRotation(r)
 	m2.Add(s)
 	m2.Add(tx)
 	m.Add(s)
 	m.Add(m2)
 
-	m.EachRenderable(mock_ModelLightFunc,mock_ModelShapeFunc)
+	m.EachRenderable(mock_ModelLightFunc, mock_ModelShapeFunc)
 
 	if mock_LightCount != 0 {
 		t.Fail()

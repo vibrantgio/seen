@@ -2,6 +2,7 @@ package colors
 
 import (
 	"testing"
+
 	"github.com/reactivego/seen/float"
 )
 
@@ -20,13 +21,13 @@ func TestColorScale(t *testing.T) {
 }
 
 func TestColorStringParsing(t *testing.T) {
-	c, err := MakeColorWithString("#0F0F0F")
-	if err != nil || !c.Equal(&Color{15.0 / 255.0, 15.0 / 255.0, 15.0 / 255.0, 1}) {
+	c, err := ColorWithString("#0F0F0F")
+	if err != nil || !c.Equal(Color{15.0 / 255.0, 15.0 / 255.0, 15.0 / 255.0, 1}) {
 		t.Log(c.R, c.G, c.B, c.A)
 		t.Fail()
 	}
 
-	c, err = MakeColorWithString("#FFFFFF")
+	c, err = ColorWithString("#FFFFFF")
 	if err != nil || !c.Equal(White) {
 		t.Log(c.R, c.G, c.B, c.A)
 		t.Fail()
@@ -55,7 +56,6 @@ func TestColorStringGeneration(t *testing.T) {
 	}
 }
 
-
 func TestMakeRandomSource2(t *testing.T) {
 	r := MakeRandomSource2()
 	c0 := r.Read()
@@ -66,4 +66,3 @@ func TestMakeRandomSource2(t *testing.T) {
 		t.Fail()
 	}
 }
-

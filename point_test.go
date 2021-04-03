@@ -2,26 +2,22 @@ package seen
 
 import (
 	"testing"
+
 	"github.com/reactivego/seen/float"
 )
 
-func TestPointRoundReturnedPointIsNewInstance(t *testing.T) {
-	p := &Point{1.1, 2.1, 3.1} // original pointer to a point
-	q := p.Round()                // should be a unique instance
-	z := p.Round()                // should again be a unique instance
-
-	// make sure the pointers are unique
-	if q == p || q == z {
-		t.Fail()
-	}
+func TestPointRoundReturnedPointIsUniqueValue(t *testing.T) {
+	p := Point{1.1, 2.1, 3.1} // original point value
+	q := p.Round()            // should be a unique value
+	z := p.Round()            // should again be a unique value
 
 	// Make sure the rounded value is different from the original value
-	if *p == *q {
+	if p == q {
 		t.Fail()
 	}
 
 	// Make sure the rounded values are identical
-	if *q != *z {
+	if q != z {
 		t.Fail()
 	}
 
@@ -35,8 +31,8 @@ func TestPointRoundAlterInSlice(t *testing.T) {
 	points := []Point{{1.4, 1.5, 1.6}, {1.2, 1.5, 1.6}}
 
 	// Calling a method that alters the object will alter the points in the slice.
-	points[0].RoundAssign()
-	points[1].RoundAssign()
+	points[0] = points[0].Round()
+	points[1] = points[1].Round()
 
 	// Check that the points where indeed altered
 	p := points[0]
@@ -48,34 +44,13 @@ func TestPointRoundAlterInSlice(t *testing.T) {
 		t.Fail()
 	}
 }
-
-func TestPointRoundNotAlteredInFor(t *testing.T) {
-	points := []Point{{1.4, 1.5, 1.6}, {1.2, 1.5, 1.6}}
-
-	// p is expected to be a copy of the point in the slice.
-	// So modifying p will not alter it in the slice.
-	for _, p := range points {
-		p.RoundAssign()
-	}
-
-	// Verify that points were not actually altered
-	p := points[0]
-	if !float.EqualPairs(p.X, 1.4, p.Y, 1.5, p.Z, 1.6) {
-		t.Fail()
-	}
-	p = points[1]
-	if !float.EqualPairs(p.X, 1.2, p.Y, 1.5, p.Z, 1.6) {
-		t.Fail()
-	}
-}
-
 func TestPointRoundAlteredInFor(t *testing.T) {
 	points := []Point{{1.4, 1.5, 1.6}, {1.2, 1.5, 1.6}}
 
 	// addressing the slice via index will alter the point in the slice.
-	// So calling RoundAssign() on the point will alter it.
-	for i := range points {
-		points[i].RoundAssign()
+	// So assigning to the point will alter it.
+	for i, p := range points {
+		points[i] = p.Round()
 	}
 
 	// Verify that points were not actually altered
@@ -90,14 +65,14 @@ func TestPointRoundAlteredInFor(t *testing.T) {
 }
 
 func TestPointCross(t *testing.T) {
-	x := MakePointX()
-	y := MakePointY()
+	x := PointX
+	y := PointY
 	// Geometric interpretation of x cross y is to rotate x to y using right hand
 	// rule, thumb points in the direction of resulting vector.
 	// Cross product of two axis of orthogonal coordinate system should produce the third axis.
 	c := x.Cross(y)
 	t.Log(c)
-	if !c.Equal(MakePointZ()) {
+	if !c.Equal(PointZ) {
 		t.Fail()
 	}
 }

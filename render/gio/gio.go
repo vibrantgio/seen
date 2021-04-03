@@ -145,7 +145,7 @@ func (p *PathPainter) Fill(style render.Style) {
 	}
 	defer op.Save(p.Ops).Load()
 	if c, present := style["fill"]; present {
-		if fill, err := colors.MakeColorWithString(c); err == nil {
+		if fill, err := colors.ColorWithString(c); err == nil {
 			paint.ColorOp{Color: fill.NRGBA()}.Add(p.Ops)
 		}
 	}
@@ -187,7 +187,7 @@ func (p *RectPainter) CornerRadius(rx, ry float64) {
 func (p *RectPainter) Fill(style render.Style) {
 	defer op.Save(p.Ops).Load()
 	if c, present := style["fill"]; present {
-		if fill, err := colors.MakeColorWithString(c); err == nil {
+		if fill, err := colors.ColorWithString(c); err == nil {
 			paint.ColorOp{Color: fill.NRGBA()}.Add(p.Ops)
 		}
 	}
@@ -214,5 +214,5 @@ type TextPainter struct{ *op.Ops }
 // transform is an affine matrix approximating a 3D transform of the plane on which the text is to be painted.
 // text is the text to be painted.
 // Style supports the following keys: fill, font, text-anchor
-func (p *TextPainter) FillText(transform *affine.Matrix, text string, style render.Style) {
+func (p *TextPainter) FillText(transform affine.Matrix, text string, style render.Style) {
 }

@@ -43,13 +43,13 @@ func (s *SceneLayer) Paint(painter Painter) {
 	// Process all renderable objects
 	s.Model.EachRenderable(
 		// LightFunc
-		func(light *seen.Light, transform *seen.Matrix) *seen.LightRenderData {
+		func(light *seen.Light, transform seen.Matrix) *seen.LightRenderData {
 			// Compute light model data.
 			lrd := seen.MakeLightRenderData(light, transform)
 			return lrd
 		},
 		// ShapeFunc
-		func(shape *seen.Shape, lights []*seen.LightRenderData, transform *seen.Matrix) {
+		func(shape *seen.Shape, lights []*seen.LightRenderData, transform seen.Matrix) {
 			for _, surface := range shape.Surfaces {
 				renderModel := s.makeRenderModel(&surface, transform, projection, viewport)
 
@@ -65,17 +65,19 @@ func (s *SceneLayer) Paint(painter Painter) {
 				if (s.ShowBackfaces || surface.ShowBackfaces || renderModel.Normal.Z < 0.0) && renderModel.InFrustrum {
 					// Render fill and stroke using material and shader.
 					if surface.FillMaterial != nil {
-						renderModel.Fill = surface.FillMaterial.Render(lights, s.Shader, renderModel.ShaderData)
+						fill := surface.FillMaterial.Render(lights, s.Shader, renderModel.ShaderData)
+						renderModel.Fill = &fill
 					}
 					if surface.StrokeMaterial != nil {
-						renderModel.Stroke = surface.StrokeMaterial.Render(lights, s.Shader, renderModel.ShaderData)
+						stroke := surface.StrokeMaterial.Render(lights, s.Shader, renderModel.ShaderData)
+						renderModel.Stroke = &stroke
 					}
 
 					// Round coordinates (if enabled)
 					if !s.FractionalPoints {
 						pts := renderModel.ProjectedPoints
-						for i := range pts {
-							pts[i].RoundAssign()
+						for i, pt := range pts {
+							pts[i] = pt.Round()
 						}
 					}
 
@@ -98,7 +100,7 @@ func (s *SceneLayer) Paint(painter Painter) {
 // makeRenderModel will get or create the rendermodel for
 // the given surface. If Regenerate is false, we cache
 // these models to reduce object creation and recomputation.
-func (s *SceneLayer) makeRenderModel(surface *seen.Surface, transform, projection, viewport *seen.Matrix) *RenderModel {
+func (s *SceneLayer) makeRenderModel(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderModel {
 	if s.Regenerate {
 		// No caching
 		return MakeRenderModel(surface, transform, projection, viewport)

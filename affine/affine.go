@@ -43,7 +43,7 @@ type Matrix struct {
 // NOTE! the coordinate system for homogeneous vectors that can be
 // transformed using this matrix have the positive x-axis going right
 // but the positive y axis going down!
-func SolveForAffineTransform(points []seen.Point) *Matrix {
+func SolveForAffineTransform(points []seen.Point) Matrix {
 	// Because we control the initial values of the points, we can re-use the
 	// state matrix. Furthermore, because we have use a special layout (upper
 	// triangular) for this matrix, we avoid any matrix factorization and can go
@@ -69,7 +69,7 @@ func SolveForAffineTransform(points []seen.Point) *Matrix {
 	}
 	// To use the affine transform, we flip y:
 	//   x[0], x[3], -x[1], -x[4], x[2], x[5]
-	return &Matrix{x[0], x[3], -x[1], -x[4], x[2], x[5]}
+	return Matrix{x[0], x[3], -x[1], -x[4], x[2], x[5]}
 }
 
 // _INITIAL_STATE_MATRIX is built using the method from this StackOverflow answer:

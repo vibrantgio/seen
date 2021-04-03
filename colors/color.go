@@ -22,7 +22,7 @@ const InvalidPattern = ColorError("Parse Error: color reference does not match p
 // Source is an interface to a color source. It is used for generating
 // a sequence of random colors that are slightly different.
 type Source interface {
-	Read() *Color
+	Read() Color
 }
 
 // Color objects store RGB and Alpha values with components in range [0..1]
@@ -32,22 +32,22 @@ type Color struct {
 
 var (
 	// White is a shortcut for the white color
-	White = &Color{1.0, 1.0, 1.0, 1.0}
+	White = Color{1.0, 1.0, 1.0, 1.0}
 
 	// Grey is a shortcut for the grey color.
-	Grey = &Color{0.5, 0.5, 0.5, 1.0}
+	Grey = Color{0.5, 0.5, 0.5, 1.0}
 
 	// Black is a shortcut for the black color.
-	Black = &Color{0.0, 0.0, 0.0, 1.0}
+	Black = Color{0.0, 0.0, 0.0, 1.0}
 )
 
-// MakeColorHsl creates a new `Color` using the supplied hue, saturation,
+// ColorHsl creates a new `Color` using the supplied hue, saturation,
 // and lightness (HSL) values.
 // Each value must be in the range [0.0, 1.0].
-func MakeColorHsl(h, s, l, a float64) *Color {
+func ColorHsl(h, s, l, a float64) Color {
 	// When saturation is 0, the color is "achromatic" or "grayscale".
 	if s == 0 {
-		return &Color{l, l, l, a}
+		return Color{l, l, l, a}
 	}
 	var q float64
 	if l < 0.5 {
@@ -61,7 +61,7 @@ func MakeColorHsl(h, s, l, a float64) *Color {
 	g := hue2rgb(p, q, h)
 	b := hue2rgb(p, q, h-1.0/3.0)
 
-	return &Color{r, g, b, a}
+	return Color{r, g, b, a}
 }
 
 // Helper function to convert hue to rgb
@@ -84,12 +84,12 @@ func hue2rgb(p, q, t float64) float64 {
 	}
 }
 
-// MakeColorWithString creates a color based on a string pattern #rgb, #rgba, #rrggbb
+// ColorWithString creates a color based on a string pattern #rgb, #rgba, #rrggbb
 // or #rrggbbaa where the color components are hexadecimal values between 0 and 0xff.
 // e.g. #ffffffff is white fully opaque.
-func MakeColorWithString(s string) (c *Color, err error) {
+func ColorWithString(s string) (c Color, err error) {
 	if !strings.HasPrefix(s, "#") {
-		return nil, ExpectedHash
+		return c, ExpectedHash
 	}
 	nibble := func(b byte) byte {
 		switch {
@@ -103,7 +103,6 @@ func MakeColorWithString(s string) (c *Color, err error) {
 		err = InvalidPattern
 		return 0
 	}
-	c = &Color{}
 	switch len(s) {
 	case 9:
 		c.R = float64(nibble(s[1])<<4+nibble(s[2])) / 255
@@ -128,9 +127,6 @@ func MakeColorWithString(s string) (c *Color, err error) {
 	default:
 		err = InvalidLength
 	}
-	if err != nil {
-		c = nil
-	}
 	return c, err
 }
 
@@ -151,50 +147,50 @@ func (c Color) NRGBA() color.NRGBA {
 }
 
 // Equal returns true when the colors have both equal color components as well as equal alpha value.
-func (l *Color) Equal(r *Color) bool {
+func (l Color) Equal(r Color) bool {
 	return float.EqualPairs(l.R, r.R, l.G, r.G, l.B, r.B, l.A, r.A)
 }
 
 // Scale returns a Color with the rgb channels scaled by the supplied scalar value.
-func (c Color) Scale(s float64) *Color {
+func (c Color) Scale(s float64) Color {
 	c.R *= s
 	c.G *= s
 	c.B *= s
-	return &c
+	return c
 }
 
 // AddChannels adds the channels of the current Color with each respective
 // channel from the supplied Color object.
-func (l Color) AddChannels(r *Color) *Color {
+func (l Color) AddChannels(r Color) Color {
 	l.R += r.R
 	l.G += r.G
 	l.B += r.B
-	return &l
+	return l
 }
 
 // MultiplyChannels multiplies the channels of the current Color with each respective
 // channel from the supplied Color object.
-func (l Color) MultiplyChannels(r *Color) *Color {
+func (l Color) MultiplyChannels(r Color) Color {
 	l.R *= r.R
 	l.G *= r.G
 	l.B *= r.B
-	return &l
+	return l
 }
 
 // MinChannels takes the minimum between each channel of the current Color and the supplied Color object.
-func (l Color) MinChannels(r *Color) *Color {
+func (l Color) MinChannels(r Color) Color {
 	l.R = math.Min(r.R, l.R)
 	l.G = math.Min(r.G, l.G)
 	l.B = math.Min(r.B, l.B)
-	return &l
+	return l
 }
 
 // Clamp clamps each rgb channel to the supplied minimum and maximum scalar values.
-func (l Color) Clamp(min, max float64) *Color {
+func (l Color) Clamp(min, max float64) Color {
 	l.R = math.Min(max, math.Max(min, l.R))
 	l.G = math.Min(max, math.Max(min, l.G))
 	l.B = math.Min(max, math.Max(min, l.B))
-	return &l
+	return l
 }
 
 // init will seed the default random generator with the current time.
@@ -245,7 +241,7 @@ func (c *RandomSource2) Init(options ...Option) {
 	c.hue = rand.Float64()
 }
 
-func (c *RandomSource2) Read() *Color {
+func (c *RandomSource2) Read() Color {
 	c.hue += (rand.Float64() - 0.5) * c.drift
 	for c.hue < 0 {
 		c.hue += 1
@@ -253,5 +249,5 @@ func (c *RandomSource2) Read() *Color {
 	for c.hue > 1 {
 		c.hue -= 1
 	}
-	return MakeColorHsl(c.hue, c.sat, c.lit, 1.0)
+	return ColorHsl(c.hue, c.sat, c.lit, 1.0)
 }
