@@ -2,6 +2,7 @@ package gio
 
 import (
 	"image"
+	"time"
 
 	"gioui.org/app"
 	"gioui.org/f32"
@@ -38,7 +39,7 @@ func (c *Context) Render() {
 	c.window.Invalidate()
 }
 
-func (c *Context) HandleEvents(queue event.Queue, ops *op.Ops) {
+func (c *Context) Draw(ops *op.Ops, queue event.Queue) {
 	p := Painter{Ops: ops}
 	for _, render := range c.render {
 		render(&p)
@@ -49,11 +50,14 @@ func (c *Context) HandleEvents(queue event.Queue, ops *op.Ops) {
 	for _, handler := range c.handlers {
 		handler(queue)
 	}
+	if seen.Scheduler.Run() {
+		op.InvalidateOp{}.Add(ops)
+	}
 }
 
 func (c *Context) Animate() seen.Animator {
 	animator := seen.MakeAnimator()
-	animator.OnFrame(func(d, dt float64) {
+	animator.OnFrame(func(d, dt time.Duration) {
 		c.Render()
 	})
 	return animator
@@ -63,20 +67,57 @@ func (c *Context) Drag(options ...seen.DragOption) *seen.Drag {
 	drag := seen.MakeDrag(options...)
 	c.inputs = append(c.inputs, func(ops *op.Ops) {
 		defer op.Save(ops).Load()
-		pointer.InputOp{Tag: drag, Types: pointer.Drag}.Add(ops)
+		const types = pointer.Press | pointer.Drag | pointer.Release
+		pointer.InputOp{Tag: drag, Types: types}.Add(ops)
 	})
+	previous := struct {
+		Position f32.Point
+		Time     time.Duration
+	}{}
 	c.handlers = append(c.handlers, func(q event.Queue) {
-		pos := f32.Pt(0, 0)
 		for _, event := range q.Events(drag) {
-			if p, ok := event.(pointer.Event); ok && p.Type == pointer.Drag {
-				if pos != f32.Pt(0, 0) {
-					d := p.Position.Sub(pos)
+			if p, ok := event.(pointer.Event); ok {
+				switch p.Type {
+				case pointer.Press:
 					drag.Handle(seen.DragEvent{
-						OffsetRelativeX: float64(d.X),
-						OffsetRelativeY: float64(d.Y),
+						Type: seen.DragStart,
+						X:    float64(p.Position.X),
+						Y:    float64(p.Position.Y),
+						T:    p.Time,
 					})
+				case pointer.Drag:
+					if previous.Time != 0 {
+						dP := p.Position.Sub(previous.Position)
+						dT := p.Time - previous.Time
+						drag.Handle(seen.DragEvent{
+							Type: seen.DragMove,
+							X:    float64(p.Position.X),
+							Y:    float64(p.Position.Y),
+							T:    p.Time,
+							Dx:   float64(dP.X),
+							Dy:   float64(dP.Y),
+							Dt:   dT,
+						})
+					}
+					previous.Position, previous.Time = p.Position, p.Time
+				case pointer.Release:
+					if previous.Time != 0 {
+						dP := p.Position.Sub(previous.Position)
+						dT := p.Time - previous.Time
+						drag.Handle(seen.DragEvent{
+							Type: seen.DragEnd,
+							X:    float64(p.Position.X),
+							Y:    float64(p.Position.Y),
+							T:    p.Time,
+							Dx:   float64(dP.X),
+							Dy:   float64(dP.Y),
+							Dt:   dT,
+						})
+					}
+					previous.Time = 0
+				case pointer.Cancel:
+					// fmt.Println("CANCEL")
 				}
-				pos = p.Position
 			}
 		}
 	})

@@ -21,10 +21,10 @@ type Animator interface {
 	OnAfter(Handler)
 }
 
-type Handler func(t, dt float64)
+type Handler func(t, dt time.Duration)
 
 type animator struct {
-	ticker   *time.Ticker
+	ticker   IntervalID
 	onBefore []Handler
 	onFrame  []Handler
 	onAfter  []Handler
@@ -35,35 +35,26 @@ func MakeAnimator() Animator {
 }
 
 func (a *animator) Start() {
-	due := 30 * time.Millisecond
-	if a.ticker == nil {
-		a.ticker = time.NewTicker(due)
-		go func() {
-			mark := time.Now()
-			for tick := range a.ticker.C {
-				t := float64(tick.UnixNano() / 1000000)
-				dt := float64(tick.Sub(mark).Milliseconds())
-				mark = tick
-				for _, handler := range a.onBefore {
-					handler(t, dt)
-				}
-				for _, handler := range a.onFrame {
-					handler(t, dt)
-				}
-				for _, handler := range a.onAfter {
-					handler(t, dt)
-				}
-			}
-		}()
-	} else {
-		a.ticker.Reset(due)
+	if a.ticker != 0 {
+		ClearInterval(a.ticker)
 	}
+	animate := func(t, dt time.Duration) bool {
+		for _, handler := range a.onBefore {
+			handler(t, dt)
+		}
+		for _, handler := range a.onFrame {
+			handler(t, dt)
+		}
+		for _, handler := range a.onAfter {
+			handler(t, dt)
+		}
+		return true
+	}
+	a.ticker = SetInterval(animate, 30*time.Millisecond)
 }
 
 func (a *animator) Stop() {
-	if a.ticker != nil {
-		a.ticker.Stop()
-	}
+	ClearInterval(a.ticker)
 }
 
 func (a *animator) OnBefore(handler Handler) {

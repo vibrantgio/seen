@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"gioui.org/app"
 	"gioui.org/f32"
@@ -38,7 +39,7 @@ func HelloWorld() {
 			ops.Reset()
 			ppd := frame.Metric.PxPerDp
 			op.Affine(f32.NewAffine2D(ppd, 0, 0, 0, ppd, 0)).Add(ops)
-			context.HandleEvents(frame.Queue, ops)
+			context.Draw(ops, frame.Queue)
 			frame.Frame(ops)
 		}
 	}
@@ -63,18 +64,18 @@ func Setup(window *app.Window) *gio.Context {
 
 	// Slowly rotate sphere
 	animator := context.Animate()
-	animator.OnBefore(func(t, dt float64) {
-		ryrx := transform.QuatRotY(0.7 * dt * 1e-4).MulRotX(dt * 1e-4)
-		shape.SetRotation(ryrx.Mul(shape.Rotation()))
+	animator.OnBefore(func(t, dt time.Duration) {
+		dtms := float64(dt.Milliseconds())
+		r := transform.QuatRotY(0.7 * dtms * 1e-4).MulRotX(dtms * 1e-4).Mul(shape.Rotation())
+		shape.SetRotation(r)
 	})
 	animator.Start()
 
 	// Enable drag-to-rotate
 	drag := context.Drag(seen.Inertia(true))
 	drag.On(func(e seen.DragEvent) {
-		dx, dy := e.OffsetRelativeX/150, e.OffsetRelativeY/150
-		ryrx := transform.QuatRotY(dx).MulRotX(dy)
-		shape.SetRotation(ryrx.Mul(shape.Rotation()))
+		r := transform.QuatRotY(e.Dx / 150).MulRotX(e.Dy / 150).Mul(shape.Rotation())
+		shape.SetRotation(r)
 		context.Render()
 	})
 

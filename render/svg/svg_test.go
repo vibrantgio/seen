@@ -229,9 +229,10 @@ func TestDemoSvgCanvas(t *testing.T) {
 
 	// Slowly rotate shapes
 	a := seen.MakeAnimator()
-	a.OnFrame(func(t, dt float64) {
+	a.OnFrame(func(t, dt time.Duration) {
 		for _, sphere := range spheres {
-			ryrx := transform.QuatRotY(dt * 2e-4).MulRotX(dt * 3e-4)
+			dtms := float64(dt.Milliseconds())
+			ryrx := transform.QuatRotY(dtms * 2e-4).MulRotX(dtms * 3e-4)
 			sphere.SetRotation(ryrx.Mul(sphere.Rotation()))
 		}
 		for _, context := range contexts {

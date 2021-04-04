@@ -2,6 +2,7 @@ package canvas
 
 import (
 	"strings"
+	"time"
 
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/document"
@@ -43,6 +44,6 @@ func (c *Context) Render() {
 
 func (c *Context) Animate() seen.Animator {
 	animator := seen.MakeAnimator()
-	animator.OnFrame(func(d, dt float64) { c.Render() })
+	animator.OnFrame(func(d, dt time.Duration) { c.Render() })
 	return animator
 }
