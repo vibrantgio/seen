@@ -1,22 +1,72 @@
 package gio
 
 import (
+	"fmt"
 	"image"
+	"image/color"
 	"math"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
+
+	"eliasnaur.com/font/roboto/robotobold"
+	"eliasnaur.com/font/roboto/robotoregular"
+
+	"golang.org/x/image/math/fixed"
 
 	"gioui.org/app"
 	"gioui.org/f32"
+	"gioui.org/font/opentype"
 	"gioui.org/io/event"
 	"gioui.org/io/pointer"
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
+	"gioui.org/text"
 
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/affine"
 	"github.com/reactivego/seen/colors"
 	"github.com/reactivego/seen/render"
+)
+
+var roboto struct {
+	sync.Once
+	faces []text.FontFace
+}
+
+func RobotoFontFaces() []text.FontFace {
+	register := func(fnt text.Font, ttf []byte) {
+		face, err := opentype.Parse(ttf)
+		if err != nil {
+			panic(fmt.Sprintf("failed to parse font: %v", err))
+		}
+		fnt.Typeface = "Roboto"
+		roboto.faces = append(roboto.faces, text.FontFace{Font: fnt, Face: face})
+	}
+	roboto.Do(func() {
+		// Weight: Normal (400)
+		register(text.Font{Style: text.Regular, Weight: text.Normal}, robotoregular.TTF)
+		// Weight: Bold (600)
+		register(text.Font{Style: text.Regular, Weight: text.Bold}, robotobold.TTF)
+	})
+	return roboto.faces
+}
+
+var (
+	RobotoNormal = text.Font{
+		Typeface: "Roboto",
+		Variant:  "",
+		Style:    text.Regular,
+		Weight:   text.Normal /*400*/}
+	RobotoBold = text.Font{
+		Typeface: "Roboto",
+		Variant:  "",
+		Style:    text.Regular,
+		Weight:   text.Bold /*600*/}
+
+	shaper = text.NewCache(RobotoFontFaces())
 )
 
 // Context
@@ -283,5 +333,69 @@ type TextPainter struct{ *op.Ops }
 // transform is an affine matrix approximating a 3D transform of the plane on which the text is to be painted.
 // text is the text to be painted.
 // Style supports the following keys: fill, font, text-anchor
-func (p *TextPainter) FillText(transform affine.Matrix, text string, style render.Style) {
+func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) {
+	defer op.Save(p.Ops).Load()
+	aff := f32.NewAffine2D(float32(t.A), float32(t.C), float32(t.E), float32(t.B), float32(t.D), float32(t.F))
+	op.Affine(aff).Add(p.Ops)
+
+	font := RobotoNormal
+	size := 10
+	fill := color.NRGBA{0, 0, 0, 255}
+
+	if family, present := style["font-family"]; present {
+		font.Typeface = text.Typeface(family)
+	}
+	if weight, present := style["font-weight"]; present {
+		switch weight {
+		case "normal":
+			font.Weight = text.Normal
+		case "bold":
+			font.Weight = text.Bold
+		}
+	}
+	if sz, present := style["font-size"]; present {
+		if strings.HasSuffix(sz, "px") {
+			sz = sz[:len(sz)-2]
+		}
+		if sz, err := strconv.Atoi(sz); err == nil {
+			size = sz
+		}
+	}
+	if c, present := style["fill"]; present {
+		if f, err := colors.ColorWithString(c); err == nil {
+			fill = f.NRGBA()
+		}
+	}
+	ax, ay := float32(0.5), float32(1.0)
+	if a, present := style["text-anchor"]; present {
+		if a == "start" {
+			ax = 0.0
+		} else if a == "end" {
+			ax = 1.0
+		}
+	}
+
+	print := func(txt string, pt f32.Point, ax, ay, width float32, font text.Font, size int, fill color.NRGBA, ops *op.Ops) (dx, dy float32) {
+		lines := shaper.LayoutString(font, fixed.I(size), int(width), txt)
+		for _, line := range lines {
+			dy += float32(line.Ascent.Ceil() + line.Descent.Ceil())
+			lineWidth := float32(line.Width.Ceil())
+			if dx < lineWidth {
+				dx = lineWidth
+			}
+		}
+		offset := f32.Pt(pt.X-ax*dx, pt.Y-ay*dy)
+		for _, line := range lines {
+			state := op.Save(ops)
+			offset.Y += float32(line.Ascent.Ceil())
+			op.Offset(offset).Add(ops)
+			offset.Y += float32(line.Descent.Ceil())
+			shaper.Shape(font, fixed.I(size), line.Layout).Add(ops)
+			paint.ColorOp{Color: fill}.Add(ops)
+			paint.PaintOp{}.Add(ops)
+			state.Load()
+		}
+		return
+	}
+	print(txt, f32.Pt(0, 0), ax, ay, 2000, font, size, fill, p.Ops)
 }

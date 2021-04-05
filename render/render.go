@@ -29,22 +29,27 @@ func PathRender(model *RenderModel, painter Painter) {
 
 // TextRender renders a RenderModel for a Text Surface onto a Painter.
 func TextRender(model *RenderModel, painter Painter) {
-	fill := "none"
-	if model.Fill != nil {
-		fill = model.Fill.Hex()
-	}
-	font, fontPresent := model.Surface.Options["font"]
-	if !fontPresent {
-		font = ""
-	}
-	anchor, anchorPresent := model.Surface.Options["anchor"]
-	if !anchorPresent {
-		anchor = "middle"
-	}
 	style := map[string]string{
-		"fill":        fill,
-		"font":        font,
-		"text-anchor": anchor,
+		"fill":        "none",
+		"text-anchor": "middle",
+	}
+	if model.Fill != nil {
+		style["fill"] = model.Fill.Hex()
+	}
+	if font, present := model.Surface.Options["font"]; present {
+		style["font"] = font
+	}
+	if family, present := model.Surface.Options["font-family"]; present {
+		style["font-family"] = family
+	}
+	if size, present := model.Surface.Options["font-size"]; present {
+		style["font-size"] = size
+	}
+	if weight, present := model.Surface.Options["font-weight"]; present {
+		style["font-weight"] = weight
+	}
+	if anchor, present := model.Surface.Options["anchor"]; present {
+		style["text-anchor"] = anchor
 	}
 	xform := affine.SolveForAffineTransform(model.ProjectedPoints)
 	text := model.Surface.Options["text"]

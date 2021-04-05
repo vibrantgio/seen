@@ -33,7 +33,7 @@ type Surface struct {
 	// Options is a map of additional options that can be specified for a surface.
 	// The option with key "stroke-width" is passed in the style map parameter to
 	// PathPainter.Stroke() call.
-	// The keys "font" and "anchor" are passed in as keys "font" and "text-anchor" in 
+	// The keys "font" and "anchor" are passed in as keys "font" and "text-anchor" in
 	// the style map parameter to TextPainter.FillText() call.
 	Options map[string]string
 }
@@ -59,8 +59,8 @@ func MakeSurfaces(points []Point, coordinateMap [][]int) (surfaces []Surface) {
 func MakeSurface(points []Point) *Surface {
 	s := &Surface{}
 	s.Init()
-	s.Points = make([]Point,len(points))
-	copy(s.Points,points)
+	s.Points = make([]Point, len(points))
+	copy(s.Points, points)
 	return s
 }
 
@@ -69,12 +69,12 @@ func (s *Surface) Init() {
 	s.Options = make(map[string]string)
 }
 
-func (s *Surface) SetFillMaterial(value interface{}) (err error) {
+func (s *Surface) SetFill(value interface{}) (err error) {
 	s.FillMaterial, err = MakeMaterial(value)
 	return
 }
 
-func (s *Surface) SetStrokeMaterial(value interface{}) (err error) {
+func (s *Surface) SetStroke(value interface{}) (err error) {
 	s.StrokeMaterial, err = MakeMaterial(value)
 	return
 }

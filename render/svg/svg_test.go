@@ -274,20 +274,22 @@ func TestDemoText(t *testing.T) {
 		uc := shapes.MakeUnitCube()
 		uc.SetScale(20.0, d, 20.0)
 		uc.SetTranslation(float64(i)*30.0, 0, 0)
-		uc.SetFillMaterial("#0088FF")
+		uc.SetFill("#0088FF")
 		model.Add(uc)
 	}
 
 	// Draw text above bars
 	for i, d := range data {
 		opts := map[string]string{
-			"font":   "10px Roboto",
-			"anchor": "middle",
+			//"font": "10px Roboto",
+			"font-family": "Roboto",
+			"font-size":   "10px",
+			"anchor":      "middle",
 		}
 		t := shapes.MakeText(strconv.FormatFloat(d, 'f', 1, 64), opts)
 		t.SetShowBackfaces(true)
 		t.SetTranslation(float64(i)*30+10, d+10, 10)
-		t.SetFillMaterial("#000000")
+		t.SetFill("#000000")
 		model.Add(t)
 	}
 

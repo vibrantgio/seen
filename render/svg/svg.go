@@ -218,7 +218,6 @@ func (p *SvgTextPainter) FillText(t affine.Matrix, text string, style render.Sty
 		}
 	}
 	el.SetAttribute("style", str)
-
 	el.TextContent = text
 }
 

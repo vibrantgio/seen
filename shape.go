@@ -22,25 +22,31 @@ func (s *Shape) Init(kind string, surfaces []Surface) {
 func (s *Shape) ColorSurfaces(source colors.Source) (err error) {
 	err = nil
 	for i := range s.Surfaces {
-		if err = s.Surfaces[i].SetFillMaterial(source.Read()); err != nil {
+		if err = s.Surfaces[i].SetFill(source.Read()); err != nil {
 			return
 		}
 	}
 	return
 }
 
-// SetFillMaterial applies the supplied fill Material to each surface
-func (s *Shape) SetFillMaterial(value interface{}) {
+// SetFill applies the supplied fill Material to each surface
+func (s *Shape) SetFill(value interface{}) (err error) {
 	for i := range s.Surfaces {
-		s.Surfaces[i].SetFillMaterial(value)
+		if err = s.Surfaces[i].SetFill(value); err != nil {
+			return
+		}
 	}
+	return
 }
 
-// SetStrokeMaterial applies the supplied stroke Material to each surface
-func (s *Shape) SetStrokeMaterial(value interface{}) {
+// SetStroke applies the supplied stroke Material to each surface
+func (s *Shape) SetStroke(value interface{}) (err error) {
 	for i := range s.Surfaces {
-		s.Surfaces[i].SetStrokeMaterial(value)
+		if err = s.Surfaces[i].SetStroke(value); err != nil {
+			return
+		}
 	}
+	return
 }
 
 // SetShowBackfaces will set the ShowBackfaces bool on the surfaces of this shape.

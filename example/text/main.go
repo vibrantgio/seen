@@ -1,0 +1,115 @@
+package main
+
+import (
+	"math/rand"
+	"os"
+	"strconv"
+	"time"
+
+	"gioui.org/app"
+	"gioui.org/f32"
+	"gioui.org/io/system"
+	"gioui.org/op"
+	"gioui.org/unit"
+
+	"github.com/reactivego/seen"
+	"github.com/reactivego/seen/render"
+	"github.com/reactivego/seen/render/gio"
+	"github.com/reactivego/seen/shapes"
+	"github.com/reactivego/seen/transform"
+)
+
+const WidthDp = 900
+const HeightDp = 500
+
+func main() {
+	go Text()
+	app.Main()
+}
+
+func Text() {
+	window := app.NewWindow(
+		app.Title("Seen - Text"),
+		app.Size(unit.Dp(WidthDp), unit.Dp(HeightDp)),
+		app.MinSize(unit.Dp(640), unit.Dp(480)),
+	)
+
+	// Generate some random data points
+	data := make([]float64, 0, 10)
+	for i := 0; i < 10; i++ {
+		data = append(data, rand.Float64()*80.0+20.0)
+	}
+
+	model := seen.MakeDefaultModel()
+
+	// Draw bars for data
+	for i, d := range data {
+		uc := shapes.MakeUnitCube()
+		uc.SetFill("#0088FF")
+		uc.SetScale(20, d, 20)
+		uc.SetTranslation(float64(i*30)-150, -50, 0)
+		model.Add(uc)
+	}
+
+	// Draw text above bars
+	for i, d := range data {
+		opts := map[string]string{
+			"font-family": "Roboto",
+			"font-weight": "normal", // normal | bold
+			"font-size":   "10px",
+			"anchor":      "middle",
+		}
+		t := shapes.MakeText(strconv.FormatFloat(d, 'f', 1, 64), opts)
+		t.SetShowBackfaces(true)
+		t.SetTranslation(float64(i)*30+10-150, d+10-50, 10)
+		t.SetFill("#000000")
+		model.Add(t)
+	}
+
+	model.SetScale(2, 2, 2)
+
+	// Create scene and add shape to model
+	scene := seen.MakeScene()
+	scene.Model = model
+	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
+
+	// Create a render layer and render context
+	layer := render.MakeSceneLayer(scene)
+	context := gio.MakeContext(window, layer)
+
+	// Slowly rotate the bar chart
+	animator := context.Animate()
+	animator.OnBefore(func(t, dt time.Duration) {
+		dtms := float64(dt.Milliseconds())
+		r := transform.QuatRotY(0.7 * dtms * 1e-4).Mul(model.Rotation())
+		model.SetRotation(r)
+	})
+	animator.Start()
+
+	// Enable drag-to-rotate
+	drag := context.Drag(seen.Inertia(true))
+	drag.On(func(e seen.DragEvent) {
+		r := transform.QuatRotY(e.Dx / 150).MulRotX(e.Dy / 150).Mul(model.Rotation())
+		model.SetRotation(r)
+		context.Render()
+	})
+
+	// Enable mouse-wheel zoom
+	zoom := context.Zoom()
+	zoom.On(func(e seen.ZoomEvent) {
+		sx, sy, sz := model.Scale()
+		model.SetScale(sx*e.Zoom, sy*e.Zoom, sz*e.Zoom)
+	})
+
+	ops := &op.Ops{}
+	for event := range window.Events() {
+		if frame, ok := event.(system.FrameEvent); ok {
+			ops.Reset()
+			ppd := frame.Metric.PxPerDp
+			op.Affine(f32.NewAffine2D(ppd, 0, 0, 0, ppd, 0)).Add(ops)
+			context.Draw(ops, frame.Queue)
+			frame.Frame(ops)
+		}
+	}
+	os.Exit(0)
+}
