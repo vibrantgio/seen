@@ -27,7 +27,7 @@ type DragType string
 
 const (
 	DragStart      = DragType("DragStart")
-	DragMove       = DragType("DragMove")
+	DragMove       = DragType("Drag")
 	DragEnd        = DragType("DragEnd")
 	DragEndInertia = DragType("DragEndInertia")
 )
