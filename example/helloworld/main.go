@@ -32,21 +32,7 @@ func HelloWorld() {
 		app.Size(unit.Dp(WidthDp), unit.Dp(HeightDp)),
 		app.MinSize(unit.Dp(640), unit.Dp(480)),
 	)
-	context := Setup(window)
-	ops := &op.Ops{}
-	for event := range window.Events() {
-		if frame, ok := event.(system.FrameEvent); ok {
-			ops.Reset()
-			ppd := frame.Metric.PxPerDp
-			op.Affine(f32.NewAffine2D(ppd, 0, 0, 0, ppd, 0)).Add(ops)
-			context.Draw(ops, frame.Queue)
-			frame.Frame(ops)
-		}
-	}
-	os.Exit(0)
-}
 
-func Setup(window *app.Window) *gio.Context {
 	// Create sphere shape with randomly colored surfaces
 	shape := shapes.MakeSphere(2)
 	shape.SetScale(HeightDp*0.4, HeightDp*0.4, HeightDp*0.4)
@@ -86,5 +72,15 @@ func Setup(window *app.Window) *gio.Context {
 		shape.SetScale(sx*e.Zoom, sy*e.Zoom, sz*e.Zoom)
 	})
 
-	return context
+	ops := &op.Ops{}
+	for event := range window.Events() {
+		if frame, ok := event.(system.FrameEvent); ok {
+			ops.Reset()
+			ppd := frame.Metric.PxPerDp
+			op.Affine(f32.NewAffine2D(ppd, 0, 0, 0, ppd, 0)).Add(ops)
+			context.Draw(ops, frame.Queue)
+			frame.Frame(ops)
+		}
+	}
+	os.Exit(0)
 }
