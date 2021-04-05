@@ -2,6 +2,7 @@ package gio
 
 import (
 	"image"
+	"math"
 	"time"
 
 	"gioui.org/app"
@@ -67,6 +68,7 @@ func (c *Context) Drag(options ...seen.DragOption) *seen.Drag {
 	drag := seen.MakeDrag(options...)
 	c.inputs = append(c.inputs, func(ops *op.Ops) {
 		defer op.Save(ops).Load()
+		pointer.PassOp{Pass: true}.Add(ops)
 		const types = pointer.Press | pointer.Drag | pointer.Release
 		pointer.InputOp{Tag: drag, Types: types}.Add(ops)
 	})
@@ -115,13 +117,39 @@ func (c *Context) Drag(options ...seen.DragOption) *seen.Drag {
 						})
 					}
 					previous.Time = 0
-				case pointer.Cancel:
-					// fmt.Println("CANCEL")
 				}
 			}
 		}
 	})
 	return drag
+}
+
+func (c *Context) Zoom() *seen.Zoom {
+	zoom := seen.MakeZoom()
+	c.inputs = append(c.inputs, func(ops *op.Ops) {
+		defer op.Save(ops).Load()
+		pointer.PassOp{Pass: true}.Add(ops)
+		pointer.InputOp{
+			Tag:          zoom,
+			Types:        pointer.Scroll,
+			ScrollBounds: image.Rect(-120, -120, 120, 120),
+		}.Add(ops)
+	})
+	c.handlers = append(c.handlers, func(q event.Queue) {
+		for _, event := range q.Events(zoom) {
+			if p, ok := event.(pointer.Event); ok {
+				dx, dy := -float64(p.Scroll.X), -float64(p.Scroll.Y)
+				dxy := math.Copysign(math.Hypot(dx, dy), dy)
+				zoom.Handle(seen.ZoomEvent{
+					Type:       seen.ZoomMove,
+					Dx:         dx,
+					Dy:         dy,
+					WheelDelta: dxy,
+				})
+			}
+		}
+	})
+	return zoom
 }
 
 func (c *Context) Layer(layer render.RenderLayer) {

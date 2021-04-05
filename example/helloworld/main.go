@@ -79,5 +79,12 @@ func Setup(window *app.Window) *gio.Context {
 		context.Render()
 	})
 
+	// Enable mouse-wheel zoom
+	zoom := context.Zoom()
+	zoom.On(func(e seen.ZoomEvent) {
+		sx, sy, sz := shape.Scale()
+		shape.SetScale(sx*e.Zoom, sy*e.Zoom, sz*e.Zoom)
+	})
+
 	return context
 }
