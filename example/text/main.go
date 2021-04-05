@@ -58,6 +58,7 @@ func Text() {
 			"font-weight": "normal", // normal | bold
 			"font-size":   "10px",
 			"anchor":      "middle",
+			"textLength":  "200px",
 		}
 		t := shapes.MakeText(strconv.FormatFloat(d, 'f', 1, 64), opts)
 		t.SetShowBackfaces(true)

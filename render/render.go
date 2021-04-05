@@ -51,6 +51,9 @@ func TextRender(model *RenderModel, painter Painter) {
 	if anchor, present := model.Surface.Options["anchor"]; present {
 		style["text-anchor"] = anchor
 	}
+	if length, present := model.Surface.Options["textLength"]; present {
+		style["textLength"] = length
+	}
 	xform := affine.SolveForAffineTransform(model.ProjectedPoints)
 	text := model.Surface.Options["text"]
 	painter.Text().FillText(xform, text, style)

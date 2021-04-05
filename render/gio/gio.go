@@ -374,28 +374,39 @@ func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) 
 			ax = 1.0
 		}
 	}
-
-	print := func(txt string, pt f32.Point, ax, ay, width float32, font text.Font, size int, fill color.NRGBA, ops *op.Ops) (dx, dy float32) {
-		lines := shaper.LayoutString(font, fixed.I(size), int(width), txt)
-		for _, line := range lines {
-			dy += float32(line.Ascent.Ceil() + line.Descent.Ceil())
-			lineWidth := float32(line.Width.Ceil())
-			if dx < lineWidth {
-				dx = lineWidth
-			}
+	textLength := 2000
+	if tl, present := style["textLength"]; present {
+		if strings.HasSuffix(tl, "px") {
+			tl = tl[:len(tl)-2]
 		}
-		offset := f32.Pt(pt.X-ax*dx, pt.Y-ay*dy)
-		for _, line := range lines {
-			state := op.Save(ops)
-			offset.Y += float32(line.Ascent.Ceil())
-			op.Offset(offset).Add(ops)
-			offset.Y += float32(line.Descent.Ceil())
-			shaper.Shape(font, fixed.I(size), line.Layout).Add(ops)
-			paint.ColorOp{Color: fill}.Add(ops)
-			paint.PaintOp{}.Add(ops)
-			state.Load()
+		if tl, err := strconv.Atoi(tl); err == nil {
+			textLength = tl
 		}
-		return
 	}
-	print(txt, f32.Pt(0, 0), ax, ay, 2000, font, size, fill, p.Ops)
+
+	// Layout the txt string given font and size and a MaxLineWidth
+	lines := shaper.LayoutString(font, fixed.I(size), textLength, txt)
+
+	// Determine the size of the layout rectangle dx,dy
+	dx, dy := float32(0), float32(0)
+	for _, line := range lines {
+		dy += float32(line.Ascent.Ceil() + line.Descent.Ceil())
+		lineWidth := float32(line.Width.Ceil())
+		if dx < lineWidth {
+			dx = lineWidth
+		}
+	}
+
+	// Actually paint the txt
+	offset := f32.Pt(-ax*dx, -ay*dy)
+	for _, line := range lines {
+		state := op.Save(p.Ops)
+		offset.Y += float32(line.Ascent.Ceil())
+		op.Offset(offset).Add(p.Ops)
+		offset.Y += float32(line.Descent.Ceil())
+		shaper.Shape(font, fixed.I(size), line.Layout).Add(p.Ops)
+		paint.ColorOp{Color: fill}.Add(p.Ops)
+		paint.PaintOp{}.Add(p.Ops)
+		state.Load()
+	}
 }
