@@ -47,7 +47,7 @@ func Text() {
 		uc := shapes.MakeUnitCube()
 		uc.SetFill("#0088FF")
 		uc.SetScale(20, d, 20)
-		uc.SetTranslation(float64(i*30)-150, -50, 0)
+		uc.SetTranslation(float64(i*30)-160, -50, 0)
 		model.Add(uc)
 	}
 
@@ -62,7 +62,7 @@ func Text() {
 		}
 		t := shapes.MakeText(strconv.FormatFloat(d, 'f', 1, 64), opts)
 		t.SetShowBackfaces(true)
-		t.SetTranslation(float64(i)*30+10-150, d+10-50, 10)
+		t.SetTranslation(float64(i)*30+10-160, d+10-50, 10)
 		t.SetFill("#000000")
 		model.Add(t)
 	}
@@ -82,15 +82,14 @@ func Text() {
 	animator := context.Animate()
 	animator.OnBefore(func(t, dt time.Duration) {
 		dtms := float64(dt.Milliseconds())
-		r := transform.QuatRotY(0.7 * dtms * 1e-4).Mul(model.Rotation())
-		model.SetRotation(r)
+		model.SetRotation(model.Rotation().MulRotY(0.7 * dtms * 1e-4))
 	})
 	animator.Start()
 
 	// Enable drag-to-rotate
 	drag := context.Drag(seen.Inertia(true))
 	drag.On(func(e seen.DragEvent) {
-		r := transform.QuatRotY(e.Dx / 150).MulRotX(e.Dy / 150).Mul(model.Rotation())
+		r := transform.QuatRotX(e.Dy / 150).Mul(model.Rotation()).MulRotY(e.Dx / 150)
 		model.SetRotation(r)
 		context.Render()
 	})
