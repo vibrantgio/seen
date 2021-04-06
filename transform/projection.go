@@ -2,6 +2,8 @@ package transform
 
 import "math"
 
+// Projection is a 3D to 2D `Matrix` transformation.
+// A projection assumes the camera is located at (0,0,0).
 type Projection struct {
 	R, T, N, F float64
 }
