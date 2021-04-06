@@ -48,7 +48,8 @@ func MakeDefaultModel() *Model {
 
 // Add a `Shape`, `Light`, and other `Model` as a child of this `Model`
 // Any number of children can by supplied as arguments.
-func (m *Model) Add(childs ...Transformable) {
+// Add will return the model itself to facilitate method chaining.
+func (m *Model) Add(childs ...Transformable) *Model {
 	for _, child := range childs {
 		switch c := child.(type) {
 		case *Shape, *Model:
@@ -59,6 +60,7 @@ func (m *Model) Add(childs ...Transformable) {
 			// skip
 		}
 	}
+	return m
 }
 
 type LightFunc func(light *Light, transform Matrix) *LightRenderData
