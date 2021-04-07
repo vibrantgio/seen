@@ -59,32 +59,30 @@ func (m *Model) Add(children ...Transformable) *Model {
 	return m
 }
 
-type LightFunc func(light Light, transform Matrix) LightRenderData
-type ShapeFunc func(shape *Shape, lights []LightRenderData, transform Matrix)
+type ShapeFunc func(shape *Shape, lights []LightShaderData, transform Matrix)
 
 // EachRenderable visits each Shape, accumulating the recursive transformation
 // matrices along the way. Each shape callback will be called with each shape and
 // its accumulated transform as well as the list of light render datas that apply
 // to that shape.
 func (m *Model) EachRenderable(shape ShapeFunc) {
-	m.eachRenderable(shape, []LightRenderData{}, m.Matrix())
+	m.eachRenderable(shape, []LightShaderData{}, m.Matrix())
 }
 
 // Go through the model depth first recursively and call the shape function for every shape.
-func (m *Model) eachRenderable(shape ShapeFunc, lights []LightRenderData, transform Matrix) {
-	for _, l := range m.Lights {
-		if l.Enabled {
-			t := transform.Mul(l.Matrix())
-			lights = append(lights, l.RenderData(t))
+func (m *Model) eachRenderable(shape ShapeFunc, lsd []LightShaderData, transform Matrix) {
+	for _, light := range m.Lights {
+		if light.Enabled {
+			t := transform.Mul(light.Matrix())
+			lsd = append(lsd, light.ShaderData(t))
 		}
 	}
-
 	for _, child := range m.Children {
 		switch c := child.(type) {
 		case *Shape:
-			shape(c, lights, transform.Mul(c.Matrix()))
+			shape(c, lsd, transform.Mul(c.Matrix()))
 		case *Model:
-			c.eachRenderable(shape, lights, transform.Mul(c.Matrix()))
+			c.eachRenderable(shape, lsd, transform.Mul(c.Matrix()))
 		default:
 			// skip
 		}

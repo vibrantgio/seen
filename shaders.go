@@ -7,13 +7,13 @@ import (
 )
 
 // Shader implements the Shade method
-type Shader func(lights []LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color
+type Shader func(lights []LightShaderData, surface *SurfaceShaderData, material *Material) colors.Color
 
 // Shade
 // `lights` is an object containing the ambient, point, and directional light sources.
 // `surface` is an instance of `SurfaceShaderData` and contains the transformed and projected surface data.
 // `material` is an instance of `Material` and contains the color and other attributes for determining how light reflects off the surface.
-func (shade Shader) Shade(lights []LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color {
+func (shade Shader) Shade(lights []LightShaderData, surface *SurfaceShaderData, material *Material) colors.Color {
 	return shade(lights, surface, material)
 }
 
@@ -27,14 +27,14 @@ type SurfaceShaderData struct {
 // light sources.
 var FlatShader = Shader(Flat)
 
-func Flat(lights []LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color {
+func Flat(lights []LightShaderData, surface *SurfaceShaderData, material *Material) colors.Color {
 	return material.Color
 }
 
 // AmbientShader for the `Ambient` shader colors surfaces from ambient light only.
 var AmbientShader = Shader(Ambient)
 
-func Ambient(lights []LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color {
+func Ambient(lights []LightShaderData, surface *SurfaceShaderData, material *Material) colors.Color {
 	c := colors.Black
 	for _, light := range lights {
 		if light.Kind == "ambient" {
@@ -48,7 +48,7 @@ func Ambient(lights []LightRenderData, surface *SurfaceShaderData, material *Mat
 // and ambient term (no specular).
 var DiffusePhongShader = Shader(DiffusePhong)
 
-func DiffusePhong(lights []LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color {
+func DiffusePhong(lights []LightShaderData, surface *SurfaceShaderData, material *Material) colors.Color {
 	c := colors.Black
 	for _, light := range lights {
 		switch light.Kind {
@@ -69,7 +69,7 @@ func DiffusePhong(lights []LightRenderData, surface *SurfaceShaderData, material
 // See https://en.wikipedia.org/wiki/Phong_reflection_model for more information
 var PhongShader = Shader(Phong)
 
-func Phong(lights []LightRenderData, surface *SurfaceShaderData, material *Material) colors.Color {
+func Phong(lights []LightShaderData, surface *SurfaceShaderData, material *Material) colors.Color {
 	c := colors.Black
 	for _, light := range lights {
 		switch light.Kind {
@@ -90,12 +90,12 @@ func Phong(lights []LightRenderData, surface *SurfaceShaderData, material *Mater
 }
 
 // applyAmbient applies ambient shading
-func applyAmbient(c colors.Color, light LightRenderData) colors.Color {
+func applyAmbient(c colors.Color, light LightShaderData) colors.Color {
 	return c.AddChannels(light.Color)
 }
 
 // applyDiffuse applies diffuse phong shading
-func applyDiffuse(c colors.Color, light LightRenderData, lightNormal, surfaceNormal Point, material *Material) colors.Color {
+func applyDiffuse(c colors.Color, light LightShaderData, lightNormal, surfaceNormal Point, material *Material) colors.Color {
 	dot := lightNormal.Dot(surfaceNormal)
 	if dot <= 0.0 {
 		return c
@@ -106,7 +106,7 @@ func applyDiffuse(c colors.Color, light LightRenderData, lightNormal, surfaceNor
 }
 
 // applyDiffuseAndSpecular applies diffuse phong shading and specular phong shading.
-func applyDiffuseAndSpecular(c colors.Color, light LightRenderData, lightNormal, surfaceNormal Point, material *Material) colors.Color {
+func applyDiffuseAndSpecular(c colors.Color, light LightShaderData, lightNormal, surfaceNormal Point, material *Material) colors.Color {
 	dot := lightNormal.Dot(surfaceNormal)
 	if dot <= 0.0 {
 		return c

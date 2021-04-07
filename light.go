@@ -33,9 +33,9 @@ func light(kind string) (l Light) {
 	return
 }
 
-// LightRenderData stores pre-computed values necessary for shading
-// surfaces with the supplied Light
-type LightRenderData struct {
+// LightShaderData stores pre-computed values necessary for shading
+// with a certain light.
+type LightShaderData struct {
 	Kind      string
 	Point     Point
 	Color     colors.Color
@@ -43,14 +43,15 @@ type LightRenderData struct {
 	Normal    Point
 }
 
-func (l Light) RenderData(transform Matrix) (lrd LightRenderData) {
-	lrd.Kind = l.Kind
-	lrd.Point = transform.TransformPoint(l.Point)
-	lrd.Color = l.Color.Scale(l.Intensity)
-	lrd.Intensity = l.Intensity
+// ShaderData pre-computes values necessary for shading.
+func (l Light) ShaderData(transform Matrix) (lsd LightShaderData) {
+	lsd.Kind = l.Kind
+	lsd.Point = transform.TransformPoint(l.Point)
+	lsd.Color = l.Color.Scale(l.Intensity)
+	lsd.Intensity = l.Intensity
 	origin := transform.TransformPoint(PointZero)
-	lrd.Normal = transform.TransformPoint(l.Normal).Subtract(origin).Normalize()
-	return lrd
+	lsd.Normal = transform.TransformPoint(l.Normal).Subtract(origin).Normalize()
+	return lsd
 }
 
 // PointLight is a Light that emits light in all directions from a single point.

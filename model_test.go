@@ -9,7 +9,7 @@ import (
 
 var mock_ShapeCount int
 
-func mock_ModelShapeFunc(shape *Shape, lights []LightRenderData, transform Matrix) {
+func mock_ModelShapeFunc(shape *Shape, lights []LightShaderData, transform Matrix) {
 	mock_ShapeCount++
 }
 

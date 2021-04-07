@@ -43,7 +43,7 @@ func (s *SceneLayer) Paint(painter Painter) {
 	// Process all renderable objects
 	s.Model.EachRenderable(
 		// ShapeFunc
-		func(shape *seen.Shape, lights []seen.LightRenderData, transform seen.Matrix) {
+		func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
 			for _, surface := range shape.Surfaces {
 				renderModel := s.makeRenderModel(&surface, transform, projection, viewport)
 
