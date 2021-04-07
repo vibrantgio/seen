@@ -42,15 +42,22 @@ type Scene struct {
 }
 
 // MakeScene returns a new Scene that has a default Model, Camera, Viewport and Shader.
-func MakeScene() *Scene {
-	s := &Scene{}
-	s.Init()
-	return s
+func EmptyScene() Scene {
+	model := ModelWith()
+	return Scene{
+		Model:    &model,
+		Camera:   DefaultCamera,
+		Viewport: OriginViewport(0, 0, 1, 1),
+		Shader:   PhongShader,
+	}
 }
 
-func (s *Scene) Init() {
-	s.Model = MakeModel()
-	s.Camera = DefaultCamera
-	s.Viewport = OriginViewport(0, 0, 1, 1)
-	s.Shader = PhongShader
+func DefaultScene() Scene {
+	model := ModelWith(DefaultLights()...)
+	return Scene{
+		Model:    &model,
+		Camera:   DefaultCamera,
+		Viewport: OriginViewport(0, 0, 1, 1),
+		Shader:   PhongShader,
+	}
 }

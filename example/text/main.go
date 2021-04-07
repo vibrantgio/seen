@@ -40,7 +40,7 @@ func Text() {
 		data = append(data, rand.Float64()*80.0+20.0)
 	}
 
-	model := seen.MakeDefaultModel()
+	scene := seen.DefaultScene()
 
 	// Draw bars for data
 	for i, d := range data {
@@ -48,7 +48,7 @@ func Text() {
 		uc.SetFill("#0088FF")
 		uc.SetScale(20, d, 20)
 		uc.SetTranslation(float64(i*30)-160, -50, 0)
-		model.Add(uc)
+		scene.Model.Add(uc)
 	}
 
 	// Draw text above bars
@@ -64,41 +64,39 @@ func Text() {
 		t.SetShowBackfaces(true)
 		t.SetTranslation(float64(i)*30+10-160, d+10-50, 10)
 		t.SetFill("#000000")
-		model.Add(t)
+		scene.Model.Add(t)
 	}
 
-	model.SetScale(2, 2, 2)
+	scene.Model.SetScale(2, 2, 2)
 
 	// Create scene and add shape to model
-	scene := seen.MakeScene()
-	scene.Model = model
 	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create a render layer and render context
-	layer := render.MakeSceneLayer(scene)
+	layer := render.MakeSceneLayer(&scene)
 	context := gio.MakeContext(window, layer)
 
 	// Slowly rotate the bar chart
 	animator := context.Animate()
 	animator.OnBefore(func(t, dt time.Duration) {
 		dtms := float64(dt.Milliseconds())
-		model.SetRotation(model.Rotation().MulRotY(0.7 * dtms * 1e-4))
+		scene.Model.SetRotation(scene.Model.Rotation().MulRotY(0.7 * dtms * 1e-4))
 	})
 	animator.Start()
 
 	// Enable drag-to-rotate
 	drag := context.Drag(seen.Inertia(true))
 	drag.On(func(e seen.DragEvent) {
-		r := transform.QuatRotX(e.Dy / 150).Mul(model.Rotation()).MulRotY(e.Dx / 150)
-		model.SetRotation(r)
+		r := transform.QuatRotX(e.Dy / 150).Mul(scene.Model.Rotation()).MulRotY(e.Dx / 150)
+		scene.Model.SetRotation(r)
 		context.Render()
 	})
 
 	// Enable mouse-wheel zoom
 	zoom := context.Zoom()
 	zoom.On(func(e seen.ZoomEvent) {
-		sx, sy, sz := model.Scale()
-		model.SetScale(sx*e.Zoom, sy*e.Zoom, sz*e.Zoom)
+		sx, sy, sz := scene.Model.Scale()
+		scene.Model.SetScale(sx*e.Zoom, sy*e.Zoom, sz*e.Zoom)
 	})
 
 	ops := &op.Ops{}

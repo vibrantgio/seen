@@ -42,19 +42,15 @@ func mock_MakeText(message string) *Shape {
 }
 
 func TestModelAdding(t *testing.T) {
-	m := MakeModel()
 	s := mock_MakeRectangle()
 	tx := mock_MakeText("Hello, World!")
-	m2 := MakeModel()
 
 	// Rotate around y axis (rhs coord system with +y pointing up,
 	// +x pointing right and +z pointing out of the screen)
 	r := transform.QuatAxisAngle(0, 1, 0, math.Pi/4.0)
+	m2 := ModelWith(s, tx)
 	m2.SetRotation(r)
-	m2.Add(s)
-	m2.Add(tx)
-	m.Add(s)
-	m.Add(m2)
+	m := ModelWith(s, &m2)
 
 	m.EachRenderable(mock_ModelShapeFunc)
 

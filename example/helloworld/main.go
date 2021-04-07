@@ -39,13 +39,12 @@ func HelloWorld() {
 	shape.ColorSurfaces(colors.MakeRandomSource2())
 
 	// Create scene and add shape to model
-	scene := seen.MakeScene()
-	scene.Model = seen.MakeDefaultModel()
+	scene := seen.DefaultScene()
 	scene.Model.Add(shape)
 	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create a render layer and render context
-	layer := render.MakeSceneLayer(scene)
+	layer := render.MakeSceneLayer(&scene)
 	context := gio.MakeContext(window, layer)
 
 	// Slowly rotate sphere

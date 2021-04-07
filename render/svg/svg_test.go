@@ -68,13 +68,8 @@ func TestDemoEmpty(t *testing.T) {
 		return
 	}
 
-	s := seen.MakeScene()
-	if s == nil {
-		t.Error("unable to create scene")
-		return
-	}
-
-	l := render.MakeSceneLayer(s)
+	s := seen.EmptyScene()
+	l := render.MakeSceneLayer(&s)
 	if l == nil {
 		t.Error("unable to create scene layer")
 		return
@@ -112,9 +107,8 @@ func TestDemoSimple(t *testing.T) {
 	}
 
 	// Create the scene to render
-	s := seen.MakeScene()
+	s := seen.DefaultScene()
 	s.FractionalPoints = true
-	s.Model = seen.MakeDefaultModel()
 	s.Shader = seen.PhongShader
 	s.Camera = seen.DefaultCamera
 	s.Camera.SetTranslation(0, 0, -550)
@@ -155,7 +149,7 @@ func TestDemoSimple(t *testing.T) {
 
 	s.Viewport = seen.CenterViewport(0, 0, width, height)
 	// Add scene as a layer to the render context
-	context.Layer(render.MakeSceneLayer(s))
+	context.Layer(render.MakeSceneLayer(&s))
 
 	// Actually render the scene on the context
 	context.Render()
@@ -203,13 +197,12 @@ func TestDemoSvgCanvas(t *testing.T) {
 	// Create one scene for each shape
 	scenes := []*render.SceneLayer{}
 	for _, sphere := range spheres {
-		s := seen.MakeScene()
+		s := seen.DefaultScene()
 		s.Shader = seen.PhongShader
 		s.FractionalPoints = true
-		s.Model = seen.MakeDefaultModel()
 		s.Model.Add(sphere)
 		s.Viewport = seen.CenterViewport(0, 0, width, height)
-		scenes = append(scenes, render.MakeSceneLayer(s))
+		scenes = append(scenes, render.MakeSceneLayer(&s))
 	}
 
 	// Create a render context for each SVG and Canvas
@@ -267,7 +260,7 @@ func TestDemoText(t *testing.T) {
 	}
 
 	// Create scene model
-	model := seen.MakeDefaultModel()
+	scene := seen.DefaultScene()
 
 	// Draw bars for data
 	for i, d := range data {
@@ -275,7 +268,7 @@ func TestDemoText(t *testing.T) {
 		uc.SetScale(20.0, d, 20.0)
 		uc.SetTranslation(float64(i)*30.0, 0, 0)
 		uc.SetFill("#0088FF")
-		model.Add(uc)
+		scene.Model.Add(uc)
 	}
 
 	// Draw text above bars
@@ -290,19 +283,17 @@ func TestDemoText(t *testing.T) {
 		t.SetShowBackfaces(true)
 		t.SetTranslation(float64(i)*30+10, d+10, 10)
 		t.SetFill("#000000")
-		model.Add(t)
+		scene.Model.Add(t)
 	}
 
 	// Create scene
-	scene := seen.MakeScene()
-	model.SetTranslation(-150, -50, 0)
-	model.SetScale(2, 2, 2)
-	scene.Model = model
+	scene.Model.SetTranslation(-150, -50, 0)
+	scene.Model.SetScale(2, 2, 2)
 	scene.Viewport = seen.CenterViewport(0, 0, width, height)
 	scene.Camera.SetRotation(transform.QuatAxisAngle(0.1, 1, 0, math.Pi*0.2))
 
 	// Create render context from canvas
-	context := MakeContext("seen-svg", render.MakeSceneLayer(scene))
+	context := MakeContext("seen-svg", render.MakeSceneLayer(&scene))
 	if context == nil {
 		t.Error("Render context is nil")
 		return
