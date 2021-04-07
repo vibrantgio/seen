@@ -11,10 +11,8 @@ type Shape struct {
 	Surfaces []Surface
 }
 
-func (s *Shape) Init(kind string, surfaces []Surface) {
-	s.Object.Init()
-	s.Kind = kind
-	s.Surfaces = surfaces
+func ShapeWith(kind string, surfaces []Surface) Shape {
+	return Shape{DefaultObject, kind, surfaces}
 }
 
 // ColorSurfaces sets a color on every surface of the Shape by

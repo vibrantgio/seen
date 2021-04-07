@@ -22,7 +22,7 @@ type Light struct {
 }
 
 func light(kind string) (l Light) {
-	l.Object.Init()
+	l.Object = DefaultObject
 	l.Kind = kind
 	l.Point = PointZero
 	l.Color = colors.White

@@ -11,10 +11,7 @@ type Object struct {
 	sz float64
 }
 
-func (t *Object) Init() {
-	t.dq = transform.IdentDualQuaternion
-	t.sx, t.sy, t.sz = 1.0, 1.0, 1.0
-}
+var DefaultObject = Object{transform.IdentDualQuaternion, 1.0, 1.0, 1.0}
 
 // Matrix returns a 4x4 homogenous transformation matrix
 // for the transform. This method makes Object a Transformable.

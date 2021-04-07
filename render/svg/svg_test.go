@@ -116,7 +116,7 @@ func TestDemoSimple(t *testing.T) {
 	s.FractionalPoints = true
 	s.Model = seen.MakeDefaultModel()
 	s.Shader = seen.PhongShader
-	s.Camera = seen.CameraWithProjection(seen.DefaultPerspectiveProjection)
+	s.Camera = seen.DefaultCamera
 	s.Camera.SetTranslation(0, 0, -550)
 
 	source := colors.MakeRandomSource2(colors.Drift(0.03), colors.Sat(0.5))

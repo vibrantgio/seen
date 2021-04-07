@@ -24,9 +24,8 @@ func mock_MakeRectangle() *Shape {
 		{0, 1, 2},
 		{2, 1, 3},
 	}
-	s := &Shape{}
-	s.Init("rectangle", MakeSurfaces(points, coords))
-	return s
+	s := ShapeWith("rectangle", MakeSurfaces(points, coords))
+	return &s
 }
 
 func mock_MakeText(message string) *Shape {
@@ -35,12 +34,11 @@ func mock_MakeText(message string) *Shape {
 		{0, 0.5, 0},
 		{0.5, 0, 0},
 	}
-	t := &Shape{}
 	s := MakeSurface(points)
 	s.Options["text"] = message
 	s.Init()
-	t.Init("text", []Surface{*s})
-	return t
+	t := ShapeWith("text", []Surface{*s})
+	return &t
 }
 
 func TestModelAdding(t *testing.T) {

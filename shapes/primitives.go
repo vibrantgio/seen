@@ -17,9 +17,8 @@ func MakeCube() *seen.Shape {
 		{1, 1, -1},
 		{1, 1, 1},
 	}
-	s := &seen.Shape{}
-	s.Init("cube", seen.MakeSurfaces(points[:], _CUBE_COORDINATE_MAP[:]))
-	return s
+	s := seen.ShapeWith("cube", seen.MakeSurfaces(points[:], _CUBE_COORDINATE_MAP[:]))
+	return &s
 }
 
 // MakeUnitCube returns a 1x1x1 cube from the origin [0,0,0] to [1, 1, 1].
@@ -34,9 +33,8 @@ func MakeUnitCube() *seen.Shape {
 		{1, 1, 0},
 		{1, 1, 1},
 	}
-	s := &seen.Shape{}
-	s.Init("unitcube", seen.MakeSurfaces(points[:], _CUBE_COORDINATE_MAP[:]))
-	return s
+	s := seen.ShapeWith("unitcube", seen.MakeSurfaces(points[:], _CUBE_COORDINATE_MAP[:]))
+	return &s
 }
 
 // MakeText creates a Shape for the given text.
@@ -51,16 +49,14 @@ func MakeText(text string, surfaceOptions map[string]string) *seen.Shape {
 	for key, val := range surfaceOptions {
 		surface.Options[key] = val
 	}
-	s := &seen.Shape{}
-	s.Init("text", []seen.Surface{*surface})
-	return s
+	s := seen.ShapeWith("text", []seen.Surface{*surface})
+	return &s
 }
 
 // MakeIcosahedron returns an icosahedron that fits within a 2x2x2 cube, centered on the origin.
 func MakeIcosahedron() *seen.Shape {
-	s := &seen.Shape{}
-	s.Init("icosahedron", seen.MakeSurfaces(_ICOSAHEDRON_POINTS[:], _ICOSAHEDRON_COORDINATE_MAP[:]))
-	return s
+	s := seen.ShapeWith("icosahedron", seen.MakeSurfaces(_ICOSAHEDRON_POINTS[:], _ICOSAHEDRON_COORDINATE_MAP[:]))
+	return &s
 }
 
 // MakeSphere returns a sub-divided icosahedron, which approximates a sphere with
@@ -86,9 +82,8 @@ func MakeSphere(subdivisions int) *seen.Shape {
 		surfaces[i] = *seen.MakeSurface(triangle[:])
 	}
 
-	s := &seen.Shape{}
-	s.Init("sphere", surfaces)
-	return s
+	s := seen.ShapeWith("sphere", surfaces)
+	return &s
 }
 
 // sphereSubdivideTriangles will return 4 triangles for every triangle passed in.

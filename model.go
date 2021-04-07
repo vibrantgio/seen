@@ -15,9 +15,7 @@ type Model struct {
 }
 
 func MakeModel() *Model {
-	m := &Model{}
-	m.Init()
-	return m
+	return &Model{Object: DefaultObject}
 }
 
 // MakeDefaultModel creates a default model that contains standard Hollywood-style 3-part lighting

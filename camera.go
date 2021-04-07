@@ -21,12 +21,5 @@ type Camera struct {
 var DefaultCamera = CameraWithProjection(DefaultPerspectiveProjection)
 
 func CameraWithProjection(projection Matrix) Camera {
-	c := Camera{}
-	c.Init(projection)
-	return c
-}
-
-func (c *Camera) Init(projection Matrix) {
-	c.Object.Init()
-	c.Projection = projection
+	return Camera{Object: DefaultObject, Projection: projection}
 }
