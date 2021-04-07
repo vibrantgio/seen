@@ -45,8 +45,7 @@ func MakeDefaultModel() *Model {
 
 // Add a `Shape`, `Light`, and other `Model` as a child of this `Model`
 // Any number of children can by supplied as arguments.
-// Add will return the model itself to facilitate method chaining.
-func (m *Model) Add(children ...Transformable) *Model {
+func (m *Model) Add(children ...Transformable) {
 	for _, child := range children {
 		if light, ok := child.(Light); ok {
 			m.Lights = append(m.Lights, light)
@@ -54,7 +53,6 @@ func (m *Model) Add(children ...Transformable) *Model {
 			m.Children = append(m.Children, child)
 		}
 	}
-	return m
 }
 
 type ShapeFunc func(shape *Shape, lights []LightShaderData, transform Matrix)
