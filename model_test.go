@@ -10,11 +10,9 @@ import (
 var mock_LightCount int
 var mock_ShapeCount int
 
-func mock_ModelLightFunc(light *Light, transform Matrix) *LightRenderData {
+func mock_ModelLightFunc(light Light, transform Matrix) *LightRenderData {
 	mock_LightCount++
-	l := &LightRenderData{}
-	l.Init(light, transform)
-	return l
+	return light.MakeRenderData(transform)
 }
 
 func mock_ModelShapeFunc(shape *Shape, lights []*LightRenderData, transform Matrix) {

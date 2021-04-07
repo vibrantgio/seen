@@ -6,7 +6,6 @@ import "github.com/reactivego/seen/colors"
 type Light struct {
 	Object
 	Kind  string
-	Id    string
 	Point Point
 
 	// Color is the color of the light.
@@ -22,44 +21,32 @@ type Light struct {
 	Enabled bool
 }
 
-func MakeLight(kind string) *Light {
-	l := &Light{}
-	l.Init(kind)
-	return l
-}
-
-func (l *Light) Init(kind string) {
+func light(kind string) (l Light) {
 	l.Object.Init()
 	l.Kind = kind
-	l.Id = UniqueId("l")
 	l.Point = PointZero
 	l.Color = colors.White
 	l.Intensity = 0.5
 	l.Normal = Point{1, -1, -1}
 	l.Normal.Normalize()
 	l.Enabled = true
+	return
 }
 
-// MakePointLight() makes a Light that emits light in all directions from a single point.
+// PointLight is a Light that emits light in all directions from a single point.
 // The Point property determines the location of the point light. Note,
 // though, that it may also be moved through the transformation of the light.
-func MakePointLight() *Light {
-	return MakeLight("point")
-}
+var PointLight = light("point")
 
-// MakeDirectionalLight() makes a light that emits light in parallel lines,
+// DirectionalLight is a light that emits light in parallel lines,
 // not eminating from any single point. For these lights, only the Normal
 // property is used to determine the direction of the light. This may also
 // be transformed.
-func MakeDirectionalLight() *Light {
-	return MakeLight("directional")
-}
+var DirectionalLight = light("directional")
 
-// MakeAmbientLight() makes a light that emits a constant amount of light
+// AmbientLight is a light that emits a constant amount of light
 // everywhere at once. Transformation of the light has no effect.
-func MakeAmbientLight() *Light {
-	return MakeLight("ambient")
-}
+var AmbientLight = light("ambient")
 
 // LightRenderData stores pre-computed values necessary for shading
 // surfaces with the supplied Light
@@ -72,18 +59,14 @@ type LightRenderData struct {
 	Normal         Point
 }
 
-func MakeLightRenderData(light *Light, transform Matrix) *LightRenderData {
-	l := &LightRenderData{}
-	l.Init(light, transform)
-	return l
-}
-
-func (l *LightRenderData) Init(light *Light, transform Matrix) {
-	l.Light = light
-	l.ColorIntensity = light.Color.Scale(light.Intensity)
-	l.Kind = light.Kind
-	l.Intensity = light.Intensity
-	l.Point = transform.TransformPoint(light.Point)
+func (l Light) MakeRenderData(transform Matrix) *LightRenderData {
+	lrd := LightRenderData{}
+	lrd.Light = &l
+	lrd.ColorIntensity = l.Color.Scale(l.Intensity)
+	lrd.Kind = l.Kind
+	lrd.Intensity = l.Intensity
+	lrd.Point = transform.TransformPoint(l.Point)
 	origin := transform.TransformPoint(PointZero)
-	l.Normal = transform.TransformPoint(light.Normal).Subtract(origin).Normalize()
+	lrd.Normal = transform.TransformPoint(l.Normal).Subtract(origin).Normalize()
+	return &lrd
 }

@@ -10,8 +10,7 @@ import "github.com/reactivego/seen/colors"
 // chains of transformations for creating, for example, articulated skeletons.
 type Model struct {
 	Object
-
-	Lights   []*Light
+	Lights   []Light
 	Children []Transformable
 }
 
@@ -26,22 +25,22 @@ func MakeDefaultModel() *Model {
 	model := MakeModel()
 
 	// Key light
-	l := MakeDirectionalLight()
-	l.Normal = Point{-1, 1, 1}.Normalize()
-	l.Color = colors.ColorHsl(0.1, 0.3, 0.7, 1.0)
-	l.Intensity = 1.0 // 0.004 * 255.0
-	model.Add(l)
+	kl := DirectionalLight
+	kl.Normal = Point{-1, 1, 1}.Normalize()
+	kl.Color = colors.ColorHsl(0.1, 0.3, 0.7, 1.0)
+	kl.Intensity = 1.0 // 0.004 * 255.0
+	model.Add(kl)
 
 	// Back light
-	l = MakeDirectionalLight()
-	l.Normal = Point{1, 1, -1}.Normalize()
-	l.Intensity = 0.765 // 0.003 * 255.0
-	model.Add(l)
+	bl := DirectionalLight
+	bl.Normal = Point{1, 1, -1}.Normalize()
+	bl.Intensity = 0.765 // 0.003 * 255.0
+	model.Add(bl)
 
 	// Fill light
-	l = MakeAmbientLight()
-	l.Intensity = 0.3825 // 0.0015 * 255.0
-	model.Add(l)
+	al := AmbientLight
+	al.Intensity = 0.3825 // 0.0015 * 255.0
+	model.Add(al)
 
 	return model
 }
@@ -49,21 +48,18 @@ func MakeDefaultModel() *Model {
 // Add a `Shape`, `Light`, and other `Model` as a child of this `Model`
 // Any number of children can by supplied as arguments.
 // Add will return the model itself to facilitate method chaining.
-func (m *Model) Add(childs ...Transformable) *Model {
-	for _, child := range childs {
-		switch c := child.(type) {
-		case *Shape, *Model:
-			m.Children = append(m.Children, c)
-		case *Light:
-			m.Lights = append(m.Lights, c)
-		default:
-			// skip
+func (m *Model) Add(children ...Transformable) *Model {
+	for _, child := range children {
+		if light, ok := child.(Light); ok {
+			m.Lights = append(m.Lights, light)
+		} else {
+			m.Children = append(m.Children, child)
 		}
 	}
 	return m
 }
 
-type LightFunc func(light *Light, transform Matrix) *LightRenderData
+type LightFunc func(light Light, transform Matrix) *LightRenderData
 type ShapeFunc func(shape *Shape, lights []*LightRenderData, transform Matrix)
 
 // EachRenderable visits each Light and Shape, accumulating the recursive transformation
