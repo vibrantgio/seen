@@ -5,22 +5,27 @@ import "github.com/reactivego/seen/transform"
 // Object base class extended by Shape and Model.
 // Uses a double quaternion for specifying the transform.
 type Object struct {
-	dq    transform.DualQuaternion
-	scale *transform.Mat4x4
+	dq transform.DualQuaternion
+	sx float64
+	sy float64
+	sz float64
 }
 
 func (t *Object) Init() {
 	t.dq = transform.IdentDualQuaternion
+	t.sx, t.sy, t.sz = 1.0, 1.0, 1.0
 }
 
 // Matrix returns a 4x4 homogenous transformation matrix
 // for the transform. This method makes Object a Transformable.
 func (t *Object) Matrix() Matrix {
-	if t.scale != nil {
-		return Matrix{t.dq.Mat4x4().Mul(*t.scale)}
-	} else {
-		return Matrix{t.dq.Mat4x4()}
+	m := t.dq.Mat4x4()
+	if t.sx != 1.0 || t.sy != 1.0 || t.sz != 1.0 {
+		m[0], m[1], m[2] = m[0]*t.sx, m[1]*t.sy, m[2]*t.sz
+		m[4], m[5], m[6] = m[4]*t.sx, m[5]*t.sy, m[6]*t.sz
+		m[8], m[9], m[10] = m[8]*t.sx, m[9]*t.sy, m[10]*t.sz
 	}
+	return Matrix{m}
 }
 
 // Rotation returns the Quaternion that specifies the rotation part of the transform.
@@ -46,19 +51,10 @@ func (t *Object) SetTranslation(tx, ty, tz float64) {
 }
 
 func (t *Object) Scale() (sx, sy, sz float64) {
-	if t.scale != nil {
-		return t.scale[0], t.scale[5], t.scale[10]
-	} else {
-		return 1.0, 1.0, 1.0
-	}
+	return t.sx, t.sy, t.sz
 }
 
 // SetScale sets the scaling to apply
 func (t *Object) SetScale(sx, sy, sz float64) {
-	t.scale = &transform.Mat4x4{
-		sx, 0, 0, 0,
-		0, sy, 0, 0,
-		0, 0, sz, 0,
-		0, 0, 0, 1,
-	}
+	t.sx, t.sy, t.sz = sx, sy, sz
 }
