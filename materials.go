@@ -63,7 +63,7 @@ func (m *Material) Init(color colors.Color) {
 
 // Render applies the shader's shading to this material, with the option to override
 // the shader with the material's shader (if defined).
-func (m *Material) Render(lights []*LightRenderData, shader Shader, surface *SurfaceShaderData) colors.Color {
+func (m *Material) Render(lights []LightRenderData, shader Shader, surface *SurfaceShaderData) colors.Color {
 	var color colors.Color
 	if m.Shader != nil {
 		color = m.Shader.Shade(lights, surface, m)

@@ -7,15 +7,9 @@ import (
 	"github.com/reactivego/seen/transform"
 )
 
-var mock_LightCount int
 var mock_ShapeCount int
 
-func mock_ModelLightFunc(light Light, transform Matrix) *LightRenderData {
-	mock_LightCount++
-	return light.MakeRenderData(transform)
-}
-
-func mock_ModelShapeFunc(shape *Shape, lights []*LightRenderData, transform Matrix) {
+func mock_ModelShapeFunc(shape *Shape, lights []LightRenderData, transform Matrix) {
 	mock_ShapeCount++
 }
 
@@ -64,11 +58,8 @@ func TestModelAdding(t *testing.T) {
 	m.Add(s)
 	m.Add(m2)
 
-	m.EachRenderable(mock_ModelLightFunc, mock_ModelShapeFunc)
+	m.EachRenderable(mock_ModelShapeFunc)
 
-	if mock_LightCount != 0 {
-		t.Fail()
-	}
 	if mock_ShapeCount != 3 {
 		t.Fail()
 	}

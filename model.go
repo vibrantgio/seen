@@ -59,32 +59,32 @@ func (m *Model) Add(children ...Transformable) *Model {
 	return m
 }
 
-type LightFunc func(light Light, transform Matrix) *LightRenderData
-type ShapeFunc func(shape *Shape, lights []*LightRenderData, transform Matrix)
+type LightFunc func(light Light, transform Matrix) LightRenderData
+type ShapeFunc func(shape *Shape, lights []LightRenderData, transform Matrix)
 
-// EachRenderable visits each Light and Shape, accumulating the recursive transformation
-// matrices along the way. The light callback will be called with each light
-// and its accumulated transform and it should return a LightRenderData object.
-// Each shape callback will be called with each shape and its accumulated
-// transform as well as the list of light render datas that apply to that shape.
-func (m *Model) EachRenderable(light LightFunc, shape ShapeFunc) {
-	m.eachRenderable(light, shape, []*LightRenderData{}, m.Matrix())
+// EachRenderable visits each Shape, accumulating the recursive transformation
+// matrices along the way. Each shape callback will be called with each shape and
+// its accumulated transform as well as the list of light render datas that apply
+// to that shape.
+func (m *Model) EachRenderable(shape ShapeFunc) {
+	m.eachRenderable(shape, []LightRenderData{}, m.Matrix())
 }
 
-// Go through the model depth first recursively and call either the light or shape function.
-func (m *Model) eachRenderable(light LightFunc, shape ShapeFunc, lightModels []*LightRenderData, transform Matrix) {
+// Go through the model depth first recursively and call the shape function for every shape.
+func (m *Model) eachRenderable(shape ShapeFunc, lights []LightRenderData, transform Matrix) {
 	for _, l := range m.Lights {
 		if l.Enabled {
-			lightModels = append(lightModels, light(l, transform.Mul(l.Matrix())))
+			t := transform.Mul(l.Matrix())
+			lights = append(lights, l.RenderData(t))
 		}
 	}
 
 	for _, child := range m.Children {
 		switch c := child.(type) {
 		case *Shape:
-			shape(c, lightModels, transform.Mul(c.Matrix()))
+			shape(c, lights, transform.Mul(c.Matrix()))
 		case *Model:
-			c.eachRenderable(light, shape, lightModels, transform.Mul(c.Matrix()))
+			c.eachRenderable(shape, lights, transform.Mul(c.Matrix()))
 		default:
 			// skip
 		}

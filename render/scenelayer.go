@@ -42,13 +42,8 @@ func (s *SceneLayer) Paint(painter Painter) {
 
 	// Process all renderable objects
 	s.Model.EachRenderable(
-		// LightFunc
-		func(light seen.Light, transform seen.Matrix) *seen.LightRenderData {
-			// Compute light model data.
-			return light.MakeRenderData(transform)
-		},
 		// ShapeFunc
-		func(shape *seen.Shape, lights []*seen.LightRenderData, transform seen.Matrix) {
+		func(shape *seen.Shape, lights []seen.LightRenderData, transform seen.Matrix) {
 			for _, surface := range shape.Surfaces {
 				renderModel := s.makeRenderModel(&surface, transform, projection, viewport)
 

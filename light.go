@@ -33,6 +33,26 @@ func light(kind string) (l Light) {
 	return
 }
 
+// LightRenderData stores pre-computed values necessary for shading
+// surfaces with the supplied Light
+type LightRenderData struct {
+	Kind      string
+	Point     Point
+	Color     colors.Color
+	Intensity float64
+	Normal    Point
+}
+
+func (l Light) RenderData(transform Matrix) (lrd LightRenderData) {
+	lrd.Kind = l.Kind
+	lrd.Point = transform.TransformPoint(l.Point)
+	lrd.Color = l.Color.Scale(l.Intensity)
+	lrd.Intensity = l.Intensity
+	origin := transform.TransformPoint(PointZero)
+	lrd.Normal = transform.TransformPoint(l.Normal).Subtract(origin).Normalize()
+	return lrd
+}
+
 // PointLight is a Light that emits light in all directions from a single point.
 // The Point property determines the location of the point light. Note,
 // though, that it may also be moved through the transformation of the light.
@@ -47,26 +67,3 @@ var DirectionalLight = light("directional")
 // AmbientLight is a light that emits a constant amount of light
 // everywhere at once. Transformation of the light has no effect.
 var AmbientLight = light("ambient")
-
-// LightRenderData stores pre-computed values necessary for shading
-// surfaces with the supplied Light
-type LightRenderData struct {
-	Light          *Light
-	ColorIntensity colors.Color
-	Kind           string
-	Intensity      float64
-	Point          Point
-	Normal         Point
-}
-
-func (l Light) MakeRenderData(transform Matrix) *LightRenderData {
-	lrd := LightRenderData{}
-	lrd.Light = &l
-	lrd.ColorIntensity = l.Color.Scale(l.Intensity)
-	lrd.Kind = l.Kind
-	lrd.Intensity = l.Intensity
-	lrd.Point = transform.TransformPoint(l.Point)
-	origin := transform.TransformPoint(PointZero)
-	lrd.Normal = transform.TransformPoint(l.Normal).Subtract(origin).Normalize()
-	return &lrd
-}
