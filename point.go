@@ -23,6 +23,10 @@ var PointY = Point{0, 1, 0}
 // PointZ is the unit Z axis.
 var PointZ = Point{0, 0, 1}
 
+func Pt(x, y, z float64) Point {
+	return Point{x, y, z}
+}
+
 // MakePointNormal returns the normal for a slice of points.
 // Can be used for e.g. backface culling or shading.
 func PointNormal(points []Point) Point {
