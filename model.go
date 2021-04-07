@@ -12,10 +12,10 @@ type Model struct {
 	Children []Transformable
 }
 
-func ModelWith(children ...Transformable) Model {
+func ModelWith(children ...Transformable) *Model {
 	m := Model{Object: DefaultObject}
 	m.Add(children...)
-	return m
+	return &m
 }
 
 // Add a `Shape`, `Light`, and other `Model` as a child of this `Model`

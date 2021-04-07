@@ -50,7 +50,7 @@ func TestModelAdding(t *testing.T) {
 	r := transform.QuatAxisAngle(0, 1, 0, math.Pi/4.0)
 	m2 := ModelWith(s, tx)
 	m2.SetRotation(r)
-	m := ModelWith(s, &m2)
+	m := ModelWith(s, m2)
 
 	m.EachRenderable(mock_ModelShapeFunc)
 
