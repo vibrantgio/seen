@@ -27,11 +27,11 @@ func Pt(x, y, z float64) Point {
 	return Point{x, y, z}
 }
 
-// MakePointNormal returns the normal for a slice of points.
-// Can be used for e.g. backface culling or shading.
+// PointNormal returns the normal (not normalize) for a slice
+// of points. Can be used for e.g. backface culling or shading.
 func PointNormal(points []Point) Point {
 	pointsLen := len(points)
-	if pointsLen < 2 {
+	if pointsLen < 3 {
 		return PointZ // Default normal
 	}
 	p0 := points[0]
@@ -39,7 +39,7 @@ func PointNormal(points []Point) Point {
 	p2 := points[pointsLen-1]
 	v0 := p1.Subtract(p0)
 	v1 := p2.Subtract(p0)
-	return v0.Cross(v1).Normalize()
+	return v0.Cross(v1)
 }
 
 // Normalize returns a pointer to a copy of the Point after
