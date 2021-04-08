@@ -19,7 +19,7 @@ func MakeCube() *seen.Shape {
 		{1, 1, -1},
 		{1, 1, 1},
 	}
-	s := seen.ShapeWith("cube", seen.MakeSurfaces(points[:], _CUBE_COORDINATE_MAP[:]))
+	s := seen.ShapeWith("cube", seen.SurfacesWith(points[:], _CUBE_COORDINATE_MAP[:]))
 	return &s
 }
 
@@ -35,7 +35,7 @@ func MakeUnitCube() *seen.Shape {
 		{1, 1, 0},
 		{1, 1, 1},
 	}
-	s := seen.ShapeWith("unitcube", seen.MakeSurfaces(points[:], _CUBE_COORDINATE_MAP[:]))
+	s := seen.ShapeWith("unitcube", seen.SurfacesWith(points[:], _CUBE_COORDINATE_MAP[:]))
 	return &s
 }
 
@@ -61,7 +61,7 @@ func MakeRectangle(point1, point2 seen.Point) *seen.Shape {
 		compose(math.Max, math.Max, math.Max),
 	}
 
-	s := seen.ShapeWith("rect", seen.MakeSurfaces(points[:], _CUBE_COORDINATE_MAP[:]))
+	s := seen.ShapeWith("rect", seen.SurfacesWith(points[:], _CUBE_COORDINATE_MAP[:]))
 	return &s
 }
 
@@ -72,7 +72,7 @@ func MakeRectangle(point1, point2 seen.Point) *seen.Shape {
 //	font	e.g. "20px sans-serif" or "10px Roboto"
 //	anchor	e.g. "middle"
 func MakeText(text string, surfaceOptions map[string]string) *seen.Shape {
-	surface := seen.MakeSurface(affine.ORTHONORMAL_BASIS)
+	surface := seen.SurfaceWith(affine.ORTHONORMAL_BASIS)
 	surface.Options["text"] = text
 	for key, val := range surfaceOptions {
 		surface.Options[key] = val
@@ -83,7 +83,7 @@ func MakeText(text string, surfaceOptions map[string]string) *seen.Shape {
 
 // MakeIcosahedron returns an icosahedron that fits within a 2x2x2 cube, centered on the origin.
 func MakeIcosahedron() *seen.Shape {
-	s := seen.ShapeWith("icosahedron", seen.MakeSurfaces(_ICOSAHEDRON_POINTS[:], _ICOSAHEDRON_COORDINATE_MAP[:]))
+	s := seen.ShapeWith("icosahedron", seen.SurfacesWith(_ICOSAHEDRON_POINTS[:], _ICOSAHEDRON_COORDINATE_MAP[:]))
 	return &s
 }
 
@@ -107,7 +107,7 @@ func MakeSphere(subdivisions int) *seen.Shape {
 
 	surfaces := make([]seen.Surface, len(triangles))
 	for i, triangle := range triangles {
-		surfaces[i] = *seen.MakeSurface(triangle[:])
+		surfaces[i] = *seen.SurfaceWith(triangle[:])
 	}
 
 	s := seen.ShapeWith("sphere", surfaces)

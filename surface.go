@@ -38,35 +38,31 @@ type Surface struct {
 	Options map[string]string
 }
 
-// MakeSurfaces joins the points into surfaces using the coordinate map,
+// SurfacesWith joins the points into surfaces using the coordinate map,
 // which is a 2-dimensional array of index integers.
 // Note that a point that is part of multiple surfaces will also be inserted
 // into multiple surfaces. Because of this points shared by multiple surfaces
 // have to transformed multiple times instead of only once.
 // So this could be optimized by allowing surfaces to store pointers to
 // points instead of the actual points.
-func MakeSurfaces(points []Point, coordinateMap [][]int) (surfaces []Surface) {
+func SurfacesWith(points []Point, coordinateMap [][]int) (surfaces []Surface) {
 	surfaces = make([]Surface, len(coordinateMap))
 	for s, coords := range coordinateMap {
 		for _, c := range coords {
-			surfaces[s].Init()
+			surfaces[s].Id = UniqueId("s")
+			surfaces[s].Options = make(map[string]string)
 			surfaces[s].Points = append(surfaces[s].Points, points[c])
 		}
 	}
 	return
 }
 
-func MakeSurface(points []Point) *Surface {
+func SurfaceWith(points []Point) *Surface {
 	s := &Surface{}
-	s.Init()
-	s.Points = make([]Point, len(points))
-	copy(s.Points, points)
-	return s
-}
-
-func (s *Surface) Init() {
 	s.Id = UniqueId("s")
 	s.Options = make(map[string]string)
+	s.Points = append([]Point(nil), points...)
+	return s
 }
 
 func (s *Surface) SetFill(value interface{}) (err error) {
