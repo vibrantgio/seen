@@ -44,7 +44,7 @@ type Scene struct {
 // MakeScene returns a new Scene that has a default Model, Camera, Viewport and Shader.
 func EmptyScene() Scene {
 	return Scene{
-		Model:    ModelWith(),
+		Model:    EmptyModel(),
 		Camera:   DefaultCamera,
 		Viewport: OriginViewport(0, 0, 1, 1),
 		Shader:   PhongShader,

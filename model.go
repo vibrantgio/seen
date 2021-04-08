@@ -12,6 +12,10 @@ type Model struct {
 	Children []Transformable
 }
 
+func EmptyModel() *Model {
+	return &Model{Object: DefaultObject}
+}
+
 func ModelWith(children ...Transformable) *Model {
 	m := Model{Object: DefaultObject}
 	m.Add(children...)
