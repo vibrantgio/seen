@@ -5,7 +5,7 @@ import (
 	"github.com/reactivego/seen/colors"
 )
 
-// RenderModel contains the transformed and projected points as
+// RenderSurface contains the transformed and projected points as
 // well as various data needed to shade and paint a `Surface`.
 //
 // Once initialized, the object will have a constant memory footprint down to
@@ -14,15 +14,15 @@ import (
 //
 // If you need to force a re-computation, mark the surface as 'dirty'.
 //
-// RenderModel manages the painting of a single Surface.
-type RenderModel struct {
+// RenderSurface manages the painting of a single Surface.
+type RenderSurface struct {
 	// Render is a reference to a specific render function to be used to render
-	// the RenderModel on a Painter.
-	Render func(*RenderModel, Painter)
+	// the RenderSurface on a Painter.
+	Render func(*RenderSurface, Painter)
 
 	// Surface is a reference to the Surface that is being painted.
 	// The reference is retained so it can be checked for the Dirty flag.
-	// When the Dirty flag is set, the RenderModel needs to be regenerated.
+	// When the Dirty flag is set, the RenderSurface needs to be regenerated.
 	Surface *seen.Surface
 	Points  []seen.Point
 
@@ -45,8 +45,8 @@ type RenderModel struct {
 	Stroke *colors.Color
 }
 
-func RenderModelWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderModel {
-	m := &RenderModel{}
+func RenderSurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
+	m := &RenderSurface{}
 	m.Surface = surface
 	m.Points = surface.Points
 
@@ -57,11 +57,11 @@ func RenderModelWith(surface *seen.Surface, transform, projection, viewport seen
 	return m
 }
 
-func (m *RenderModel) Paint(painter Painter) {
+func (m *RenderSurface) Paint(painter Painter) {
 	m.Render(m, painter)
 }
 
-func (m *RenderModel) Update(transform, projection, viewport seen.Matrix) {
+func (m *RenderSurface) Update(transform, projection, viewport seen.Matrix) {
 	if m.Surface.Dirty || !transform.Equal(m.Transform) || !projection.Equal(m.Projection) || !viewport.Equal(m.Viewport) {
 		m.Transform = transform
 		m.Projection = projection
@@ -70,7 +70,7 @@ func (m *RenderModel) Update(transform, projection, viewport seen.Matrix) {
 	}
 }
 
-func (m *RenderModel) update() {
+func (m *RenderSurface) update() {
 	if len(m.WorldSpacePoints) != len(m.Points) {
 		m.WorldSpacePoints = make([]seen.Point, len(m.Points))
 	}

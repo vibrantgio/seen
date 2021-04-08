@@ -11,21 +11,21 @@ import (
 // SceneLayer implements the RenderLayer interface.
 type SceneLayer struct {
 	*seen.Scene
-	renderModels     []*RenderModel
-	renderModelCache map[string]*RenderModel
+	renderModels     []*RenderSurface
+	renderModelCache map[string]*RenderSurface
 }
 
 func SceneLayerWith(scene *seen.Scene) *SceneLayer {
 	return &SceneLayer{
 		Scene:            scene,
-		renderModels:     make([]*RenderModel, 0, 32),
-		renderModelCache: make(map[string]*RenderModel),
+		renderModels:     make([]*RenderSurface, 0, 32),
+		renderModelCache: make(map[string]*RenderSurface),
 }
 }
 
-// Paint creates a RenderModel for every Surface in the scene's models.
-// When encountering a TextShape assign a TextPainter to the RenderModel.
-// When encountering any other shape assign a PathPainter to the RenderModel.
+// Paint creates a RenderSurface for every Surface in the scene's models.
+// When encountering a TextShape assign a TextPainter to the RenderSurface.
+// When encountering any other shape assign a PathPainter to the RenderSurface.
 func (s *SceneLayer) Paint(painter Painter) {
 	// projection matrix transforms points from world space into camera space and then
 	// through viewport prescale and projection matrix into normalized screen space.
@@ -40,7 +40,7 @@ func (s *SceneLayer) Paint(painter Painter) {
 	// Process all renderable objects
 	s.Model.EachRenderable(func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
 			for _, surface := range shape.Surfaces {
-			renderModel := s.RenderModelWith(&surface, transform, projection, viewport)
+			renderModel := s.RenderSurfaceWith(&surface, transform, projection, viewport)
 
 				// Assign the correct render function to the render model
 				switch shape.Kind {
@@ -86,13 +86,13 @@ func (s *SceneLayer) Paint(painter Painter) {
 	}
 }
 
-// RenderModelWith will get or create the rendermodel for
+// RenderSurfaceWith will get or create the rendermodel for
 // the given surface. If Regenerate is false, we cache
 // these models to reduce object creation and recomputation.
-func (s *SceneLayer) RenderModelWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderModel {
+func (s *SceneLayer) RenderSurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
 	if s.Regenerate {
 		// No caching
-		return RenderModelWith(surface, transform, projection, viewport)
+		return RenderSurfaceWith(surface, transform, projection, viewport)
 	}
 	// Caching enabled, see if its present in the cache
 	m, ok := s.renderModelCache[surface.Id]
@@ -100,8 +100,8 @@ func (s *SceneLayer) RenderModelWith(surface *seen.Surface, transform, projectio
 		m.Update(transform, projection, viewport)
 		return m
 	}
-	// Create new RenderModel and add to the cache
-	m = RenderModelWith(surface, transform, projection, viewport)
+	// Create new RenderSurface and add to the cache
+	m = RenderSurfaceWith(surface, transform, projection, viewport)
 	s.renderModelCache[surface.Id] = m
 	return m
 }
@@ -116,7 +116,7 @@ func (s *SceneLayer) FlushCache() {
 }
 
 // ByZ implements sorting by comparing the Z of the Barycenter of the Projected points
-type ByZ []*RenderModel
+type ByZ []*RenderSurface
 
 func (a ByZ) Len() int {
 	return len(a)

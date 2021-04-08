@@ -26,7 +26,7 @@ type Surface struct {
 	// an object is stroked. By default no stroke material will be set.
 	StrokeMaterial *Material
 
-	// Dirty flag can be set whenever the RenderModel generated from
+	// Dirty flag can be set whenever the RenderSurface generated from
 	// the Surface needs to be regenerated.
 	Dirty bool
 

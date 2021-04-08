@@ -23,11 +23,11 @@ type MockSceneLayer struct {
 }
 
 func (s *MockSceneLayer) Paint(painter render.Painter) {
-	// Generate a RenderModel for every Surface in the Scene.
+	// Generate a RenderSurface for every Surface in the Scene.
 
-	// Sort the RenderModels based on z-depth back to front.
+	// Sort the RenderSurfaces based on z-depth back to front.
 
-	// Paint the RenderModels on the PaintContext.
+	// Paint the RenderSurfaces on the PaintContext.
 }
 
 // Tests
