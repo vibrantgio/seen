@@ -113,7 +113,7 @@ func TestDemoSimple(t *testing.T) {
 	s.Camera = seen.DefaultCamera
 	s.Camera.SetTranslation(0, 0, -550)
 
-	source := colors.MakeRandomSource2(colors.Drift(0.03), colors.Sat(0.5))
+	source := colors.RandomSource2With(colors.Drift(0.03), colors.Sat(0.5))
 
 	// Add icosahedron to the scene
 	icosahedron := shapes.MakeIcosahedron()
@@ -185,7 +185,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 		sphere := shapes.MakeSphere(i)
 		scale := float64(height) * 0.4
 		sphere.SetScale(scale, scale, scale)
-		source := colors.MakeRandomSource2(colors.Drift(0.03), colors.Sat(0.5))
+		source := colors.RandomSource2With(colors.Drift(0.03), colors.Sat(0.5))
 		err := sphere.ColorSurfaces(source)
 		if err != nil {
 			t.Error(err)

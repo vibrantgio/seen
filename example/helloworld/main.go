@@ -36,7 +36,7 @@ func HelloWorld() {
 	// Create sphere shape with randomly colored surfaces
 	shape := shapes.MakeSphere(2)
 	shape.SetScale(HeightDp*0.4, HeightDp*0.4, HeightDp*0.4)
-	shape.ColorSurfaces(colors.MakeRandomSource2())
+	shape.ColorSurfaces(colors.DefaultRandomSource2())
 
 	// Create scene and add shape to model
 	scene := seen.DefaultScene()

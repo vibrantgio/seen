@@ -56,8 +56,8 @@ func TestColorStringGeneration(t *testing.T) {
 	}
 }
 
-func TestMakeRandomSource2(t *testing.T) {
-	r := MakeRandomSource2()
+func TestDefaultRandomSource2(t *testing.T) {
+	r := DefaultRandomSource2()
 	c0 := r.Read()
 	c1 := r.Read()
 	c2 := r.Read()

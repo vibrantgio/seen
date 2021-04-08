@@ -216,18 +216,20 @@ type RandomSource2 struct {
 	drift, sat, lit, hue float64
 }
 
-// MakeRandomSource2 generates a random hue then randomly drifts the hue every time a Color is read.
-func MakeRandomSource2(options ...Option) Source {
-	r := &RandomSource2{}
-	r.Init()
-	return r
+// DefaultRandomSource2 generates a random hue then randomly drifts the hue every
+// time a Color is read. It uses the default values Drift: 0.03, Sat: 0.5 and
+// Lit: 0.4 as parameters for the hue generating algorithm.
+func DefaultRandomSource2() *RandomSource2 {
+	return &RandomSource2{
+		drift: 0.03,
+		sat:   0.5,
+		lit:   0.4,
+	}
 }
 
-// Init is used to intialize the instance of a RandomColorSource2
-func (c *RandomSource2) Init(options ...Option) {
-	c.drift = 0.03
-	c.sat = 0.5
-	c.lit = 0.4
+// RandomSource2With is used to intialize the instance of a RandomColorSource2 with options.
+func RandomSource2With(options ...Option) Source {
+	c := DefaultRandomSource2()
 	for _, opt := range options {
 		switch o := opt.(type) {
 		case Drift:
@@ -239,6 +241,7 @@ func (c *RandomSource2) Init(options ...Option) {
 		}
 	}
 	c.hue = rand.Float64()
+	return c
 }
 
 func (c *RandomSource2) Read() Color {
