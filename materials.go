@@ -40,25 +40,24 @@ func MakeMaterial(source interface{}) (m *Material, err error) {
 		mc := *s
 		m = &mc
 	case colors.Color:
-		m = &Material{}
-		m.Init(s)
+		m = MaterialWith(s)
 	case string:
 		c, err := colors.ColorWithString(s)
 		if err == nil {
-			m = &Material{}
-			m.Init(c)
+			m = MaterialWith(c)
 		}
 	default:
-		m = &Material{}
-		m.Init(colors.Grey)
+		m = MaterialWith(colors.Grey)
 	}
 	return
 }
 
-func (m *Material) Init(color colors.Color) {
-	m.Color = color
-	m.SpecularColor = colors.White
-	m.SpecularExponent = 15.0
+func MaterialWith(color colors.Color) *Material {
+	return &Material{
+		Color:            color,
+		SpecularColor:    colors.White,
+		SpecularExponent: 15.0,
+	}
 }
 
 // Render applies the shader's shading to this material, with the option to override
