@@ -69,7 +69,7 @@ func TestDemoEmpty(t *testing.T) {
 	}
 
 	s := seen.EmptyScene()
-	l := render.MakeSceneLayer(&s)
+	l := render.SceneLayerWith(&s)
 	if l == nil {
 		t.Error("unable to create scene layer")
 		return
@@ -100,7 +100,7 @@ func TestDemoSimple(t *testing.T) {
 		return
 	}
 
-	context := MakeContext(svgId, render.MakeFillLayer(width, height, 8, 8, "#eeddff"))
+	context := MakeContext(svgId, render.FillLayerWith(width, height, 8, 8, "#eeddff"))
 	if context == nil {
 		t.Error("Expected to be able to create RenderContext")
 		return
@@ -149,7 +149,7 @@ func TestDemoSimple(t *testing.T) {
 
 	s.Viewport = seen.CenterViewport(0, 0, width, height)
 	// Add scene as a layer to the render context
-	context.Layer(render.MakeSceneLayer(&s))
+	context.Layer(render.SceneLayerWith(&s))
 
 	// Actually render the scene on the context
 	context.Render()
@@ -202,7 +202,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 		s.FractionalPoints = true
 		s.Model.Add(sphere)
 		s.Viewport = seen.CenterViewport(0, 0, width, height)
-		scenes = append(scenes, render.MakeSceneLayer(&s))
+		scenes = append(scenes, render.SceneLayerWith(&s))
 	}
 
 	// Create a render context for each SVG and Canvas
@@ -293,7 +293,7 @@ func TestDemoText(t *testing.T) {
 	scene.Camera.SetRotation(transform.QuatAxisAngle(0.1, 1, 0, math.Pi*0.2))
 
 	// Create render context from canvas
-	context := MakeContext("seen-svg", render.MakeSceneLayer(&scene))
+	context := MakeContext("seen-svg", render.SceneLayerWith(&scene))
 	if context == nil {
 		t.Error("Render context is nil")
 		return

@@ -15,15 +15,8 @@ type SceneLayer struct {
 	renderModelCache map[string]*RenderModel
 }
 
-func MakeSceneLayer(scene *seen.Scene) *SceneLayer {
-	s := &SceneLayer{Scene: scene}
-	s.Init()
-	return s
+		renderModels:     make([]*RenderModel, 0, 32),
 }
-
-func (s *SceneLayer) Init() {
-	s.renderModels = make([]*RenderModel, 0, 32)
-	s.renderModelCache = make(map[string]*RenderModel)
 }
 
 // Paint creates a RenderModel for every Surface in the scene's models.

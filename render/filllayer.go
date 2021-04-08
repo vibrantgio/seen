@@ -8,11 +8,11 @@ type FillLayer struct {
 	Fill          string // fill: #EEE
 }
 
-func MakeFillLayer(width, height, rx, ry float64, fill string) *FillLayer {
-	return &FillLayer{width, height, rx, ry, fill}
+func FillLayerWith(width, height, rx, ry float64, fill string) FillLayer {
+	return FillLayer{width, height, rx, ry, fill}
 }
 
-func (l *FillLayer) Paint(painter Painter) {
+func (l FillLayer) Paint(painter Painter) {
 	rect := painter.Rect()
 	rect.Size(l.Width, l.Height)
 	if l.Rx != 0.0 || l.Ry != 0.0 {
