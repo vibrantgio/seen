@@ -38,7 +38,7 @@ type RenderModel struct {
 	Barycenter       seen.Point
 	Normal           seen.Point
 
-	InFrustrum bool
+	InFrustum bool
 
 	Fill *colors.Color
 
@@ -90,11 +90,11 @@ func (m *RenderModel) update() {
 
 	// Transform into camera space and check whether points are inside the frustrum along the way.
 	var cameraSpaceCoords = make([]seen.Coordinate, len(m.WorldSpacePoints))
-	m.InFrustrum = true
+	m.InFrustum = true
 	for i := range cameraSpaceCoords {
 		c := m.Projection.TransformCoordinate(m.WorldSpacePoints[i].ToCoordinate())
 		if c.Z <= -2 {
-			m.InFrustrum = false
+			m.InFrustum = false
 		}
 		cameraSpaceCoords[i] = c
 	}

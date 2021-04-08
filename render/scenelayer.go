@@ -56,7 +56,7 @@ func (s *SceneLayer) Paint(painter Painter) {
 				}
 
 				// Test projected normal's z-coordinate for culling (if enabled).
-				if (s.ShowBackfaces || surface.ShowBackfaces || renderModel.Normal.Z < 0.0) && renderModel.InFrustrum {
+			if (s.ShowBackfaces || surface.ShowBackfaces || renderModel.Normal.Z < 0.0) && renderModel.InFrustum {
 					// Render fill and stroke using material and shader.
 					if surface.FillMaterial != nil {
 						fill := surface.FillMaterial.Render(lights, s.Shader, renderModel.ShaderData)
