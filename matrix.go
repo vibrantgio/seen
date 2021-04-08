@@ -71,12 +71,10 @@ func (m Matrix) Translate(tx, ty, tz float64) Matrix {
 	return Matrix{m.Mat4x4.Mul(s)}
 }
 
-func (m Matrix) TransformPoints(points []Point) (transformedPoints []Point, barycenter Point) {
-	// Length of the passed in points slice
-	pointsLen := len(points)
-
-	// Size the Points array to fit the length of the points slice passed in.
-	transformedPoints = make([]Point, pointsLen)
+func (m Matrix) TransformPoints(points []Point, transformedPoints []Point) (barycenter Point) {
+	if len(transformedPoints) != len(points) {
+		panic("internal error, slice lengths don't match")
+	}
 
 	// Create Barycenter point used in sorting surfaces in the painters algorithm
 	barycenter = PointZero
@@ -89,17 +87,13 @@ func (m Matrix) TransformPoints(points []Point) (transformedPoints []Point, bary
 	}
 
 	// Compute barycenter, which is used in sorting surfaces in the painters algorithm
-	barycenter = barycenter.Scale(1.0 / float64(pointsLen))
-	return transformedPoints, barycenter
+	return barycenter.Scale(1.0 / float64(len(points)))
 }
 
-func (m Matrix) ProjectCoordinatesToPoints(coords []Coordinate) (transformedPoints []Point, barycenter Point) {
-
-	// Length of the passed in coords slice
-	coordsLen := len(coords)
-
-	// Size the Coordinates array to fit the length of the coords slice passed in.
-	transformedPoints = make([]Point, coordsLen)
+func (m Matrix) ProjectCoordinatesToPoints(coords []Coordinate, transformedPoints []Point) (barycenter Point) {
+	if len(transformedPoints) != len(coords) {
+		panic("internal error, slice lengths don't match")
+	}
 
 	barycenter = PointZero
 
@@ -119,7 +113,5 @@ func (m Matrix) ProjectCoordinatesToPoints(coords []Coordinate) (transformedPoin
 	}
 
 	// Compute barycenter, which is used in sorting surfaces in the painters algorithm
-	barycenter = barycenter.Scale(1.0 / float64(coordsLen))
-
-	return transformedPoints, barycenter
+	return barycenter.Scale(1.0 / float64(len(coords)))
 }

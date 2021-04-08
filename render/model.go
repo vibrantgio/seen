@@ -32,11 +32,11 @@ type RenderModel struct {
 
 	Viewport seen.Matrix
 
-	ShaderData *seen.SurfaceShaderData
-
-	ProjectedPoints []seen.Point
-	Barycenter      seen.Point
-	Normal          seen.Point
+	ShaderData       *seen.SurfaceShaderData
+	WorldSpacePoints []seen.Point
+	ProjectedPoints  []seen.Point
+	Barycenter       seen.Point
+	Normal           seen.Point
 
 	InFrustrum bool
 
@@ -75,16 +75,24 @@ func (m *RenderModel) Update(transform, projection, viewport seen.Matrix) {
 }
 
 func (m *RenderModel) update() {
+	if len(m.WorldSpacePoints) != len(m.Points) {
+		m.WorldSpacePoints = make([]seen.Point, len(m.Points))
+	}
+	if len(m.ProjectedPoints) != len(m.Points) {
+		m.ProjectedPoints = make([]seen.Point, len(m.Points))
+	}
+
 	// Apply model transform to surface points. Calculates transformed points and barycenter
-	worldSpacePoints, baryCenter := m.Transform.TransformPoints(m.Points)
+	wsBaryCenter := m.Transform.TransformPoints(m.Points, m.WorldSpacePoints)
+	wsNormal := seen.PointNormal(m.WorldSpacePoints).Normalize()
 	// Initialize the shader data with the baryCenter and the normal of the transformed points.
-	m.ShaderData = &seen.SurfaceShaderData{Barycenter: baryCenter, Normal: seen.PointNormal(worldSpacePoints)}
+	m.ShaderData = &seen.SurfaceShaderData{Barycenter: wsBaryCenter, Normal: wsNormal}
 
 	// Transform into camera space and check whether points are inside the frustrum along the way.
-	var cameraSpaceCoords = make([]seen.Coordinate, len(worldSpacePoints))
+	var cameraSpaceCoords = make([]seen.Coordinate, len(m.WorldSpacePoints))
 	m.InFrustrum = true
 	for i := range cameraSpaceCoords {
-		c := m.Projection.TransformCoordinate(worldSpacePoints[i].ToCoordinate())
+		c := m.Projection.TransformCoordinate(m.WorldSpacePoints[i].ToCoordinate())
 		if c.Z <= -2 {
 			m.InFrustrum = false
 		}
@@ -92,9 +100,9 @@ func (m *RenderModel) update() {
 	}
 
 	// Project camera space points into screen space
-	m.ProjectedPoints, m.Barycenter = m.Viewport.ProjectCoordinatesToPoints(cameraSpaceCoords)
+	m.Barycenter = m.Viewport.ProjectCoordinatesToPoints(cameraSpaceCoords, m.ProjectedPoints)
 	// Compute the surface normal in screen space.
-	m.Normal = seen.PointNormal(m.ProjectedPoints)
+	m.Normal = seen.PointNormal(m.ProjectedPoints).Normalize()
 
 	// Surface has been updated, we can clear the Dirty flag
 	m.Surface.Dirty = false
