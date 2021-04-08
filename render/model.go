@@ -45,13 +45,8 @@ type RenderModel struct {
 	Stroke *colors.Color
 }
 
-func MakeRenderModel(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderModel {
+func RenderModelWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderModel {
 	m := &RenderModel{}
-	m.Init(surface, transform, projection, viewport)
-	return m
-}
-
-func (m *RenderModel) Init(surface *seen.Surface, transform, projection, viewport seen.Matrix) {
 	m.Surface = surface
 	m.Points = surface.Points
 
@@ -59,6 +54,7 @@ func (m *RenderModel) Init(surface *seen.Surface, transform, projection, viewpor
 	m.Projection = projection
 	m.Viewport = viewport
 	m.update()
+	return m
 }
 
 func (m *RenderModel) Paint(painter Painter) {

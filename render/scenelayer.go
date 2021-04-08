@@ -15,7 +15,11 @@ type SceneLayer struct {
 	renderModelCache map[string]*RenderModel
 }
 
+func SceneLayerWith(scene *seen.Scene) *SceneLayer {
+	return &SceneLayer{
+		Scene:            scene,
 		renderModels:     make([]*RenderModel, 0, 32),
+		renderModelCache: make(map[string]*RenderModel),
 }
 }
 
@@ -24,7 +28,7 @@ type SceneLayer struct {
 // When encountering any other shape assign a PathPainter to the RenderModel.
 func (s *SceneLayer) Paint(painter Painter) {
 	// projection matrix transforms points from world space into camera space and then
-	// trhough viewport prescale and projection matrix into normalized screen space.
+	// through viewport prescale and projection matrix into normalized screen space.
 	projection := s.Camera.Projection.Mul(s.Viewport.Prescale).Mul(s.Camera.Matrix())
 
 	// Last transformation from normalized screen space into real screen space.
@@ -34,11 +38,9 @@ func (s *SceneLayer) Paint(painter Painter) {
 	s.renderModels = s.renderModels[:0]
 
 	// Process all renderable objects
-	s.Model.EachRenderable(
-		// ShapeFunc
-		func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
+	s.Model.EachRenderable(func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
 			for _, surface := range shape.Surfaces {
-				renderModel := s.makeRenderModel(&surface, transform, projection, viewport)
+			renderModel := s.RenderModelWith(&surface, transform, projection, viewport)
 
 				// Assign the correct render function to the render model
 				switch shape.Kind {
@@ -84,13 +86,13 @@ func (s *SceneLayer) Paint(painter Painter) {
 	}
 }
 
-// makeRenderModel will get or create the rendermodel for
+// RenderModelWith will get or create the rendermodel for
 // the given surface. If Regenerate is false, we cache
 // these models to reduce object creation and recomputation.
-func (s *SceneLayer) makeRenderModel(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderModel {
+func (s *SceneLayer) RenderModelWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderModel {
 	if s.Regenerate {
 		// No caching
-		return MakeRenderModel(surface, transform, projection, viewport)
+		return RenderModelWith(surface, transform, projection, viewport)
 	}
 	// Caching enabled, see if its present in the cache
 	m, ok := s.renderModelCache[surface.Id]
@@ -99,7 +101,7 @@ func (s *SceneLayer) makeRenderModel(surface *seen.Surface, transform, projectio
 		return m
 	}
 	// Create new RenderModel and add to the cache
-	m = MakeRenderModel(surface, transform, projection, viewport)
+	m = RenderModelWith(surface, transform, projection, viewport)
 	s.renderModelCache[surface.Id] = m
 	return m
 }
