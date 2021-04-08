@@ -110,7 +110,9 @@ func (s *SceneLayer) RenderModelWith(surface *seen.Surface, transform, projectio
 // if you add and remove many shapes from the scene's models since this
 // cache has no eviction policy.
 func (s *SceneLayer) FlushCache() {
-	s.renderModelCache = make(map[string]*RenderModel)
+	for k := range s.renderModelCache {
+		delete(s.renderModelCache, k)
+	}
 }
 
 // ByZ implements sorting by comparing the Z of the Barycenter of the Projected points
