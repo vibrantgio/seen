@@ -14,7 +14,7 @@ type Object struct {
 	sz float64
 }
 
-var DefaultObject = Object{dualquat.IdentDualQuaternion, 1.0, 1.0, 1.0}
+var DefaultObject = Object{dualquat.Identity, 1.0, 1.0, 1.0}
 
 // Matrix returns a 4x4 homogenous transformation matrix
 // for the transform. This method makes Object a Transformable.

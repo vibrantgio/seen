@@ -1,23 +1,24 @@
 package dualquat
 
-import "github.com/reactivego/seen/quat"
+import (
+	"github.com/reactivego/seen/float"
+	"github.com/reactivego/seen/quat"
+)
 
 type DualQuaternion struct{ Real, Dual quat.Quaternion }
 
-var IdentDualQuaternion = DualQuaternion{quat.Identity, quat.Zero}
+var Identity = DualQuaternion{quat.Identity, quat.Zero}
 
-func DualQuatXYZ(x, y, z float64) DualQuaternion {
-	return DualQuaternion{quat.Identity, quat.Quaternion{0.5 * x, 0.5 * y, 0.5 * z, 0}}
+func Translate(x, y, z float64) DualQuaternion {
+	return DualQuaternion{quat.Identity, quat.Q(x, y, z, 0).Scale(0.5)}
 }
 
-func DualQuatR(r quat.Quaternion) DualQuaternion {
+func Rotate(r quat.Quaternion) DualQuaternion {
 	return DualQuaternion{r, quat.Zero}
 }
 
 func DualQuatRXYZ(r quat.Quaternion, x, y, z float64) DualQuaternion {
-	t := quat.Quaternion{x, y, z, 0}
-	d := t.Mul(r).Scale(0.5)
-	return DualQuaternion{r, d}
+	return DualQuaternion{r, quat.Q(x, y, z, 0).Mul(r).Scale(0.5)}
 }
 
 func (q DualQuaternion) Rotation() quat.Quaternion {
@@ -55,13 +56,12 @@ func (lhs DualQuaternion) Mul(rhs DualQuaternion) DualQuaternion {
 }
 
 func (q DualQuaternion) Normalize() DualQuaternion {
-	// I don't think this Normalize function is actually correct.
-
-	mag := q.Real.Dot(q.Real)
-	if mag < 0.000001 {
-		return IdentDualQuaternion
+	magnitude := q.Real.Length()
+	//detect near zero magnitude
+	if float.Equal(magnitude, 0) {
+		return Identity
 	}
-	return q.Scale(1.0 / mag)
+	return q.Scale(1.0 / magnitude)
 }
 
 // Transform will transform a vector in the space described by the dual quaternion and transform
