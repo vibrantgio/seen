@@ -45,7 +45,7 @@ func Inertia(value bool) DragOption {
 	}
 }
 
-func MakeDrag(options ...DragOption) *Drag {
+func DragWith(options ...DragOption) *Drag {
 	drag := &Drag{}
 	for _, option := range options {
 		option(drag)

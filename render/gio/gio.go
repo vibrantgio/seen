@@ -115,7 +115,7 @@ func (c *Context) Animate() *seen.Animator {
 }
 
 func (c *Context) Drag(options ...seen.DragOption) *seen.Drag {
-	drag := seen.MakeDrag(options...)
+	drag := seen.DragWith(options...)
 	c.inputs = append(c.inputs, func(ops *op.Ops) {
 		defer op.Save(ops).Load()
 		pointer.PassOp{Pass: true}.Add(ops)
