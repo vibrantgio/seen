@@ -1,6 +1,9 @@
 package seen
 
-import "github.com/reactivego/seen/transform"
+import (
+	"github.com/reactivego/seen/quat"
+	"github.com/reactivego/seen/transform"
+)
 
 // Object base class extended by Shape and Model.
 // Uses a double quaternion for specifying the transform.
@@ -26,12 +29,12 @@ func (t *Object) Matrix() Matrix {
 }
 
 // Rotation returns the Quaternion that specifies the rotation part of the transform.
-func (t *Object) Rotation() transform.Quaternion {
+func (t *Object) Rotation() quat.Quaternion {
 	return t.dq.Rotation()
 }
 
 // SetRotation replaces the rotation part of the dual quaternion with a new rotation.
-func (t *Object) SetRotation(r transform.Quaternion) {
+func (t *Object) SetRotation(r quat.Quaternion) {
 	tx, ty, tz := t.dq.Translation()
 	t.dq = transform.DualQuatRXYZ(r, tx, ty, tz)
 }

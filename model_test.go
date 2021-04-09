@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/reactivego/seen/transform"
+	"github.com/reactivego/seen/quat"
 )
 
 var mock_ShapeCount int
@@ -46,7 +46,7 @@ func TestModelAdding(t *testing.T) {
 
 	// Rotate around y axis (rhs coord system with +y pointing up,
 	// +x pointing right and +z pointing out of the screen)
-	r := transform.QuatAxisAngle(0, 1, 0, math.Pi/4.0)
+	r := quat.AxisAngle(0, 1, 0, math.Pi/4.0)
 	m2 := ModelWith(s, tx)
 	m2.SetRotation(r)
 	m := ModelWith(s, m2)

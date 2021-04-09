@@ -1,4 +1,4 @@
-package transform
+package quat
 
 import (
 	"fmt"
@@ -16,34 +16,34 @@ type Quaternion struct {
 	X, Y, Z, W float64
 }
 
-var IdentQuaternion = Quaternion{0, 0, 0, 1}
-var ZeroQuaternion = Quaternion{}
+var Identity = Quaternion{0, 0, 0, 1}
+var Zero = Quaternion{}
 
 func (q Quaternion) String() string {
 	return fmt.Sprintf("{X=%v,Y=%v,Z=%v,W=%v}", q.X, q.Y, q.Z, q.W)
 }
 
-func QuatRotX(angle float64) Quaternion {
+func RotX(angle float64) Quaternion {
 	s, c := math.Sincos(angle / 2)
 	return Quaternion{s, 0.0, 0.0, c}
 }
 
-func QuatRotY(angle float64) Quaternion {
+func RotY(angle float64) Quaternion {
 	s, c := math.Sincos(angle / 2)
 	return Quaternion{0.0, s, 0.0, c}
 }
 
-func QuatRotZ(angle float64) Quaternion {
+func RotZ(angle float64) Quaternion {
 	s, c := math.Sincos(angle / 2)
 	return Quaternion{0.0, 0.0, s, c}
 }
 
-func QuatAxisAngle(x, y, z, angle float64) Quaternion {
+func AxisAngle(x, y, z, angle float64) Quaternion {
 	// determine length of axis angle so we can normalize.
 	m := math.Sqrt(x*x + y*y + z*z)
 	// filter out degenerate axis.
 	if float.Equal(m, 0) {
-		return IdentQuaternion
+		return Identity
 	}
 	s, c := math.Sincos(angle / 2)
 	return Quaternion{s * x / m, s * y / m, s * z / m, c}
@@ -129,7 +129,7 @@ func (q Quaternion) Normalize() Quaternion {
 	magnitude := q.Length()
 	//detect near zero magnitude
 	if float.Equal(magnitude, 0) {
-		return IdentQuaternion
+		return Identity
 	}
 	return q.Scale(1 / magnitude)
 }

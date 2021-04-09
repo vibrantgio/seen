@@ -13,10 +13,10 @@ import (
 	"gioui.org/unit"
 
 	"github.com/reactivego/seen"
+	"github.com/reactivego/seen/quat"
 	"github.com/reactivego/seen/render"
 	"github.com/reactivego/seen/render/gio"
 	"github.com/reactivego/seen/shapes"
-	"github.com/reactivego/seen/transform"
 )
 
 const WidthDp = 900
@@ -90,7 +90,7 @@ func Text() {
 	// Enable drag-to-rotate
 	drag := context.Drag(seen.Inertia(true))
 	drag.On(func(e seen.DragEvent) {
-		r := transform.QuatRotX(e.Dy / 150).Mul(model.Rotation()).MulRotY(e.Dx / 150)
+		r := quat.RotX(e.Dy / 150).Mul(model.Rotation()).MulRotY(e.Dx / 150)
 		model.SetRotation(r)
 		context.Render()
 	})

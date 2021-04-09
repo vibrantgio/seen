@@ -1,24 +1,26 @@
 package transform
 
-type DualQuaternion struct{ Real, Dual Quaternion }
+import "github.com/reactivego/seen/quat"
 
-var IdentDualQuaternion = DualQuaternion{IdentQuaternion, ZeroQuaternion}
+type DualQuaternion struct{ Real, Dual quat.Quaternion }
+
+var IdentDualQuaternion = DualQuaternion{quat.Identity, quat.Zero}
 
 func DualQuatXYZ(x, y, z float64) DualQuaternion {
-	return DualQuaternion{IdentQuaternion, Quaternion{0.5 * x, 0.5 * y, 0.5 * z, 0}}
+	return DualQuaternion{quat.Identity, quat.Quaternion{0.5 * x, 0.5 * y, 0.5 * z, 0}}
 }
 
-func DualQuatR(r Quaternion) DualQuaternion {
-	return DualQuaternion{r, ZeroQuaternion}
+func DualQuatR(r quat.Quaternion) DualQuaternion {
+	return DualQuaternion{r, quat.Zero}
 }
 
-func DualQuatRXYZ(r Quaternion, x, y, z float64) DualQuaternion {
-	t := Quaternion{x, y, z, 0}
+func DualQuatRXYZ(r quat.Quaternion, x, y, z float64) DualQuaternion {
+	t := quat.Quaternion{x, y, z, 0}
 	d := t.Mul(r).Scale(0.5)
 	return DualQuaternion{r, d}
 }
 
-func (q DualQuaternion) Rotation() Quaternion {
+func (q DualQuaternion) Rotation() quat.Quaternion {
 	return q.Real
 }
 

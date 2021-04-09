@@ -12,10 +12,10 @@ import (
 
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/colors"
+	"github.com/reactivego/seen/quat"
 	"github.com/reactivego/seen/render"
 	"github.com/reactivego/seen/render/gio"
 	"github.com/reactivego/seen/shapes"
-	"github.com/reactivego/seen/transform"
 )
 
 const WidthDp = 900
@@ -51,7 +51,7 @@ func HelloWorld() {
 	animator := context.Animate()
 	animator.OnBefore(func(t, dt time.Duration) {
 		dtms := float64(dt.Milliseconds())
-		r := transform.QuatRotY(0.7 * dtms * 1e-4).MulRotX(dtms * 1e-4).Mul(shape.Rotation())
+		r := quat.RotY(0.7 * dtms * 1e-4).MulRotX(dtms * 1e-4).Mul(shape.Rotation())
 		shape.SetRotation(r)
 	})
 	animator.Start()
@@ -59,7 +59,7 @@ func HelloWorld() {
 	// Enable drag-to-rotate
 	drag := context.Drag(seen.Inertia(true))
 	drag.On(func(e seen.DragEvent) {
-		r := transform.QuatRotY(e.Dx / 150).MulRotX(e.Dy / 150).Mul(shape.Rotation())
+		r := quat.RotY(e.Dx / 150).MulRotX(e.Dy / 150).Mul(shape.Rotation())
 		shape.SetRotation(r)
 		context.Render()
 	})

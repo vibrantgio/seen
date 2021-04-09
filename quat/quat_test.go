@@ -1,4 +1,4 @@
-package transform
+package quat
 
 import (
 	"math"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestInitialization(t *testing.T) {
-	q1 := IdentQuaternion
+	q1 := Identity
 
 	if !float.Equal(q1.W, 1) {
 		t.Fail()
@@ -128,7 +128,7 @@ func TestNormalize(t *testing.T) {
 }
 
 func TestAxisAngle(t *testing.T) {
-	q := QuatAxisAngle(1, 0, 0, float64(math.Pi)/2)
+	q := AxisAngle(1, 0, 0, float64(math.Pi)/2)
 
 	t.Log("Rot X,pi/2:", q)
 

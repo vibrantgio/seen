@@ -12,9 +12,9 @@ import (
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/colors"
 	"github.com/reactivego/seen/document"
+	"github.com/reactivego/seen/quat"
 	"github.com/reactivego/seen/render"
 	"github.com/reactivego/seen/shapes"
-	"github.com/reactivego/seen/transform"
 )
 
 // Mocks
@@ -123,7 +123,7 @@ func TestDemoSimple(t *testing.T) {
 	}
 	scale := float64(400) * 0.3
 	icosahedron.SetScale(scale, scale, scale)
-	icosahedron.SetRotation(transform.QuatAxisAngle(1, 1, 0, 0.25*math.Pi))
+	icosahedron.SetRotation(quat.AxisAngle(1, 1, 0, 0.25*math.Pi))
 	err = icosahedron.ColorSurfaces(source)
 	if err != nil {
 		t.Error(err)
@@ -138,7 +138,7 @@ func TestDemoSimple(t *testing.T) {
 		return
 	}
 	cube.SetScale(scale, scale, scale)
-	cube.SetRotation(transform.QuatAxisAngle(0.1, 1, 0, 0.1*math.Pi))
+	cube.SetRotation(quat.AxisAngle(0.1, 1, 0, 0.1*math.Pi))
 	cube.SetTranslation(-350, 0, 0)
 	err = cube.ColorSurfaces(source)
 	if err != nil {
@@ -225,7 +225,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 	a.OnFrame(func(t, dt time.Duration) {
 		for _, sphere := range spheres {
 			dtms := float64(dt.Milliseconds())
-			ryrx := transform.QuatRotY(dtms * 2e-4).MulRotX(dtms * 3e-4)
+			ryrx := quat.RotY(dtms * 2e-4).MulRotX(dtms * 3e-4)
 			sphere.SetRotation(ryrx.Mul(sphere.Rotation()))
 		}
 		for _, context := range contexts {
@@ -290,7 +290,7 @@ func TestDemoText(t *testing.T) {
 	scene.Model.SetTranslation(-150, -50, 0)
 	scene.Model.SetScale(2, 2, 2)
 	scene.Viewport = seen.CenterViewport(0, 0, width, height)
-	scene.Camera.SetRotation(transform.QuatAxisAngle(0.1, 1, 0, math.Pi*0.2))
+	scene.Camera.SetRotation(quat.AxisAngle(0.1, 1, 0, math.Pi*0.2))
 
 	// Create render context from canvas
 	context := MakeContext("seen-svg", render.SceneLayerWith(&scene))

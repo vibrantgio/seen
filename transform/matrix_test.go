@@ -5,11 +5,12 @@ import (
 	"testing"
 
 	"github.com/reactivego/seen/float"
+	"github.com/reactivego/seen/quat"
 )
 
 func TestMatrixFromDualQuat(t *testing.T) {
 
-	dq := DualQuatRXYZ(QuatAxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
+	dq := DualQuatRXYZ(quat.AxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
 	m := dq.Matrix()
 
 	dx, dy, dz := dq.Transform(7, 8, 9)
@@ -25,9 +26,9 @@ func TestMatrixFromDualQuat(t *testing.T) {
 
 func TestMatrixMultiplication(t *testing.T) {
 
-	dq1 := DualQuatRXYZ(QuatAxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
-	dq2 := DualQuatRXYZ(QuatAxisAngle(0, 1, 0, math.Pi/4.0), 10, 11, 12)
-	dq3 := DualQuatRXYZ(QuatAxisAngle(0, 1, 1, math.Pi/3.0), 100, 110, 120)
+	dq1 := DualQuatRXYZ(quat.AxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
+	dq2 := DualQuatRXYZ(quat.AxisAngle(0, 1, 0, math.Pi/4.0), 10, 11, 12)
+	dq3 := DualQuatRXYZ(quat.AxisAngle(0, 1, 1, math.Pi/3.0), 100, 110, 120)
 	dq := dq1.Mul(dq2).Mul(dq3)
 
 	m1 := dq1.Matrix()
