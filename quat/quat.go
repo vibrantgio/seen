@@ -7,20 +7,27 @@ import (
 	"github.com/reactivego/seen/float"
 )
 
-// cross product is implemented with 6 muls, 3 adds
-func cross(ax, ay, az, bx, by, bz float64) (rx, ry, rz float64) {
-	return ay*bz - az*by, az*bx - ax*bz, ax*by - ay*bx
-}
-
 type Quaternion struct {
 	X, Y, Z, W float64
 }
 
 var Identity = Quaternion{0, 0, 0, 1}
+
 var Zero = Quaternion{}
 
-func (q Quaternion) String() string {
-	return fmt.Sprintf("{X=%v,Y=%v,Z=%v,W=%v}", q.X, q.Y, q.Z, q.W)
+func Q(x, y, z, w float64) Quaternion {
+	return Quaternion{x, y, z, w}
+}
+
+func AxisAngle(x, y, z, angle float64) Quaternion {
+	// determine length of axis angle so we can normalize.
+	m := math.Sqrt(x*x + y*y + z*z)
+	// filter out degenerate axis.
+	if float.Equal(m, 0) {
+		return Identity
+	}
+	s, c := math.Sincos(angle / 2)
+	return Quaternion{s * x / m, s * y / m, s * z / m, c}
 }
 
 func RotX(angle float64) Quaternion {
@@ -38,15 +45,8 @@ func RotZ(angle float64) Quaternion {
 	return Quaternion{0.0, 0.0, s, c}
 }
 
-func AxisAngle(x, y, z, angle float64) Quaternion {
-	// determine length of axis angle so we can normalize.
-	m := math.Sqrt(x*x + y*y + z*z)
-	// filter out degenerate axis.
-	if float.Equal(m, 0) {
-		return Identity
-	}
-	s, c := math.Sincos(angle / 2)
-	return Quaternion{s * x / m, s * y / m, s * z / m, c}
+func (q Quaternion) String() string {
+	return fmt.Sprintf("{X=%v,Y=%v,Z=%v,W=%v}", q.X, q.Y, q.Z, q.W)
 }
 
 func (lhs Quaternion) Equal(rhs Quaternion) bool {
@@ -74,6 +74,15 @@ func (lhs Quaternion) Dot(rhs Quaternion) float64 {
 
 func (q Quaternion) Length() float64 {
 	return math.Sqrt(q.Dot(q))
+}
+
+func (q Quaternion) Normalize() Quaternion {
+	magnitude := q.Length()
+	//detect near zero magnitude
+	if float.Equal(magnitude, 0) {
+		return Identity
+	}
+	return q.Scale(1 / magnitude)
 }
 
 // Mul calculates the Hamilton product of two quaternions. This can be seen as a rotation.
@@ -125,18 +134,14 @@ func (q Quaternion) MulRotZ(angle float64) Quaternion {
 	return q.Mul(Quaternion{0.0, 0.0, s, c})
 }
 
-func (q Quaternion) Normalize() Quaternion {
-	magnitude := q.Length()
-	//detect near zero magnitude
-	if float.Equal(magnitude, 0) {
-		return Identity
-	}
-	return q.Scale(1 / magnitude)
-}
-
 // Rotate will perform q*v*q' on the passed in vector.
 // This takes 18 muls, 12 adds to compute.
 func (q Quaternion) Rotate(x, y, z float64) (rx, ry, rz float64) {
+	cross := func(ax, ay, az, bx, by, bz float64) (rx, ry, rz float64) {
+		// cross product is implemented with 6 muls, 3 adds
+		return ay*bz - az*by, az*bx - ax*bz, ax*by - ay*bx
+	}
+
 	// Standard implementation
 	// 32 muls, 24 adds
 	/*	t := q.Mul(&Quaternion{x, y, z, 0}).Mul(q.Conjugate())
