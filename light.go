@@ -78,19 +78,20 @@ func AmbientLight() Light {
 
 // DefaultLights are a set of lights to setup a standard Hollywood-style 3-part lighting
 func DefaultLights() []Transformable {
-	kl := DirectionalLight()
-	kl.Normal = Point{-1, 1, 1}.Normalize()
-	kl.Color = colors.ColorHsl(0.1, 0.3, 0.7, 1.0)
-	kl.Intensity = 1.0 // 0.004
+	// Key light
+	key := DirectionalLight()
+	key.Normal = Point{-1, 1, 1}.Normalize()
+	key.Color = colors.ColorHsl(0.1, 0.3, 0.7, 1.0)
+	key.Intensity = 1.0 // 0.004
 
 	// Back light
-	bl := DirectionalLight()
-	bl.Normal = Point{1, 1, -1}.Normalize()
-	bl.Intensity = 0.765 // 0.003
+	back := DirectionalLight()
+	back.Normal = Point{1, 1, -1}.Normalize()
+	back.Intensity = 0.765 // 0.003
 
 	// Fill light
-	fl := AmbientLight()
-	fl.Intensity = 0.3825 // 0.0015
+	fill := AmbientLight()
+	fill.Intensity = 0.3825 // 0.0015
 
-	return []Transformable{&kl, &bl, &fl}
+	return []Transformable{&key, &back, &fill}
 }
