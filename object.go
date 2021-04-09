@@ -16,7 +16,7 @@ var DefaultObject = Object{transform.IdentDualQuaternion, 1.0, 1.0, 1.0}
 // Matrix returns a 4x4 homogenous transformation matrix
 // for the transform. This method makes Object a Transformable.
 func (t *Object) Matrix() Matrix {
-	m := t.dq.Mat4x4()
+	m := t.dq.Matrix()
 	if t.sx != 1.0 || t.sy != 1.0 || t.sz != 1.0 {
 		m[0], m[1], m[2] = m[0]*t.sx, m[1]*t.sy, m[2]*t.sz
 		m[4], m[5], m[6] = m[4]*t.sx, m[5]*t.sy, m[6]*t.sz

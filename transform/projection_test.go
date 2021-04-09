@@ -7,7 +7,7 @@ import (
 	"github.com/reactivego/seen/float"
 )
 
-func TestProjectionPerspectiveMat4x4(t *testing.T) {
+func TestProjectionPerspectiveMatrix(t *testing.T) {
 	var (
 		width  float64 = 4000
 		height float64 = 3000
@@ -19,7 +19,7 @@ func TestProjectionPerspectiveMat4x4(t *testing.T) {
 		bottom         = -top
 	)
 	p := Projection{right, top, near, far}
-	m := p.PerspectiveMat4x4()
+	m := p.PerspectiveMatrix()
 
 	// Check that zero value for x,y,z returns the correct values
 	x, y, z, w := m.Transform(0, 0, 0, 1)

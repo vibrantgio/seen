@@ -1,8 +1,8 @@
 package transform
 
-type Mat4x4 [16]float64
+type Matrix [16]float64
 
-var IdentityMat4x4 = Mat4x4{
+var IdentityMatrix = Matrix{
 	1, 0, 0, 0,
 	0, 1, 0, 0,
 	0, 0, 1, 0,
@@ -10,8 +10,8 @@ var IdentityMat4x4 = Mat4x4{
 }
 
 // Multiply proper 4x4 matrixes.
-func (l Mat4x4) Mul(r Mat4x4) Mat4x4 {
-	return Mat4x4{
+func (l Matrix) Mul(r Matrix) Matrix {
+	return Matrix{
 		l[0]*r[0] + l[1]*r[4] + l[2]*r[8] + l[3]*r[12], l[0]*r[1] + l[1]*r[5] + l[2]*r[9] + l[3]*r[13], l[0]*r[2] + l[1]*r[6] + l[2]*r[10] + l[3]*r[14], l[0]*r[3] + l[1]*r[7] + l[2]*r[11] + l[3]*r[15],
 		l[4]*r[0] + l[5]*r[4] + l[6]*r[8] + l[7]*r[12], l[4]*r[1] + l[5]*r[5] + l[6]*r[9] + l[7]*r[13], l[4]*r[2] + l[5]*r[6] + l[6]*r[10] + l[7]*r[14], l[4]*r[3] + l[5]*r[7] + l[6]*r[11] + l[7]*r[15],
 		l[8]*r[0] + l[9]*r[4] + l[10]*r[8] + l[11]*r[12], l[8]*r[1] + l[9]*r[5] + l[10]*r[9] + l[11]*r[13], l[8]*r[2] + l[9]*r[6] + l[10]*r[10] + l[11]*r[14], l[8]*r[3] + l[9]*r[7] + l[10]*r[11] + l[11]*r[15],
@@ -19,7 +19,7 @@ func (l Mat4x4) Mul(r Mat4x4) Mat4x4 {
 	}
 }
 
-func (m Mat4x4) Transform(x, y, z, w float64) (rx, ry, rz, rw float64) {
+func (m Matrix) Transform(x, y, z, w float64) (rx, ry, rz, rw float64) {
 	rx = m[0]*x + m[1]*y + m[2]*z + m[3]*w
 	ry = m[4]*x + m[5]*y + m[6]*z + m[7]*w
 	rz = m[8]*x + m[9]*y + m[10]*z + m[11]*w

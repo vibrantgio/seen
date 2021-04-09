@@ -5,13 +5,13 @@ import (
 	"github.com/reactivego/seen/transform"
 )
 
-// Matrix is a wrapper around transform.Mat4x4 that can transform Point values.
-type Matrix struct{ transform.Mat4x4 }
+// Matrix is a wrapper around transform.Matrix that can transform Point values.
+type Matrix struct{ transform.Matrix }
 
-var IdentityMatrix = Matrix{transform.IdentityMat4x4}
+var IdentityMatrix = Matrix{transform.IdentityMatrix}
 
 func Translate(tx, ty, tz float64) Matrix {
-	return Matrix{transform.Mat4x4{
+	return Matrix{transform.Matrix{
 		1, 0, 0, tx,
 		0, 1, 0, ty,
 		0, 0, 1, tz,
@@ -20,7 +20,7 @@ func Translate(tx, ty, tz float64) Matrix {
 }
 
 func Scale(sx, sy, sz float64) Matrix {
-	return Matrix{transform.Mat4x4{
+	return Matrix{transform.Matrix{
 		sx, 0, 0, 0,
 		0, sy, 0, 0,
 		0, 0, sz, 0,
@@ -29,22 +29,22 @@ func Scale(sx, sy, sz float64) Matrix {
 }
 
 func (m Matrix) TransformPoint(p Point) Point {
-	x, y, z, _ := m.Mat4x4.Transform(p.X, p.Y, p.Z, 1.0)
+	x, y, z, _ := m.Matrix.Transform(p.X, p.Y, p.Z, 1.0)
 	return Point{x, y, z}
 }
 
 func (m Matrix) TransformCoordinate(p Coordinate) Coordinate {
-	x, y, z, w := m.Mat4x4.Transform(p.X, p.Y, p.Z, p.W)
+	x, y, z, w := m.Matrix.Transform(p.X, p.Y, p.Z, p.W)
 	return Coordinate{x, y, z, w}
 }
 
 func (l Matrix) Mul(r Matrix) Matrix {
-	return Matrix{l.Mat4x4.Mul(r.Mat4x4)}
+	return Matrix{l.Matrix.Mul(r.Matrix)}
 }
 
 func (l Matrix) Equal(r Matrix) bool {
-	for i, li := range l.Mat4x4 {
-		if !float.Equal(li, r.Mat4x4[i]) {
+	for i, li := range l.Matrix {
+		if !float.Equal(li, r.Matrix[i]) {
 			return false
 		}
 	}
@@ -52,23 +52,23 @@ func (l Matrix) Equal(r Matrix) bool {
 }
 
 func (m Matrix) Scale(sx, sy, sz float64) Matrix {
-	s := transform.Mat4x4{
+	s := transform.Matrix{
 		sx, 0, 0, 0,
 		0, sy, 0, 0,
 		0, 0, sz, 0,
 		0, 0, 0, 1,
 	}
-	return Matrix{m.Mat4x4.Mul(s)}
+	return Matrix{m.Matrix.Mul(s)}
 }
 
 func (m Matrix) Translate(tx, ty, tz float64) Matrix {
-	s := transform.Mat4x4{
+	s := transform.Matrix{
 		1, 0, 0, tx,
 		0, 1, 0, ty,
 		0, 0, 1, tz,
 		0, 0, 0, 1,
 	}
-	return Matrix{m.Mat4x4.Mul(s)}
+	return Matrix{m.Matrix.Mul(s)}
 }
 
 func (m Matrix) TransformPoints(points []Point, transformedPoints []Point) (barycenter Point) {
