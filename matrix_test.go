@@ -1,17 +1,18 @@
-package dualquat
+package seen
 
 import (
 	"math"
 	"testing"
 
+	"github.com/reactivego/seen/dualquat"
 	"github.com/reactivego/seen/float"
 	"github.com/reactivego/seen/quat"
 )
 
 func TestMatrixFromDualQuat(t *testing.T) {
 
-	dq := DualQuatRXYZ(quat.AxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
-	m := dq.Matrix()
+	dq := dualquat.DualQuatRXYZ(quat.AxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
+	m := Matrix(dq.Matrix())
 
 	dx, dy, dz := dq.Transform(7, 8, 9)
 	mx, my, mz, _ := m.Transform(7, 8, 9, 1)
@@ -26,14 +27,14 @@ func TestMatrixFromDualQuat(t *testing.T) {
 
 func TestMatrixMultiplication(t *testing.T) {
 
-	dq1 := DualQuatRXYZ(quat.AxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
-	dq2 := DualQuatRXYZ(quat.AxisAngle(0, 1, 0, math.Pi/4.0), 10, 11, 12)
-	dq3 := DualQuatRXYZ(quat.AxisAngle(0, 1, 1, math.Pi/3.0), 100, 110, 120)
+	dq1 := dualquat.DualQuatRXYZ(quat.AxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
+	dq2 := dualquat.DualQuatRXYZ(quat.AxisAngle(0, 1, 0, math.Pi/4.0), 10, 11, 12)
+	dq3 := dualquat.DualQuatRXYZ(quat.AxisAngle(0, 1, 1, math.Pi/3.0), 100, 110, 120)
 	dq := dq1.Mul(dq2).Mul(dq3)
 
-	m1 := dq1.Matrix()
-	m2 := dq2.Matrix()
-	m3 := dq3.Matrix()
+	m1 := Matrix(dq1.Matrix())
+	m2 := Matrix(dq2.Matrix())
+	m3 := Matrix(dq3.Matrix())
 	m := m1.Mul(m2).Mul(m3)
 
 	dx, dy, dz := dq.Transform(7, 8, 9)

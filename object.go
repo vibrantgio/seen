@@ -25,7 +25,7 @@ func (t *Object) Matrix() Matrix {
 		m[4], m[5], m[6] = m[4]*t.sx, m[5]*t.sy, m[6]*t.sz
 		m[8], m[9], m[10] = m[8]*t.sx, m[9]*t.sy, m[10]*t.sz
 	}
-	return Matrix{m}
+	return Matrix(m)
 }
 
 // Rotation returns the Quaternion that specifies the rotation part of the transform.
