@@ -46,7 +46,7 @@ func Text() {
 
 	// Draw bars for data
 	for i, d := range data {
-		uc := shapes.MakeUnitCube()
+		uc := shapes.UnitCube()
 		uc.SetFill("#0088FF")
 		uc.SetScale(20, d, 20)
 		uc.SetTranslation(float64(i*30)-160, -50, 0)
@@ -62,7 +62,7 @@ func Text() {
 			"anchor":      "middle",
 			"textLength":  "200px",
 		}
-		t := shapes.MakeText(strconv.FormatFloat(d, 'f', 1, 64), opts)
+		t := shapes.Text(strconv.FormatFloat(d, 'f', 1, 64), opts)
 		t.SetShowBackfaces(true)
 		t.SetTranslation(float64(i)*30+10-160, d+10-50, 10)
 		t.SetFill("#000000")

@@ -13,7 +13,7 @@ func mock_ModelShapeFunc(shape *Shape, lights []LightShaderData, transform Matri
 	mock_ShapeCount++
 }
 
-func mock_MakeRectangle() *Shape {
+func mock_Rectangle() *Shape {
 	points := Points{
 		{0, 0, 0},
 		{0, 0.5, 0},
@@ -28,7 +28,7 @@ func mock_MakeRectangle() *Shape {
 	return &s
 }
 
-func mock_MakeText(message string) *Shape {
+func mock_Text(message string) *Shape {
 	points := Points{
 		{0, 0, 0},
 		{0, 0.5, 0},
@@ -41,8 +41,8 @@ func mock_MakeText(message string) *Shape {
 }
 
 func TestModelAdding(t *testing.T) {
-	s := mock_MakeRectangle()
-	tx := mock_MakeText("Hello, World!")
+	s := mock_Rectangle()
+	tx := mock_Text("Hello, World!")
 
 	// Rotate around y axis (rhs coord system with +y pointing up,
 	// +x pointing right and +z pointing out of the screen)

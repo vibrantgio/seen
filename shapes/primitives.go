@@ -7,8 +7,8 @@ import (
 	"github.com/reactivego/seen/affine"
 )
 
-// MakeCube returns a 2x2x2 cube, centered on the origin.
-func MakeCube() *seen.Shape {
+// Cube returns a 2x2x2 cube, centered on the origin.
+func Cube() *seen.Shape {
 	points := [...]seen.Point{
 		{-1, -1, -1},
 		{-1, -1, 1},
@@ -23,8 +23,8 @@ func MakeCube() *seen.Shape {
 	return &s
 }
 
-// MakeUnitCube returns a 1x1x1 cube from the origin [0,0,0] to [1, 1, 1].
-func MakeUnitCube() *seen.Shape {
+// UnitCube returns a 1x1x1 cube from the origin [0,0,0] to [1, 1, 1].
+func UnitCube() *seen.Shape {
 	points := [...]seen.Point{
 		{0, 0, 0},
 		{0, 0, 1},
@@ -41,7 +41,7 @@ func MakeUnitCube() *seen.Shape {
 
 // Returns an axis-aligned 3D rectangle whose boundaries are defined by the
 // two supplied points.
-func MakeRectangle(point1, point2 seen.Point) *seen.Shape {
+func Rectangle(point1, point2 seen.Point) *seen.Shape {
 	compose := func(x, y, z func(float64, float64) float64) seen.Point {
 		return seen.Point{
 			X: x(point1.X, point2.X),
@@ -65,13 +65,13 @@ func MakeRectangle(point1, point2 seen.Point) *seen.Shape {
 	return &s
 }
 
-// MakeText creates a Shape for the given text.
+// Text creates a Shape for the given text.
 // The text parameter is set as surface option "text" on the created shape.
 // After the text is set the other surface options that were passed in via surfaceOptions
 // are assigned to the surface options of the created shape.
 //	font	e.g. "20px sans-serif" or "10px Roboto"
 //	anchor	e.g. "middle"
-func MakeText(text string, surfaceOptions map[string]string) *seen.Shape {
+func Text(text string, surfaceOptions map[string]string) *seen.Shape {
 	surface := seen.SurfaceWith(affine.ORTHONORMAL_BASIS)
 	surface.Options["text"] = text
 	for key, val := range surfaceOptions {
@@ -81,18 +81,18 @@ func MakeText(text string, surfaceOptions map[string]string) *seen.Shape {
 	return &s
 }
 
-// MakeIcosahedron returns an icosahedron that fits within a 2x2x2 cube, centered on the origin.
-func MakeIcosahedron() *seen.Shape {
+// Icosahedron returns an icosahedron that fits within a 2x2x2 cube, centered on the origin.
+func Icosahedron() *seen.Shape {
 	s := seen.ShapeWith("icosahedron", seen.SurfacesWith(_ICOSAHEDRON_POINTS[:], _ICOSAHEDRON_COORDINATE_MAP[:]))
 	return &s
 }
 
-// MakeSphere returns a sub-divided icosahedron, which approximates a sphere with
+// Sphere returns a sub-divided icosahedron, which approximates a sphere with
 // triangles of equal size. A value of 2 is a good default for the subdivisions
 // parameter, for every triangle of the original sphere 4*4= 16 triangles will
 // be introduced. A subdivision value of 3 will generate 64 and a value
 // of 4 will generated 256 triangles for every original triangle.
-func MakeSphere(subdivisions int) *seen.Shape {
+func Sphere(subdivisions int) *seen.Shape {
 
 	triangles := make([][3]seen.Point, len(_ICOSAHEDRON_COORDINATE_MAP))
 	for i, coords := range _ICOSAHEDRON_COORDINATE_MAP {

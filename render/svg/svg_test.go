@@ -116,7 +116,7 @@ func TestDemoSimple(t *testing.T) {
 	source := colors.RandomSource2With(colors.Drift(0.03), colors.Sat(0.5))
 
 	// Add icosahedron to the scene
-	icosahedron := shapes.MakeIcosahedron()
+	icosahedron := shapes.Icosahedron()
 	if icosahedron == nil {
 		t.Fail()
 		return
@@ -132,7 +132,7 @@ func TestDemoSimple(t *testing.T) {
 	s.Model.Add(icosahedron)
 
 	// Add a cube to the scene
-	cube := shapes.MakeUnitCube()
+	cube := shapes.UnitCube()
 	if cube == nil {
 		t.Fail()
 		return
@@ -182,7 +182,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 	// Create one shape to be shared between the SVG and Canvas
 	spheres := []*seen.Shape{}
 	for i := 0; i < 4; i++ {
-		sphere := shapes.MakeSphere(i)
+		sphere := shapes.Sphere(i)
 		scale := float64(height) * 0.4
 		sphere.SetScale(scale, scale, scale)
 		source := colors.RandomSource2With(colors.Drift(0.03), colors.Sat(0.5))
@@ -264,7 +264,7 @@ func TestDemoText(t *testing.T) {
 
 	// Draw bars for data
 	for i, d := range data {
-		uc := shapes.MakeUnitCube()
+		uc := shapes.UnitCube()
 		uc.SetScale(20.0, d, 20.0)
 		uc.SetTranslation(float64(i)*30.0, 0, 0)
 		uc.SetFill("#0088FF")
@@ -279,7 +279,7 @@ func TestDemoText(t *testing.T) {
 			"font-size":   "10px",
 			"anchor":      "middle",
 		}
-		t := shapes.MakeText(strconv.FormatFloat(d, 'f', 1, 64), opts)
+		t := shapes.Text(strconv.FormatFloat(d, 'f', 1, 64), opts)
 		t.SetShowBackfaces(true)
 		t.SetTranslation(float64(i)*30+10, d+10, 10)
 		t.SetFill("#000000")
