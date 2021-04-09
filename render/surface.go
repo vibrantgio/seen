@@ -24,7 +24,7 @@ type RenderSurface struct {
 	// The reference is retained so it can be checked for the Dirty flag.
 	// When the Dirty flag is set, the RenderSurface needs to be regenerated.
 	Surface *seen.Surface
-	Points  []seen.Point
+	Points  seen.Points
 
 	Transform seen.Matrix
 
@@ -33,8 +33,8 @@ type RenderSurface struct {
 	Viewport seen.Matrix
 
 	ShaderData       *seen.SurfaceShaderData
-	WorldSpacePoints []seen.Point
-	ProjectedPoints  []seen.Point
+	WorldSpacePoints seen.Points
+	ProjectedPoints  seen.Points
 	Barycenter       seen.Point
 	Normal           seen.Point
 
@@ -79,27 +79,19 @@ func (m *RenderSurface) update() {
 	}
 
 	// Apply model transform to surface points. Calculates transformed points and barycenter
-	wsBaryCenter := m.Transform.TransformPoints(m.Points, m.WorldSpacePoints)
-	wsNormal := seen.PointNormal(m.WorldSpacePoints).Normalize()
+	wsBaryCenter := m.Points.Mul(m.Transform, m.WorldSpacePoints)
+	wsNormal := m.WorldSpacePoints.Normal().Normalize()
+
 	// Initialize the shader data with the baryCenter and the normal of the transformed points.
 	m.ShaderData = &seen.SurfaceShaderData{Barycenter: wsBaryCenter, Normal: wsNormal}
 
-	// Transform into camera space and check whether points are inside the frustrum along the way.
-	var cameraSpaceCoords = make([]seen.Coordinate, len(m.WorldSpacePoints))
-	m.InFrustum = true
-	for i := range cameraSpaceCoords {
-		c := m.Projection.TransformCoordinate(m.WorldSpacePoints[i].ToCoordinate())
-		if c.Z <= -2 {
-			m.InFrustum = false
-		}
-		cameraSpaceCoords[i] = c
+	var clippedPoints = make(seen.Points, len(m.WorldSpacePoints))
+	if m.InFrustum = m.WorldSpacePoints.Clip(m.Projection, -2, clippedPoints); m.InFrustum {
+		// Project camera space points into screen space
+		m.Barycenter = clippedPoints.Mul(m.Viewport, m.ProjectedPoints)
+		m.Normal = m.ProjectedPoints.Normal().Normalize()
+
+		// Surface has been updated, we can clear the Dirty flag
+		m.Surface.Dirty = false
 	}
-
-	// Project camera space points into screen space
-	m.Barycenter = m.Viewport.ProjectCoordinatesToPoints(cameraSpaceCoords, m.ProjectedPoints)
-	// Compute the surface normal in screen space.
-	m.Normal = seen.PointNormal(m.ProjectedPoints).Normalize()
-
-	// Surface has been updated, we can clear the Dirty flag
-	m.Surface.Dirty = false
 }

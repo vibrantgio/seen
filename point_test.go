@@ -28,7 +28,7 @@ func TestPointRoundReturnedPointIsUniqueValue(t *testing.T) {
 }
 
 func TestPointRoundAlterInSlice(t *testing.T) {
-	points := []Point{{1.4, 1.5, 1.6}, {1.2, 1.5, 1.6}}
+	points := Points{{1.4, 1.5, 1.6}, {1.2, 1.5, 1.6}}
 
 	// Calling a method that alters the object will alter the points in the slice.
 	points[0] = points[0].Round()
@@ -45,7 +45,7 @@ func TestPointRoundAlterInSlice(t *testing.T) {
 	}
 }
 func TestPointRoundAlteredInFor(t *testing.T) {
-	points := []Point{{1.4, 1.5, 1.6}, {1.2, 1.5, 1.6}}
+	points := Points{{1.4, 1.5, 1.6}, {1.2, 1.5, 1.6}}
 
 	// addressing the slice via index will alter the point in the slice.
 	// So assigning to the point will alter it.

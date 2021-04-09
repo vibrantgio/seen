@@ -28,16 +28,6 @@ func Scale(sx, sy, sz float64) Matrix {
 	}}
 }
 
-func (m Matrix) TransformPoint(p Point) Point {
-	x, y, z, _ := m.Matrix.Transform(p.X, p.Y, p.Z, 1.0)
-	return Point{x, y, z}
-}
-
-func (m Matrix) TransformCoordinate(p Coordinate) Coordinate {
-	x, y, z, w := m.Matrix.Transform(p.X, p.Y, p.Z, p.W)
-	return Coordinate{x, y, z, w}
-}
-
 func (l Matrix) Mul(r Matrix) Matrix {
 	return Matrix{l.Matrix.Mul(r.Matrix)}
 }
@@ -69,49 +59,4 @@ func (m Matrix) Translate(tx, ty, tz float64) Matrix {
 		0, 0, 0, 1,
 	}
 	return Matrix{m.Matrix.Mul(s)}
-}
-
-func (m Matrix) TransformPoints(points []Point, transformedPoints []Point) (barycenter Point) {
-	if len(transformedPoints) != len(points) {
-		panic("internal error, slice lengths don't match")
-	}
-
-	// Create Barycenter point used in sorting surfaces in the painters algorithm
-	barycenter = PointZero
-
-	// Apply transform to points
-	for i := range points {
-		p := m.TransformPoint(points[i])
-		transformedPoints[i] = p
-		barycenter = barycenter.Add(p)
-	}
-
-	// Compute barycenter, which is used in sorting surfaces in the painters algorithm
-	return barycenter.Scale(1.0 / float64(len(points)))
-}
-
-func (m Matrix) ProjectCoordinatesToPoints(coords []Coordinate, transformedPoints []Point) (barycenter Point) {
-	if len(transformedPoints) != len(coords) {
-		panic("internal error, slice lengths don't match")
-	}
-
-	barycenter = PointZero
-
-	// Apply transform to coords
-	for i := range coords {
-		// Transform the homogeneous coordinate
-		c := m.TransformCoordinate(coords[i])
-
-		// Calling ToPoint on a Coordinate will apply the clip so it scales the x and y
-		// coordinates in a perspective projection. This is done by dividing the X,Y,Z
-		// components by c.W
-		p := c.ToPoint()
-
-		// copy p into the points array.
-		transformedPoints[i] = p
-		barycenter = barycenter.Add(p)
-	}
-
-	// Compute barycenter, which is used in sorting surfaces in the painters algorithm
-	return barycenter.Scale(1.0 / float64(len(coords)))
 }

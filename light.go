@@ -47,11 +47,11 @@ type LightShaderData struct {
 // ShaderData pre-computes values necessary for shading.
 func (l Light) ShaderData(transform Matrix) (lsd LightShaderData) {
 	lsd.Kind = l.Kind
-	lsd.Point = transform.TransformPoint(l.Point)
+	lsd.Point = l.Point.Mul(transform)
 	lsd.Color = l.Color.Scale(l.Intensity)
 	lsd.Intensity = l.Intensity
-	origin := transform.TransformPoint(PointZero)
-	lsd.Normal = transform.TransformPoint(l.Normal).Subtract(origin).Normalize()
+	origin := PointZero.Mul(transform)
+	lsd.Normal = l.Normal.Mul(transform).Subtract(origin).Normalize()
 	return lsd
 }
 

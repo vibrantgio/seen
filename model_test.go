@@ -14,7 +14,7 @@ func mock_ModelShapeFunc(shape *Shape, lights []LightShaderData, transform Matri
 }
 
 func mock_MakeRectangle() *Shape {
-	points := []Point{
+	points := Points{
 		{0, 0, 0},
 		{0, 0.5, 0},
 		{0.5, 0, 0},
@@ -29,7 +29,7 @@ func mock_MakeRectangle() *Shape {
 }
 
 func mock_MakeText(message string) *Shape {
-	points := []Point{
+	points := Points{
 		{0, 0, 0},
 		{0, 0.5, 0},
 		{0.5, 0, 0},

@@ -6,7 +6,7 @@ package seen
 type Surface struct {
 	// Points contain a list of vertices of the planar polygon that defines the
 	// outline of the surface.
-	Points []Point
+	Points Points
 
 	// Id holds a unique identifier for the surface.
 	// We store a unique Id for every surface so we can look them up quickly
@@ -45,7 +45,7 @@ type Surface struct {
 // have to transformed multiple times instead of only once.
 // So this could be optimized by allowing surfaces to store pointers to
 // points instead of the actual points.
-func SurfacesWith(points []Point, coordinateMap [][]int) (surfaces []Surface) {
+func SurfacesWith(points Points, coordinateMap [][]int) (surfaces []Surface) {
 	surfaces = make([]Surface, len(coordinateMap))
 	for s, coords := range coordinateMap {
 		for _, c := range coords {
@@ -57,11 +57,11 @@ func SurfacesWith(points []Point, coordinateMap [][]int) (surfaces []Surface) {
 	return
 }
 
-func SurfaceWith(points []Point) *Surface {
+func SurfaceWith(points Points) *Surface {
 	s := &Surface{}
 	s.Id = UniqueId("s")
 	s.Options = make(map[string]string)
-	s.Points = append([]Point(nil), points...)
+	s.Points = append(Points(nil), points...)
 	return s
 }
 
