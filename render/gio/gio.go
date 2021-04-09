@@ -174,8 +174,8 @@ func (c *Context) Drag(options ...seen.DragOption) *seen.Drag {
 	return drag
 }
 
-func (c *Context) Zoom() *seen.Zoom {
-	zoom := seen.MakeZoom()
+func (c *Context) Zoom(options ...seen.ZoomOption) *seen.Zoom {
+	zoom := seen.ZoomWith(options...)
 	c.inputs = append(c.inputs, func(ops *op.Ops) {
 		defer op.Save(ops).Load()
 		pointer.PassOp{Pass: true}.Add(ops)

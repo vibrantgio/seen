@@ -22,9 +22,20 @@ type ZoomType string
 
 const ZoomMove = ZoomType("Zoom")
 
-func MakeZoom() *Zoom {
-	return &Zoom{Speed: 0.25}
+type ZoomOption func() float64
+
+func Speed(speed float64) ZoomOption {
+	return func() float64 { return speed }
 }
+
+func ZoomWith(options ...ZoomOption) *Zoom {
+	speed := 0.25
+	for _, option := range options {
+		speed = option()
+	}
+	return &Zoom{Speed: speed}
+}
+
 func (z *Zoom) On(handler ZoomHandler) {
 	z.handlers = append(z.handlers, handler)
 }
