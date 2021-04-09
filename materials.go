@@ -29,9 +29,9 @@ type Material struct {
 	Shader Shader
 }
 
-// MakeMaterial makes a material based on the given source paramter.
+// MaterialWith makes a material based on the given source paramter.
 // The source can be another Material, Color, or string containing a hex color representation.
-func MakeMaterial(source interface{}) (m *Material, err error) {
+func MaterialWith(source interface{}) (m *Material, err error) {
 	err = nil
 	switch s := source.(type) {
 	case Material:
@@ -40,24 +40,28 @@ func MakeMaterial(source interface{}) (m *Material, err error) {
 		mc := *s
 		m = &mc
 	case colors.Color:
-		m = MaterialWith(s)
+		m = &Material{
+			Color:            s,
+			SpecularColor:    colors.White,
+			SpecularExponent: 15.0,
+		}
 	case string:
 		c, err := colors.ColorWithString(s)
 		if err == nil {
-			m = MaterialWith(c)
+			m = &Material{
+				Color:            c,
+				SpecularColor:    colors.White,
+				SpecularExponent: 15.0,
+			}
 		}
 	default:
-		m = MaterialWith(colors.Grey)
+		m = &Material{
+			Color:            colors.Grey,
+			SpecularColor:    colors.White,
+			SpecularExponent: 15.0,
+		}
 	}
 	return
-}
-
-func MaterialWith(color colors.Color) *Material {
-	return &Material{
-		Color:            color,
-		SpecularColor:    colors.White,
-		SpecularExponent: 15.0,
-	}
 }
 
 // Render applies the shader's shading to this material, with the option to override

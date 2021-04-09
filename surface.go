@@ -66,11 +66,11 @@ func SurfaceWith(points Points) *Surface {
 }
 
 func (s *Surface) SetFill(value interface{}) (err error) {
-	s.FillMaterial, err = MakeMaterial(value)
+	s.FillMaterial, err = MaterialWith(value)
 	return
 }
 
 func (s *Surface) SetStroke(value interface{}) (err error) {
-	s.StrokeMaterial, err = MakeMaterial(value)
+	s.StrokeMaterial, err = MaterialWith(value)
 	return
 }
