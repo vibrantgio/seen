@@ -65,32 +65,12 @@ func (q DualQuaternion) Normalize() DualQuaternion {
 // Transform will transform a vector in the space described by the dual quaternion and transform
 // that into the parent space.
 // This takes 37 muls, 27 adds
-// By comparison a homogenous matrix transform takes 9 muls and 9 adds but needs to have the Mat3x4 extracted first.
+// By comparison a homogenous matrix transform takes 9 muls and 9 adds but needs to have the Matrix
+// extracted first.
 func (q DualQuaternion) Transform(x, y, z float64) (float64, float64, float64) {
 	vx, vy, vz := q.Real.Rotate(x, y, z) // 18 muls and 12 adds
 	dx, dy, dz := q.Translation()        // 19 muls, 12 adds
 	return vx + dx, vy + dy, vz + dz     // 3 adds
-}
-
-// Mat3x4 will return a matrix with 3 rows and 4 columns, the left 3x3 matrix
-// contains the rotation and the right 3x1 vector contains the translation.
-// It takes 38 muls, 28 adds to derive a homogenous matrix from the dual quaternion.
-func (q DualQuaternion) Mat3x4() Mat3x4 {
-	// Returns the homogeneous 3D rotation matrix corresponding to the Real quaternion.
-	x, y, z, w := q.Real.X, q.Real.Y, q.Real.Z, q.Real.W
-	// Pre-multiply resused products
-	xx, yy, zz := x*x, y*y, z*z // 3 muls
-	xy, wz := x*y, w*z          // 2 muls
-	xz, wy := x*z, w*y          // 2 muls
-	yz, wx := y*z, w*x          // 2 muls
-	// Returns the translation corresponding to the Dual quaternion
-	tx, ty, tz := q.Translation() // 20 muls, 12 adds
-	// Return a homogenous matrix
-	return Mat3x4{
-		1 - 2*(yy+zz), 2 * (xy - wz), 2 * (xz + wy), tx, // 3 muls, 4 adds
-		2 * (xy + wz), 1 - 2*(xx+zz), 2 * (yz - wx), ty, // 3 muls, 4 adds
-		2 * (xz - wy), 2 * (yz + wx), 1 - 2*(xx+yy), tz, // 3 muls, 4 adds
-	}
 }
 
 // Mat4x4 will return a matrix with 4 rows and 4 columns, the top left 3x3 matrix

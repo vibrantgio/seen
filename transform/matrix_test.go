@@ -10,31 +10,10 @@ import (
 func TestMatrixFromDualQuat(t *testing.T) {
 
 	dq := DualQuatRXYZ(QuatAxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
-	m := dq.Mat3x4()
+	m := dq.Mat4x4()
 
 	dx, dy, dz := dq.Transform(7, 8, 9)
-	mx, my, mz := m.Transform(7, 8, 9)
-
-	t.Log("dx", dx, "dy", dy, "dz", dz)
-	t.Log("mx", mx, "my", my, "mz", mz)
-
-	if !float.EqualPairs(mx, dx, my, dy, mz, dz) {
-		t.Fail()
-	}
-}
-
-func TestMat3x4Multiplication(t *testing.T) {
-
-	dq1 := DualQuatRXYZ(QuatAxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
-	dq2 := DualQuatRXYZ(QuatAxisAngle(0, 1, 0, math.Pi/4.0), 10, 11, 12)
-	dq := dq1.Mul(dq2)
-
-	m1 := dq1.Mat3x4()
-	m2 := dq2.Mat3x4()
-	m := m1.Mul(m2)
-
-	dx, dy, dz := dq.Transform(7, 8, 9)
-	mx, my, mz := m.Transform(7, 8, 9)
+	mx, my, mz, _ := m.Transform(7, 8, 9, 1)
 
 	t.Log("dx", dx, "dy", dy, "dz", dz)
 	t.Log("mx", mx, "my", my, "mz", mz)
