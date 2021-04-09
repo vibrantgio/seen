@@ -42,7 +42,7 @@ func Perspective(fovy, aspect, near, far float64) Matrix {
 	return Frustum(r, t, near, far)
 }
 
-// Multiply proper 4x4 matrixes.
+// Multiply 4x4 matrices.
 func (l Matrix) Mul(r Matrix) Matrix {
 	return Matrix{
 		l[0]*r[0] + l[1]*r[4] + l[2]*r[8] + l[3]*r[12], l[0]*r[1] + l[1]*r[5] + l[2]*r[9] + l[3]*r[13], l[0]*r[2] + l[1]*r[6] + l[2]*r[10] + l[3]*r[14], l[0]*r[3] + l[1]*r[7] + l[2]*r[11] + l[3]*r[15],

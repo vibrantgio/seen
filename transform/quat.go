@@ -22,6 +22,7 @@ var ZeroQuaternion = Quaternion{}
 func (q Quaternion) String() string {
 	return fmt.Sprintf("{X=%v,Y=%v,Z=%v,W=%v}", q.X, q.Y, q.Z, q.W)
 }
+
 func QuatRotX(angle float64) Quaternion {
 	s, c := math.Sincos(angle / 2)
 	return Quaternion{s, 0.0, 0.0, c}
