@@ -41,7 +41,8 @@ type Scene struct {
 	Regenerate bool
 }
 
-// MakeScene returns a new Scene that has a default Model, Camera, Viewport and Shader.
+// EmptyScene returns a new Scene that has a default Camera, Viewport and Shader and
+// an empty Model.
 func EmptyScene() Scene {
 	return Scene{
 		Model:    EmptyModel(),
@@ -51,6 +52,8 @@ func EmptyScene() Scene {
 	}
 }
 
+// DefaultScene returns a new Scene that has a default Camera, Viewport and Shader and
+// a Model with Hollywood-style 3-part lighting.
 func DefaultScene() Scene {
 	return Scene{
 		Model:    ModelWith(DefaultLights()...),
