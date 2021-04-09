@@ -42,8 +42,8 @@ func (c *Context) Layer(layer render.RenderLayer) {
 func (c *Context) Render() {
 }
 
-func (c *Context) Animate() seen.Animator {
-	animator := seen.MakeAnimator()
+func (c *Context) Animate() *seen.Animator {
+	animator := &seen.Animator{}
 	animator.OnFrame(func(d, dt time.Duration) { c.Render() })
 	return animator
 }

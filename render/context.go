@@ -6,5 +6,5 @@ import "github.com/reactivego/seen"
 type RenderContext interface {
 	Layer(RenderLayer)
 	Render()
-	Animate() seen.Animator
+	Animate() *seen.Animator
 }

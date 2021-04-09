@@ -53,7 +53,7 @@ func (c *Context) Render() {
 	}
 }
 
-func (c *Context) Animate() seen.Animator {
+func (c *Context) Animate() *seen.Animator {
 	return nil
 }
 

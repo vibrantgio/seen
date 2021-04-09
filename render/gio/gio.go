@@ -106,8 +106,8 @@ func (c *Context) Draw(ops *op.Ops, queue event.Queue) {
 	}
 }
 
-func (c *Context) Animate() seen.Animator {
-	animator := seen.MakeAnimator()
+func (c *Context) Animate() *seen.Animator {
+	animator := &seen.Animator{}
 	animator.OnFrame(func(d, dt time.Duration) {
 		c.Render()
 	})

@@ -2,39 +2,19 @@ package seen
 
 import "time"
 
-// The animator class is useful for creating an animation loop. We supply pre
-// and post events for applying animation changes between frames.
-type Animator interface {
-	// Start makes the animator call the OnFrame handlers at 33 Hz.
-	Start()
-
-	// Stop makes the animator stop calling the OnFrame handlers.
-	Stop()
-
-	// OnBefore handlers are called before the OnFrame handlers are called.
-	OnBefore(Handler)
-
-	// OnFrame handlers are called at a frequency of 33Hz.
-	OnFrame(Handler)
-
-	// OnAfter handlers are called after every OnFrame handler call.
-	OnAfter(Handler)
-}
-
-type Handler func(t, dt time.Duration)
-
-type animator struct {
+// Animator is a class that is useful for creating an animation loop.
+// We supply pre and post events for applying animation changes between frames.
+type Animator struct {
 	ticker   IntervalID
 	onBefore []Handler
 	onFrame  []Handler
 	onAfter  []Handler
 }
 
-func MakeAnimator() Animator {
-	return &animator{}
-}
+type Handler func(t, dt time.Duration)
 
-func (a *animator) Start() {
+// Start makes the animator call the OnFrame handlers at 33 Hz.
+func (a *Animator) Start() {
 	if a.ticker != 0 {
 		ClearInterval(a.ticker)
 	}
@@ -53,18 +33,22 @@ func (a *animator) Start() {
 	a.ticker = SetInterval(animate, 30*time.Millisecond)
 }
 
-func (a *animator) Stop() {
+// Stop makes the animator stop calling the OnFrame handlers.
+func (a *Animator) Stop() {
 	ClearInterval(a.ticker)
 }
 
-func (a *animator) OnBefore(handler Handler) {
+// OnBefore handlers are called before the OnFrame handlers are called.
+func (a *Animator) OnBefore(handler Handler) {
 	a.onBefore = append(a.onBefore, handler)
 }
 
-func (a *animator) OnFrame(handler Handler) {
+// OnFrame handlers are called at a frequency of 33Hz.
+func (a *Animator) OnFrame(handler Handler) {
 	a.onFrame = append(a.onFrame, handler)
 }
 
-func (a *animator) OnAfter(handler Handler) {
+// OnAfter handlers are called after every OnFrame handler call.
+func (a *Animator) OnAfter(handler Handler) {
 	a.onAfter = append(a.onAfter, handler)
 }

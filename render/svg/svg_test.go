@@ -221,7 +221,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 	}
 
 	// Slowly rotate shapes
-	a := seen.MakeAnimator()
+	a := &seen.Animator{}
 	a.OnFrame(func(t, dt time.Duration) {
 		for _, sphere := range spheres {
 			dtms := float64(dt.Milliseconds())
