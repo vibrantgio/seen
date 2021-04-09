@@ -1,11 +1,11 @@
 package seen
 
-import "github.com/reactivego/seen/transform"
+import "github.com/reactivego/seen/dualquat"
 
 // DefaultPerspectiveProjection creates a perspective projection matrix from
 // the default frustrum.
-var DefaultPerspectiveProjection = Matrix{transform.Frustum(1, 1, 1, 100)}
+var DefaultPerspectiveProjection = Matrix{dualquat.Frustum(1, 1, 1, 100)}
 
 // DefaultOrthographicProjection creates an orthographic projection matrix from
 // the default frustrum.
-var DefaultOrthographicProjection = Matrix{transform.Ortho(1, 1, 1, 100)}
+var DefaultOrthographicProjection = Matrix{dualquat.Ortho(1, 1, 1, 100)}

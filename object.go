@@ -1,20 +1,20 @@
 package seen
 
 import (
+	"github.com/reactivego/seen/dualquat"
 	"github.com/reactivego/seen/quat"
-	"github.com/reactivego/seen/transform"
 )
 
 // Object base class extended by Shape and Model.
 // Uses a double quaternion for specifying the transform.
 type Object struct {
-	dq transform.DualQuaternion
+	dq dualquat.DualQuaternion
 	sx float64
 	sy float64
 	sz float64
 }
 
-var DefaultObject = Object{transform.IdentDualQuaternion, 1.0, 1.0, 1.0}
+var DefaultObject = Object{dualquat.IdentDualQuaternion, 1.0, 1.0, 1.0}
 
 // Matrix returns a 4x4 homogenous transformation matrix
 // for the transform. This method makes Object a Transformable.
@@ -36,7 +36,7 @@ func (t *Object) Rotation() quat.Quaternion {
 // SetRotation replaces the rotation part of the dual quaternion with a new rotation.
 func (t *Object) SetRotation(r quat.Quaternion) {
 	tx, ty, tz := t.dq.Translation()
-	t.dq = transform.DualQuatRXYZ(r, tx, ty, tz)
+	t.dq = dualquat.DualQuatRXYZ(r, tx, ty, tz)
 }
 
 // Translation returns the tx,ty,tz values that indicate the offset of the
@@ -47,7 +47,7 @@ func (t *Object) Translation() (tx, ty, tz float64) {
 
 // SetTranslation replaces the translation part of the dual quaternion with a new translation.
 func (t *Object) SetTranslation(tx, ty, tz float64) {
-	t.dq = transform.DualQuatRXYZ(t.dq.Rotation(), tx, ty, tz)
+	t.dq = dualquat.DualQuatRXYZ(t.dq.Rotation(), tx, ty, tz)
 }
 
 func (t *Object) Scale() (sx, sy, sz float64) {

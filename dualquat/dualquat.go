@@ -1,4 +1,4 @@
-package transform
+package dualquat
 
 import "github.com/reactivego/seen/quat"
 

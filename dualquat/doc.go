@@ -1,2 +1,2 @@
-// Package transform
-package transform
+// Package dualquat
+package dualquat
