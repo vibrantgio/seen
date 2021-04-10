@@ -149,7 +149,7 @@ func TestAxisAngle(t *testing.T) {
 		t.Errorf("Exp: {0,0,1,1}\nGot: %v", v)
 	}
 
-	vx, vy, vz := q.Rotate(0, 1, 0)
+	vx, vy, vz := q.Transform(0, 1, 0)
 	if !float.EqualPairs(vx, 0, vy, 0, vz, 1) {
 		t.Errorf("Exp: {0,0,1}\nGot: {%v,%v,%v}", vx, vy, vz)
 	}

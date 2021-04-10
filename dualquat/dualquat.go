@@ -85,9 +85,9 @@ func (dq DualQuaternion) Normalize() DualQuaternion {
 // By comparison a homogenous matrix transform takes 9 muls and 9 adds but needs to have the Matrix
 // extracted first.
 func (dq DualQuaternion) Transform(x, y, z float64) (float64, float64, float64) {
-	vx, vy, vz := dq.Real.Rotate(x, y, z) // 18 muls and 12 adds
-	dx, dy, dz := dq.Translation()        // 19 muls, 12 adds
-	return vx + dx, vy + dy, vz + dz      // 3 adds
+	vx, vy, vz := dq.Real.Transform(x, y, z) // 18 muls and 12 adds
+	dx, dy, dz := dq.Translation()           // 19 muls, 12 adds
+	return vx + dx, vy + dy, vz + dz         // 3 adds
 }
 
 // Matrix will return a matrix with 4 rows and 4 columns, the top left 3x3 matrix

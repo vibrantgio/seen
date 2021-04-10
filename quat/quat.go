@@ -136,7 +136,7 @@ func (q Quaternion) RotZ(angle float64) Quaternion {
 
 // Rotate will perform q*v*q' on the passed in vector.
 // This takes 18 muls, 12 adds to compute.
-func (q Quaternion) Rotate(x, y, z float64) (rx, ry, rz float64) {
+func (q Quaternion) Transform(x, y, z float64) (rx, ry, rz float64) {
 	cross := func(ax, ay, az, bx, by, bz float64) (rx, ry, rz float64) {
 		// cross product is implemented with 6 muls, 3 adds
 		return ay*bz - az*by, az*bx - ax*bz, ax*by - ay*bx
