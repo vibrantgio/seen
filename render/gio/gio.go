@@ -77,8 +77,8 @@ type Context struct {
 	handlers []func(event.Queue)
 }
 
-// MakeContext creates a render context for the given op.Ops and layer.
-func MakeContext(window *app.Window, layer render.RenderLayer) *Context {
+// ContextWith creates a render context for the given op.Ops and layer.
+func ContextWith(window *app.Window, layer render.RenderLayer) *Context {
 	context := &Context{window: window}
 	if layer != nil {
 		context.Layer(layer)

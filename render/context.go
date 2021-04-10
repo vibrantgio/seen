@@ -7,4 +7,6 @@ type RenderContext interface {
 	Layer(RenderLayer)
 	Render()
 	Animate() *seen.Animator
+	Drag() *seen.Drag
+	Zoom() *seen.Zoom
 }

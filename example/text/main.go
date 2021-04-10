@@ -77,7 +77,7 @@ func Text() {
 	// Create a render layer and render context
 	layer := render.SceneLayerWith(&scene)
 	layer.FractionalPoints = true
-	context := gio.MakeContext(window, layer)
+	context := gio.ContextWith(window, layer)
 
 	// Slowly rotate the bar chart
 	animator := context.Animate()

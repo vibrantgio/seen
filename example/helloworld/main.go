@@ -45,7 +45,7 @@ func HelloWorld() {
 
 	// Create a render layer and render context
 	layer := render.SceneLayerWith(&scene)
-	context := gio.MakeContext(window, layer)
+	context := gio.ContextWith(window, layer)
 
 	// Slowly rotate sphere
 	animator := context.Animate()
