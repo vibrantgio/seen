@@ -11,40 +11,65 @@ import (
 
 func TestMatrixFromDualQuat(t *testing.T) {
 
-	dq := dualquat.DualQuatRXYZ(quat.AxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
-	m := Matrix(dq.Matrix())
+	dq := dualquat.TransRot(4, 5, 6, quat.AxisAngle(1, 2, 3, math.Pi/2.0))
+	m := M(dq)
 
 	dx, dy, dz := dq.Transform(7, 8, 9)
 	mx, my, mz, _ := m.Transform(7, 8, 9, 1)
 
-	t.Log("dx", dx, "dy", dy, "dz", dz)
-	t.Log("mx", mx, "my", my, "mz", mz)
-
-	if !float.EqualPairs(mx, dx, my, dy, mz, dz) {
+	if !float.EqualPairs(dx, mx, dy, my, dz, mz) {
+		t.Logf("Exp: {%.4v,%.4v,%.4v}", dx, dy, dz)
+		t.Logf("Got: {%.4v,%.4v,%.4v}", mx, my, mz)
 		t.Fail()
+	}
+}
+
+func TestMatrixDualQuatOperationOrder(t *testing.T) {
+
+	r := quat.AxisAngle(1, 2, 3, math.Pi/2.0)
+
+	R := dualquat.Rotate(r)
+	T := dualquat.Translate(4, 5, 6)
+
+	R_T := R.Mul(T)
+	MR_MT := M(R).Mul(M(T))
+
+	if !M(R_T).Equal(MR_MT) {
+		t.Error("M(R_T) != MR_MT")
+	}
+
+	T_R := T.Mul(R)
+	TR := dualquat.TransRot(4, 5, 6, r)
+
+	if !T_R.Equal(TR) {
+		t.Error("T_R != TR")
+	}
+
+	TRr := T.Rotate(r)
+
+	if !T_R.Equal(TRr) {
+		t.Error("T_R != TRr")
 	}
 }
 
 func TestMatrixMultiplication(t *testing.T) {
 
-	dq1 := dualquat.DualQuatRXYZ(quat.AxisAngle(1, 2, 3, math.Pi/2.0), 4, 5, 6)
-	dq2 := dualquat.DualQuatRXYZ(quat.AxisAngle(0, 1, 0, math.Pi/4.0), 10, 11, 12)
-	dq3 := dualquat.DualQuatRXYZ(quat.AxisAngle(0, 1, 1, math.Pi/3.0), 100, 110, 120)
+	dq1 := dualquat.TransRot(4, 5, 6, quat.AxisAngle(1, 2, 3, math.Pi/2.0))
+	dq2 := dualquat.TransRot(10, 11, 12, quat.AxisAngle(0, 1, 0, math.Pi/4.0))
+	dq3 := dualquat.TransRot(100, 110, 120, quat.AxisAngle(0, 1, 1, math.Pi/3.0))
 	dq := dq1.Mul(dq2).Mul(dq3)
 
-	m1 := Matrix(dq1.Matrix())
-	m2 := Matrix(dq2.Matrix())
-	m3 := Matrix(dq3.Matrix())
+	m1 := M(dq1)
+	m2 := M(dq2)
+	m3 := M(dq3)
 	m := m1.Mul(m2).Mul(m3)
 
 	dx, dy, dz := dq.Transform(7, 8, 9)
 	mx, my, mz, mw := m.Transform(7, 8, 9, 1)
 
-	t.Log("dx", dx, "dy", dy, "dz", dz)
-	t.Log("mx", mx, "my", my, "mz", mz, "mw", mw)
-
-	if !float.EqualPairs(mx, dx, my, dy, mz, dz, mw, 1.0) {
-		t.Fail()
+	if !float.EqualPairs(dx, mx, dy, my, dz, mz, 1.0, mw) {
+		t.Errorf("Exp: {%.4v,%.4v,%.4v,%.4v}\nGot: {%.4v,%.4v,%.4v,%.4v}",
+			dx, dy, dz, 1.0, mx, my, mz, mw)
 	}
 }
 
@@ -87,12 +112,4 @@ func TestFrustum(t *testing.T) {
 	if y >= -w {
 		t.Fail()
 	}
-}
-
-func TestPerspective(t *testing.T) {
-	fovy := 135.0 * (math.Pi / 180.0)
-	p := Perspective(fovy, 4.0/3.0, 100.0, 200.0)
-	t.Log(p)
-
-	// TODO: Actually test something
 }

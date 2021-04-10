@@ -8,107 +8,69 @@ import (
 	"github.com/reactivego/seen/quat"
 )
 
-/*
-DualQuaternion_c dq0 = new DualQuaternion_c(
-	Quaternion.CreateFromYawPitchRoll(1,2,3),
-	new Vector3(10,30,90) );
-
-DualQuaternion_c dq1 = new DualQuaternion_c(
-	Quaternion.CreateFromYawPitchRoll(-1,3,2),
-	new Vector3(30,40, 190 ) );
-
-DualQuaternion_c dq2 = new DualQuaternion_c(
-	Quaternion.CreateFromYawPitchRoll(2,3,1.5f),
-	new Vector3(5,20, 66 ) );
-
-DualQuaternion_c dq = dq0 * dq1 * dq2;
-
-Matrix dqToMatrix = DualQuaternion_c.DualQuaternionToMatrix( dq );
-Matrix m0 = Matrix.CreateFromYawPitchRoll(1,2,3) * Matrix.CreateTranslation( 10, 30, 90 );
-Matrix m1 = Matrix.CreateFromYawPitchRoll(-1,3,2) * Matrix.CreateTranslation( 30, 40, 190 );
-Matrix m2 = Matrix.CreateFromYawPitchRoll(2,3,1.5f) * Matrix.CreateTranslation( 5, 20, 66 );
-Matrix m = m0 * m1 * m2;
-
-*/
-
 func TestInitializationDQ(t *testing.T) {
 
-	r := quat.Quaternion{1, 2, 3, 4}.Normalize()
-	dq := DualQuatRXYZ(r, 5, 6, 7)
-	x, y, z := dq.Translation()
-	if !float.Equal(x, 5) {
-		t.Fail()
+	r := quat.Q(1, 2, 3, 4).Normalize()
+	TR := TransRot(5, 6, 7, r)
+	x, y, z := TR.Translation()
+
+	if !float.EqualPairs(x, 5, y, 6, z, 7) {
+		t.Errorf("Exp: {5,6,7}\nGot: {%v,%v,%v}", x, y, z)
 	}
-	if !float.Equal(y, 6) {
-		t.Fail()
+
+	T_R := Translate(5, 6, 7).Rotate(r)
+	x, y, z = T_R.Translation()
+
+	if !float.EqualPairs(x, 5, y, 6, z, 7) {
+		t.Errorf("Exp: {5,6,7}\nGot: {%v,%v,%v}", x, y, z)
 	}
-	if !float.Equal(z, 7) {
-		t.Fail()
+
+	if !TR.Equal(T_R) {
+		t.Error("TR != T_R")
 	}
 }
 
 func TestTransformRotateDQ(t *testing.T) {
 
-	dq := DualQuatRXYZ(quat.AxisAngle(1, 0, 0, math.Pi/2), 0, 0, 0)
-	x, y, z := dq.Transform(0, 1, 0)
+	TR := TransRot(0, 0, 0, quat.AxisAngle(1, 0, 0, math.Pi/2))
+	x, y, z := TR.Transform(0, 1, 0)
 
-	t.Log(dq, x, y, z)
-
-	if !float.Equal(x, 0) {
-		t.Fail()
-	}
-	if !float.Equal(y, 0) {
-		t.Fail()
-	}
-	if !float.Equal(z, 1) {
-		t.Fail()
+	if !float.EqualPairs(x, 0, y, 0, z, 1) {
+		t.Errorf("Exp: {0,0,1}\nGot: {%v,%v,%v}", x, y, z)
 	}
 }
 
 func TestTransformTranslateDQ(t *testing.T) {
 
-	dq := DualQuatRXYZ(quat.Identity, 1, 2, 3)
-	x, y, z := dq.Transform(4, 5, 6)
+	RT := TransRot(1, 2, 3, quat.Identity)
+	x, y, z := RT.Transform(4, 5, 6)
 
-	if !float.Equal(x, 5) {
-		t.Fail()
-	}
-	if !float.Equal(y, 7) {
-		t.Fail()
-	}
-	if !float.Equal(z, 9) {
+	if !float.EqualPairs(x, 5, y, 7, z, 9) {
+		t.Logf("expected {5,6,7}, got {%v,%v,%v}", x, y, z)
 		t.Fail()
 	}
 }
 
 func TestTransformCombinedDQ(t *testing.T) {
 
-	dq := DualQuatRXYZ(quat.AxisAngle(1, 0, 0, math.Pi/2), 1, 2, 3)
-	x, y, z := dq.Transform(4, 5, 6)
+	// Rotate point {4,5,6} in object space around x axis by 90 degrees,
+	// then translate by vector {1,2,3}
+	TR := TransRot(1, 2, 3, quat.AxisAngle(1, 0, 0, math.Pi/2))
+	x, y, z := TR.Transform(4, 5, 6)
 
-	// Point 4,5,6 in object space has been rotated around x axis by 90 degrees and then translated with vector 1,2,3
-
-	t.Log(dq, x, y, z)
-
-	if !float.Equal(x, 5) {
-		t.Fail()
-	}
-	if !float.Equal(y, -4) {
-		t.Fail()
-	}
-	if !float.Equal(z, 8) {
-		t.Fail()
+	if !float.EqualPairs(x, 5, y, -4, z, 8) {
+		t.Errorf("Exp: {5,-4,8}\nGot: {%v,%v,%v}", x, y, z)
 	}
 }
 
 func TestTransformStacked(t *testing.T) {
 
 	// dq0 transforms from world space to view space
-	dq0 := DualQuatRXYZ(quat.AxisAngle(0, 0, 1, math.Pi), 100, 100, 100)
+	dq0 := TransRot(100, 100, 100, quat.AxisAngle(0, 0, 1, math.Pi))
 	// dq1 transforms from intermediate space to world space
-	dq1 := DualQuatRXYZ(quat.AxisAngle(1, 0, 0, -math.Pi/2), 20, 20, 20)
+	dq1 := TransRot(20, 20, 20, quat.AxisAngle(1, 0, 0, -math.Pi/2))
 	// dq2 transforms from object space to intermediate space
-	dq2 := DualQuatRXYZ(quat.AxisAngle(1, 0, 0, math.Pi/2), 1, 2, 3)
+	dq2 := TransRot(1, 2, 3, quat.AxisAngle(1, 0, 0, math.Pi/2))
 
 	// dq12 transforms from object space to world space.
 	dq12 := dq1.Mul(dq2)
@@ -121,13 +83,7 @@ func TestTransformStacked(t *testing.T) {
 	// Point 4,5,6 in object space has been rotated around x axis by 90 degrees resulting in 4,-6,5
 	// The result is then translated with vector 1,2,3 resulting in 5,-4,8
 	x, y, z := dq2.Transform(4, 5, 6)
-	if !float.Equal(x, 5) {
-		t.Fail()
-	}
-	if !float.Equal(y, -4) {
-		t.Fail()
-	}
-	if !float.Equal(z, 8) {
+	if !float.EqualPairs(x, 5, y, -4, z, 8) {
 		t.Fail()
 	}
 
@@ -135,24 +91,12 @@ func TestTransformStacked(t *testing.T) {
 	// The previous result is rotated back 90 degrees around the x axis resulting in 5,8,4
 	// The result is then translated with vector 20,20,20 resulting in 25,28,24
 	x, y, z = dq1.Transform(x, y, z)
-	if !float.Equal(x, 25) {
-		t.Fail()
-	}
-	if !float.Equal(y, 28) {
-		t.Fail()
-	}
-	if !float.Equal(z, 24) {
+	if !float.EqualPairs(x, 25, y, 28, z, 24) {
 		t.Fail()
 	}
 	// Also verify that stacked object space to world space transform gives identical result
 	x, y, z = dq12.Transform(4, 5, 6)
-	if !float.Equal(x, 25) {
-		t.Fail()
-	}
-	if !float.Equal(y, 28) {
-		t.Fail()
-	}
-	if !float.Equal(z, 24) {
+	if !float.EqualPairs(x, 25, y, 28, z, 24) {
 		t.Fail()
 	}
 
@@ -160,24 +104,12 @@ func TestTransformStacked(t *testing.T) {
 	// The previous result is rotated around z axis 180 degrees resulting in sign change for x and y values -25,-28,24
 	// The result is then translated with vector 100,100,100 resulting in 75,72,124
 	x, y, z = dq0.Transform(x, y, z)
-	if !float.Equal(x, 75) {
-		t.Fail()
-	}
-	if !float.Equal(y, 72) {
-		t.Fail()
-	}
-	if !float.Equal(z, 124) {
+	if !float.EqualPairs(x, 75, y, 72, z, 124) {
 		t.Fail()
 	}
 	// Also verify that stacked object space to view space transform gives identical result
 	x, y, z = dq02.Transform(4, 5, 6)
-	if !float.Equal(x, 75) {
-		t.Fail()
-	}
-	if !float.Equal(y, 72) {
-		t.Fail()
-	}
-	if !float.Equal(z, 124) {
+	if !float.EqualPairs(x, 75, y, 72, z, 124) {
 		t.Fail()
 	}
 }

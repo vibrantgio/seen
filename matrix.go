@@ -3,6 +3,7 @@ package seen
 import (
 	"math"
 
+	"github.com/reactivego/seen/dualquat"
 	"github.com/reactivego/seen/float"
 )
 
@@ -13,6 +14,10 @@ var IdentityMatrix = Matrix{
 	0, 1, 0, 0,
 	0, 0, 1, 0,
 	0, 0, 0, 1,
+}
+
+func M(dq dualquat.DualQuaternion) Matrix {
+	return Matrix(dq.Matrix())
 }
 
 // Frustum will return a matrix capabable of projecting points inside the cube specified

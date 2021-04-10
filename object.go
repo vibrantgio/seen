@@ -36,7 +36,7 @@ func (t *Object) Rotation() quat.Quaternion {
 // SetRotation replaces the rotation part of the dual quaternion with a new rotation.
 func (t *Object) SetRotation(r quat.Quaternion) {
 	tx, ty, tz := t.dq.Translation()
-	t.dq = dualquat.DualQuatRXYZ(r, tx, ty, tz)
+	t.dq = dualquat.TransRot(tx, ty, tz, r)
 }
 
 // Translation returns the tx,ty,tz values that indicate the offset of the
@@ -47,7 +47,7 @@ func (t *Object) Translation() (tx, ty, tz float64) {
 
 // SetTranslation replaces the translation part of the dual quaternion with a new translation.
 func (t *Object) SetTranslation(tx, ty, tz float64) {
-	t.dq = dualquat.DualQuatRXYZ(t.dq.Rotation(), tx, ty, tz)
+	t.dq = dualquat.TransRot(tx, ty, tz, t.dq.Rotation())
 }
 
 func (t *Object) Scale() (sx, sy, sz float64) {
