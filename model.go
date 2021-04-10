@@ -1,5 +1,12 @@
 package seen
 
+// Transformable is the interface every 3D object supports.
+type Transformable interface {
+	// Matrix returns the homogenous 4x4 matrix defining this Transformable's
+	// coordinate system w.r.t. to its parent object.
+	Matrix() Matrix
+}
+
 // Model is the object model class. It stores Shapes, Lights, and other Models as
 // well as a transformation matrix.
 //
