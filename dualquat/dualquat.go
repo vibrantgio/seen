@@ -93,7 +93,7 @@ func (dq DualQuaternion) Transform(x, y, z float64) (float64, float64, float64) 
 // Matrix will return a matrix with 4 rows and 4 columns, the top left 3x3 matrix
 // contains the rotation and the top right 3x1 vector contains the translation.
 // It takes 38 muls, 28 adds to derive a homogenous matrix from the dual quaternion.
-func (dq DualQuaternion) Matrix() [16]float64 {
+func (dq DualQuaternion) Matrix() [4][4]float64 {
 	// Returns the homogeneous 3D rotation matrix corresponding to the Real quaternion.
 	x, y, z, w := dq.Real.X, dq.Real.Y, dq.Real.Z, dq.Real.W
 	// Pre-multiply resused products
@@ -104,11 +104,11 @@ func (dq DualQuaternion) Matrix() [16]float64 {
 	// Returns the translation corresponding to the Dual quaternion
 	tx, ty, tz := dq.Translation() // 20 muls, 12 adds
 	// Return a homogenous matrix
-	return [16]float64{
-		1 - 2*(yy+zz), 2 * (xy - wz), 2 * (xz + wy), tx, // 3 muls, 4 adds
-		2 * (xy + wz), 1 - 2*(xx+zz), 2 * (yz - wx), ty, // 3 muls, 4 adds
-		2 * (xz - wy), 2 * (yz + wx), 1 - 2*(xx+yy), tz, // 3 muls, 4 adds
-		0, 0, 0, 1,
+	return [4][4]float64{
+		{1 - 2*(yy+zz), 2 * (xy - wz), 2 * (xz + wy), tx}, // 3 muls, 4 adds
+		{2 * (xy + wz), 1 - 2*(xx+zz), 2 * (yz - wx), ty}, // 3 muls, 4 adds
+		{2 * (xz - wy), 2 * (yz + wx), 1 - 2*(xx+yy), tz}, // 3 muls, 4 adds
+		{0, 0, 0, 1},
 	}
 }
 

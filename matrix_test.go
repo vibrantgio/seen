@@ -58,7 +58,7 @@ func TestMatrixExtractScale(t *testing.T) {
 	StRt := RS.Transpose()
 	StS := StRt.Mul(RS)
 
-	sx, sy, sz := math.Sqrt(StS[0]), math.Sqrt(StS[5]), math.Sqrt(StS[10])
+	sx, sy, sz := math.Sqrt(StS[0][0]), math.Sqrt(StS[1][1]), math.Sqrt(StS[2][2])
 
 	if !float.EqualPairs(sx, 2, sy, 3, sz, 4) {
 		t.Errorf("EqualPairs:\nExp: {2,3,4}\nGot: {%.5v,%.5v,%.5v}", sx, sy, sz)

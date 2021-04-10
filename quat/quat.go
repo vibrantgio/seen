@@ -161,7 +161,7 @@ func (q Quaternion) Transform(x, y, z float64) (rx, ry, rz float64) {
 // Matrix will return a matrix with 4 rows and 4 columns, the top left 3x3 matrix
 // contains the rotation. Computing the 4x4 homogeneous matrix from the quaternion
 // takes 18 muls and 12 adds
-func (q Quaternion) Matrix() [16]float64 {
+func (q Quaternion) Matrix() [4][4]float64 {
 	// Returns the homogeneous 3D rotation matrix corresponding to the quaternion.
 	x, y, z, w := q.X, q.Y, q.Z, q.W
 	// Pre-multiply resused products
@@ -170,10 +170,10 @@ func (q Quaternion) Matrix() [16]float64 {
 	xz, wy := x*z, w*y          // 2 muls
 	yz, wx := y*z, w*x          // 2 muls
 	// Return a homogenous matrix
-	return [16]float64{
-		1 - 2*(yy+zz), 2 * (xy - wz), 2 * (xz + wy), 0, // 3 muls, 4 adds
-		2 * (xy + wz), 1 - 2*(xx+zz), 2 * (yz - wx), 0, // 3 muls, 4 adds
-		2 * (xz - wy), 2 * (yz + wx), 1 - 2*(xx+yy), 0, // 3 muls, 4 adds
-		0, 0, 0, 1,
+	return [4][4]float64{
+		{1 - 2*(yy+zz), 2 * (xy - wz), 2 * (xz + wy), 0}, // 3 muls, 4 adds
+		{2 * (xy + wz), 1 - 2*(xx+zz), 2 * (yz - wx), 0}, // 3 muls, 4 adds
+		{2 * (xz - wy), 2 * (yz + wx), 1 - 2*(xx+yy), 0}, // 3 muls, 4 adds
+		{0, 0, 0, 1},
 	}
 }

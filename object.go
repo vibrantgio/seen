@@ -24,9 +24,9 @@ var DefaultObject = Object{dualquat.Identity, 1.0, 1.0, 1.0}
 func (t *Object) Matrix() Matrix {
 	m := t.dq.Matrix()
 	if t.sx != 1.0 || t.sy != 1.0 || t.sz != 1.0 {
-		m[0], m[1], m[2] = m[0]*t.sx, m[1]*t.sy, m[2]*t.sz
-		m[4], m[5], m[6] = m[4]*t.sx, m[5]*t.sy, m[6]*t.sz
-		m[8], m[9], m[10] = m[8]*t.sx, m[9]*t.sy, m[10]*t.sz
+		m[0][0], m[0][1], m[0][2] = m[0][0]*t.sx, m[0][1]*t.sy, m[0][2]*t.sz
+		m[1][0], m[1][1], m[1][2] = m[1][0]*t.sx, m[1][1]*t.sy, m[1][2]*t.sz
+		m[2][0], m[2][1], m[2][2] = m[2][0]*t.sx, m[2][1]*t.sy, m[2][2]*t.sz
 	}
 	return Matrix(m)
 }
