@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/reactivego/seen/float"
+	"github.com/reactivego/seen/quat"
 )
 
 // Matrix is a 4x4 homogenous matrix use to transform the points of an object
@@ -73,6 +74,9 @@ func Scale(sx, sy, sz float64) Matrix {
 		0, 0, 0, 1,
 	}
 }
+func Rotate(q quat.Quaternion) Matrix {
+	return M(q)
+}
 
 func Translate(tx, ty, tz float64) Matrix {
 	return Matrix{
@@ -89,6 +93,10 @@ func (m Matrix) Scale(sx, sy, sz float64) Matrix {
 		0, sy, 0, 0,
 		0, 0, sz, 0,
 		0, 0, 0, 1})
+}
+
+func (m Matrix) Rotate(q quat.Quaternion) Matrix {
+	return m.Mul(M(q))
 }
 
 func (m Matrix) Translate(tx, ty, tz float64) Matrix {
@@ -124,4 +132,13 @@ func (l Matrix) Equal(r Matrix) bool {
 		}
 	}
 	return true
+}
+
+func (m Matrix) Transpose() (t Matrix) {
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			t[j*4+i] = m[i*4+j]
+		}
+	}
+	return
 }

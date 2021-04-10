@@ -9,6 +9,62 @@ import (
 	"github.com/reactivego/seen/quat"
 )
 
+func TestMatrixRotationOrthonormal(t *testing.T) {
+	R := M(quat.RotX(0.1 * math.Pi).RotY(0.1 * math.Pi).RotZ(0.1 * math.Pi))
+	RT := R.Transpose()
+
+	I := R.Mul(RT)
+
+	if !I.Equal(IdentityMatrix) {
+		t.Log("Exp: IdentityMatrix")
+		t.Errorf("Got: %.4v", I)
+	}
+}
+
+func TestMatrixTRS(t *testing.T) {
+
+	QR := quat.RotX(0.1 * math.Pi).RotY(0.1 * math.Pi).RotZ(0.1 * math.Pi)
+
+	QTRS := M(dualquat.TransRot(1, 2, 3, QR)).Scale(2.0, 2.0, 2.0)
+	MTRS := Translate(1, 2, 3).Rotate(QR).Scale(2.0, 2.0, 2.0)
+
+	if !QTRS.Equal(MTRS) {
+		t.Logf("QTRS: %.5v", QTRS)
+		t.Logf("MTRS: %.5v", MTRS)
+		t.Error("did not expect QTRS != MTRS")
+	}
+}
+
+func TestMatrixExtractScale(t *testing.T) {
+	// Scale can be extracted from a homogeneous matrix under
+	// the following assumptions:
+	// 1. R has to be orthonormal => Rt * R = R * Rt = I  (Rt is R transposed)
+	// 2. S components have to be >=0
+
+	// Given a full blown homegeneous transformation matrix TRS
+	// Note that TRS => T * RS, we can extract RS by zeroing out
+	// TRS03,TRS13 and TRS23 giving us RS.
+
+	// Now note that (RS)t * RS => St * (Rt * R) * S = St * I * S = St * S
+	// Also note that St == S as the scaling is on the diagonal which
+	// is invariant under transpose. So St * S = SS the values at SS00,
+	// SS11 and SS22 give the squared scale components SX*SX,SY*SY,SZ*SZ.
+	// Use square roots to get the original SX, SY and SZ.
+
+	R := M(quat.RotX(0.1 * math.Pi).RotY(0.1 * math.Pi).RotZ(0.1 * math.Pi))
+	S := Scale(2, 3, 4)
+
+	RS := R.Mul(S)
+	StRt := RS.Transpose()
+	StS := StRt.Mul(RS)
+
+	sx, sy, sz := math.Sqrt(StS[0]), math.Sqrt(StS[5]), math.Sqrt(StS[10])
+
+	if !float.EqualPairs(sx, 2, sy, 3, sz, 4) {
+		t.Errorf("EqualPairs:\nExp: {2,3,4}\nGot: {%.5v,%.5v,%.5v}", sx, sy, sz)
+	}
+}
+
 func TestMatrixFromDualQuat(t *testing.T) {
 
 	dq := dualquat.TransRot(4, 5, 6, quat.AxisAngle(1, 2, 3, math.Pi/2.0))
