@@ -10,6 +10,7 @@ import (
 )
 
 func TestMatrixRotationOrthonormal(t *testing.T) {
+
 	R := M(quat.RotX(0.1 * math.Pi).RotY(0.1 * math.Pi).RotZ(0.1 * math.Pi))
 	RT := R.Transpose()
 
@@ -18,6 +19,28 @@ func TestMatrixRotationOrthonormal(t *testing.T) {
 	if !I.Equal(IdentityMatrix) {
 		t.Log("Exp: IdentityMatrix")
 		t.Errorf("Got: %.4v", I)
+	}
+}
+
+func TestMatrixInvert(t *testing.T) {
+
+	R := M(quat.RotX(0.1*math.Pi).RotY(0.1*math.Pi).RotZ(0.1*math.Pi)).Scale(1, 2, 3)
+	if Ri, ok := R.Invert(); !ok {
+		t.Error("matrix not invertable")
+	} else {
+
+		I := R.Mul(Ri)
+
+		if !I.Equal(IdentityMatrix) {
+			t.Log("R * Ri")
+			t.Log("  Exp: IdentityMatrix")
+			t.Errorf("  Got: %.4v", I)
+		}
+
+		det := R.Determinant()
+		if float.Equal(det, 0.0) {
+			t.Errorf("Determinant != 0 but got %.4v", det)
+		}
 	}
 }
 
