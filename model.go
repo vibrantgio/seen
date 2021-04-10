@@ -63,3 +63,35 @@ func (m *Model) eachRenderable(shape ShapeFunc, lsd []LightShaderData, transform
 		}
 	}
 }
+
+type ModelVisitor interface {
+	VisitLight(l *Light)
+
+	VisitSurface(s *Surface)
+	EnterShape(s *Shape)
+	LeaveShape(s *Shape)
+
+	EnterModel(m *Model)
+	LeaveModel(m *Model)
+}
+
+func (m *Model) Accept(v ModelVisitor) {
+	v.EnterModel(m)
+	for _, light := range m.Lights {
+		v.VisitLight(light)
+	}
+	for _, child := range m.Children {
+		switch c := child.(type) {
+		case *Shape:
+			v.EnterShape(c)
+			for i := range c.Surfaces {
+				v.VisitSurface(&c.Surfaces[i])
+			}
+		case *Model:
+			c.Accept(v)
+		default:
+			// skip
+		}
+	}
+	v.LeaveModel(m)
+}
