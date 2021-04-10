@@ -7,6 +7,9 @@ import (
 
 // Object base class extended by Shape and Model.
 // Uses a double quaternion for specifying the transform.
+// The component transformations are applied in the order TRS.
+// So Object coordinates are transformed into parent space by
+// first scaling, then rotating and finally translating.
 type Object struct {
 	dq dualquat.DualQuaternion
 	sx float64
