@@ -1,16 +1,19 @@
 package document
 
 import (
-	"os"
 	"io"
+	"os"
 	"strconv"
-	"errors"
 )
 
 const SVG_NS = "http://www.w3.org/2000/svg"
 
+type SvgError string
+
+func (e SvgError) Error() string { return string(e) }
+
 // SVG
-type SVG struct { *Element }
+type SVG struct{ *Element }
 
 // MakeSVG creates a simple document with just an svg element.
 // <?xml version="1.0" standalone="yes"?>
@@ -18,9 +21,9 @@ type SVG struct { *Element }
 // <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="my-3d-svg" width="500" height="400">
 // </svg>
 func MakeSVG(id string, width, height int) (*SVG, error) {
-	svg := CreateElementNS(SVG_NS, "svg")
+	svg := MakeDom().CreateElementNS(SVG_NS, "svg")
 	if svg == nil {
-		return nil, errors.New("Expected to be able to create an svg element")
+		return nil, SvgError("Expected to be able to create an svg element")
 	}
 	svg.SetAttribute("xmlns", SVG_NS)
 	svg.SetAttribute("version", "1.1")

@@ -15,29 +15,24 @@ type Context struct {
 	render []func()
 }
 
-// MakeContext creates a render context for the element with the
+// ContextWith creates a render context for the element with the
 // specified 'elementId'. This element should be an 'svg' element.
-func MakeContext(elementId string, layer render.RenderLayer) render.RenderContext {
-	e := document.GetElementById(elementId)
-	if e == nil {
+func ContextWith(element *document.Element, layer render.RenderLayer) render.RenderContext {
+	if element == nil {
 		return nil
 	}
-	tag := strings.ToUpper(e.Tag)
 	var context render.RenderContext
-	if tag == "SVG" || tag == "G" {
-		context = &Context{svg: document.GetElementById(elementId)}
-	}
-	if context == nil {
+	tag := strings.ToUpper(element.Tag)
+	if tag != "SVG" && tag != "G" {
 		return nil
 	}
-	if layer != nil {
-		context.Layer(layer)
-	}
+	context = &Context{svg: element}
+	context.Layer(layer)
 	return context
 }
 
 func (c *Context) Layer(layer render.RenderLayer) {
-	group := document.CreateElementNS(document.SVG_NS, "g")
+	group := c.svg.CreateElementNS(document.SVG_NS, "g")
 	c.svg.AppendChild(group)
 	painter := MakeSvgPainter(group)
 	c.render = append(c.render, func() {
@@ -54,6 +49,14 @@ func (c *Context) Render() {
 }
 
 func (c *Context) Animate() *seen.Animator {
+	return nil
+}
+
+func (c *Context) Drag() *seen.Drag {
+	return nil
+}
+
+func (c *Context) Zoom() *seen.Zoom {
 	return nil
 }
 
@@ -87,7 +90,7 @@ func MakeSvgPainter(group *document.Element) render.Painter {
 func (c *SvgPainter) elementFactory(tag string) *document.Element {
 	children := c.group.ChildNodes
 	if c.i >= len(children) {
-		path := document.CreateElementNS(document.SVG_NS, tag)
+		path := c.group.CreateElementNS(document.SVG_NS, tag)
 		c.group.AppendChild(path)
 		c.i++
 		return path
@@ -99,7 +102,7 @@ func (c *SvgPainter) elementFactory(tag string) *document.Element {
 		return current
 	}
 
-	path := document.CreateElementNS(document.SVG_NS, tag)
+	path := c.group.CreateElementNS(document.SVG_NS, tag)
 	c.group.ReplaceChild(path, current)
 	c.i++
 	return path

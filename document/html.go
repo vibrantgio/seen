@@ -1,42 +1,46 @@
 package document
 
 import (
-	"os"
 	"io"
-	"errors"
+	"os"
 	"strconv"
 )
+
+type HtmlError string
+
+func (e HtmlError) Error() string { return string(e) }
 
 // HTML
 type HTML struct {
 	*Element
+	head *Element
 	body *Element
 }
 
 // MakeHTML
 func MakeHTML() (*HTML, error) {
-	html := CreateElementNS("", "html")
+	html := MakeDom().CreateElementNS("", "html")
 	if html == nil {
-		return nil,errors.New("Expected to be able to create a html element")
+		return nil, HtmlError("Expected to be able to create a html element")
 	}
-	head := CreateElementNS("", "head")
+	head := html.CreateElementNS("", "head")
 	if head == nil {
-		return nil,errors.New("Expected to be able to create a head element")
+		return nil, HtmlError("Expected to be able to create a head element")
 	}
 	html.AppendChild(head)
-	body := CreateElementNS("", "body")
+	body := html.CreateElementNS("", "body")
 	if body == nil {
-		return nil,errors.New("Expected to be able to create a body element")
+		return nil, HtmlError("Expected to be able to create a body element")
 	}
 	html.AppendChild(body)
-	return &HTML{html,body}, nil
+	return &HTML{html, head, body}, nil
 }
 
 // AddSVG
-func (html *HTML) AddSVG(id string, width, height int) (*SVG,error) {
-	svg := CreateElementNS(SVG_NS, "svg")
+func (html *HTML) AddSVG(id string, width, height int) (*SVG, error) {
+	svg := html.CreateElementNS(SVG_NS, "svg")
 	if svg == nil {
-		return nil,errors.New("Expected to be able to create a svg element")
+		return nil, HtmlError("Expected to be able to create a svg element")
 	}
 	svg.SetAttribute("width", strconv.Itoa(width))
 	svg.SetAttribute("height", strconv.Itoa(height))
@@ -44,28 +48,28 @@ func (html *HTML) AddSVG(id string, width, height int) (*SVG,error) {
 	html.body.AppendChild(svg)
 
 	// Put a colored background inside the svg
-	rect := CreateElementNS(SVG_NS, "rect")
+	rect := html.CreateElementNS(SVG_NS, "rect")
 	rect.SetAttribute("width", "100%")
 	rect.SetAttribute("height", "100%")
-	rect.SetAttribute("rx","5")
-	rect.SetAttribute("ry","5")
+	rect.SetAttribute("rx", "5")
+	rect.SetAttribute("ry", "5")
 	rect.SetAttribute("style", "fill: #eeddff")
 	svg.AppendChild(rect)
 
-	return &SVG{svg},nil
+	return &SVG{svg}, nil
 }
 
 // AddCanvas
 func (html *HTML) AddCanvas(id string, width, height int) (*Element, error) {
-	canvas := CreateElementNS("","canvas")
+	canvas := html.CreateElementNS("", "canvas")
 	if canvas == nil {
-		return nil, errors.New("Expected to be able to create a canvas element")
+		return nil, HtmlError("Expected to be able to create a canvas element")
 	}
-	canvas.SetAttribute("width",strconv.Itoa(width))
-	canvas.SetAttribute("height",strconv.Itoa(height))
+	canvas.SetAttribute("width", strconv.Itoa(width))
+	canvas.SetAttribute("height", strconv.Itoa(height))
 	canvas.SetAttribute("id", id)
 	html.body.AppendChild(canvas)
-	return canvas,nil
+	return canvas, nil
 }
 
 // SaveToFile

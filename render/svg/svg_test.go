@@ -32,9 +32,9 @@ func (s *MockSceneLayer) Paint(painter render.Painter) {
 
 // Tests
 
-func TestMakeContext(t *testing.T) {
-	document.Reset()
-	svg := document.CreateElementNS(document.SVG_NS, "svg")
+func TestContextWith(t *testing.T) {
+	dom := document.MakeDom()
+	svg := dom.CreateElementNS(document.SVG_NS, "svg")
 	if svg == nil {
 		t.Error("Expected a valid svg element")
 	}
@@ -42,12 +42,12 @@ func TestMakeContext(t *testing.T) {
 
 	s := &MockSceneLayer{}
 
-	c := MakeContext("invalid", s)
+	c := ContextWith(nil, s)
 	if c != nil {
-		t.Error("Expected MakeContext to return nil")
+		t.Error("Expected ContextWith to return nil")
 	}
 
-	c = MakeContext("my-3d-svg", s)
+	c = ContextWith(svg.GetElementById("my-3d-svg"), s)
 	if c == nil {
 		t.Error("Expected to get a render context for valid svg element.")
 	}
@@ -56,13 +56,10 @@ func TestMakeContext(t *testing.T) {
 }
 
 func TestDemoEmpty(t *testing.T) {
-	// Clear the current document (really needed!)
-	document.Reset()
-
 	const width = 450
 	const height = 200
 
-	_, err := document.MakeSVG("my-3d-svg", width, height)
+	svg, err := document.MakeSVG("my-3d-svg", width, height)
 	if err != nil {
 		t.Error(err)
 		return
@@ -75,7 +72,7 @@ func TestDemoEmpty(t *testing.T) {
 		return
 	}
 
-	c := MakeContext("my-3d-svg", l)
+	c := ContextWith(svg.GetElementById("my-3d-svg"), l)
 	if c == nil {
 		t.Error("unable to find element my-3d-svg")
 		return
@@ -85,9 +82,6 @@ func TestDemoEmpty(t *testing.T) {
 }
 
 func TestDemoSimple(t *testing.T) {
-	// Clear the current document (really needed!)
-	document.Reset()
-
 	// create simple svg file
 	const width = 450
 	const height = 400
@@ -100,7 +94,7 @@ func TestDemoSimple(t *testing.T) {
 		return
 	}
 
-	context := MakeContext(svgId, render.FillLayerWith(width, height, 8, 8, "#eeddff"))
+	context := ContextWith(svg.GetElementById(svgId), render.FillLayerWith(width, height, 8, 8, "#eeddff"))
 	if context == nil {
 		t.Error("Expected to be able to create RenderContext")
 		return
@@ -163,9 +157,6 @@ func TestDemoSimple(t *testing.T) {
 }
 
 func TestDemoSvgCanvas(t *testing.T) {
-	// Clear the current document (really needed!)
-	document.Reset()
-
 	const width = 450
 	const height = 200
 
@@ -210,7 +201,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 	for i, scene := range scenes {
 		for _, kind := range []string{ /*"canvas",*/ "svg"} {
 			elementId := "seen-" + kind + "-" + strconv.Itoa(i)
-			context := MakeContext(elementId, scene)
+			context := ContextWith(html.GetElementById(elementId), scene)
 			if context == nil {
 				t.Errorf("Expected %q to be present", elementId)
 				return
@@ -241,9 +232,6 @@ func TestDemoSvgCanvas(t *testing.T) {
 }
 
 func TestDemoText(t *testing.T) {
-	// Clear the current document (really needed!)
-	document.Reset()
-
 	const width = 900
 	const height = 500
 
@@ -293,7 +281,7 @@ func TestDemoText(t *testing.T) {
 	scene.Camera.SetRotation(quat.AxisAngle(0.1, 1, 0, math.Pi*0.2))
 
 	// Create render context from canvas
-	context := MakeContext("seen-svg", render.SceneLayerWith(&scene))
+	context := ContextWith(svg.GetElementById("seen-svg"), render.SceneLayerWith(&scene))
 	if context == nil {
 		t.Error("Render context is nil")
 		return
