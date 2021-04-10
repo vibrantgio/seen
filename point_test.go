@@ -71,8 +71,8 @@ func TestPointCross(t *testing.T) {
 	// rule, thumb points in the direction of resulting vector.
 	// Cross product of two axis of orthogonal coordinate system should produce the third axis.
 	c := x.Cross(y)
-	t.Log(c)
 	if !c.Equal(PointZ) {
+		t.Log(c)
 		t.Fail()
 	}
 }
