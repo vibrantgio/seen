@@ -6,13 +6,13 @@ import "github.com/reactivego/seen/colors"
 // shape, but not necessarily. For example, a cube is a closed shape, but a
 // patch is not.
 type Shape struct {
-	Object
+	Transform
 	Kind     string
 	Surfaces []Surface
 }
 
 func ShapeWith(kind string, surfaces []Surface) Shape {
-	return Shape{DefaultObject, kind, surfaces}
+	return Shape{DefaultTransform, kind, surfaces}
 }
 
 // ColorSurfaces sets a color on every surface of the Shape by

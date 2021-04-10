@@ -1,12 +1,5 @@
 package seen
 
-// Transformable is the interface every 3D object supports.
-type Transformable interface {
-	// Matrix returns the homogenous 4x4 matrix defining this Transformable's
-	// coordinate system w.r.t. to its parent object.
-	Matrix() Matrix
-}
-
 // Model is the object model class. It stores Shapes, Lights, and other Models as
 // well as a transformation matrix.
 //
@@ -14,17 +7,17 @@ type Transformable interface {
 // the transformation of groups of shapes in the scene, as well as create
 // chains of transformations for creating, for example, articulated skeletons.
 type Model struct {
-	Object
+	Transform
 	Lights   []*Light
 	Children []Transformable
 }
 
 func EmptyModel() *Model {
-	return &Model{Object: DefaultObject}
+	return &Model{Transform: DefaultTransform}
 }
 
 func ModelWith(children ...Transformable) *Model {
-	m := Model{Object: DefaultObject}
+	m := Model{Transform: DefaultTransform}
 	m.Add(children...)
 	return &m
 }

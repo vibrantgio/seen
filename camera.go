@@ -14,12 +14,12 @@ package seen
 // These three steps allow us to easily create shapes whose coordinates match up to
 // screen coordinates in the z = 0 plane.
 type Camera struct {
-	Object
+	Transform
 	Projection Matrix
 }
 
 var DefaultCamera = CameraWithProjection(DefaultPerspectiveProjection)
 
 func CameraWithProjection(projection Matrix) Camera {
-	return Camera{Object: DefaultObject, Projection: projection}
+	return Camera{Transform: DefaultTransform, Projection: projection}
 }

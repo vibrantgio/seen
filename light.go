@@ -6,7 +6,7 @@ type LightKind string
 
 // Light model object holds the attributes and transformation of a light source.
 type Light struct {
-	Object
+	Transform
 	Kind  LightKind
 	Point Point
 
@@ -24,7 +24,7 @@ type Light struct {
 }
 
 func LightWith(kind LightKind) (l Light) {
-	l.Object = DefaultObject
+	l.Transform = DefaultTransform
 	l.Kind = kind
 	l.Point = PointZero
 	l.Color = colors.White
