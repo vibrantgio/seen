@@ -225,7 +225,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 	a.OnFrame(func(t, dt time.Duration) {
 		for _, sphere := range spheres {
 			dtms := float64(dt.Milliseconds())
-			ryrx := quat.RotY(dtms * 2e-4).MulRotX(dtms * 3e-4)
+			ryrx := quat.RotY(dtms * 2e-4).RotX(dtms * 3e-4)
 			sphere.SetRotation(ryrx.Mul(sphere.Rotation()))
 		}
 		for _, context := range contexts {

@@ -83,14 +83,14 @@ func Text() {
 	animator := context.Animate()
 	animator.OnBefore(func(t, dt time.Duration) {
 		dtms := float64(dt.Milliseconds())
-		model.SetRotation(model.Rotation().MulRotY(0.7 * dtms * 1e-4))
+		model.SetRotation(model.Rotation().RotY(0.7 * dtms * 1e-4))
 	})
 	animator.Start()
 
 	// Enable drag-to-rotate
 	drag := context.Drag(seen.Inertia(true))
 	drag.On(func(e seen.DragEvent) {
-		r := quat.RotX(e.Dy / 150).Mul(model.Rotation()).MulRotY(e.Dx / 150)
+		r := quat.RotX(e.Dy / 150).Mul(model.Rotation()).RotY(e.Dx / 150)
 		model.SetRotation(r)
 		context.Render()
 	})

@@ -3,12 +3,21 @@ package seen
 import (
 	"math"
 
-	"github.com/reactivego/seen/dualquat"
 	"github.com/reactivego/seen/float"
 )
 
+// Matrix is a 4x4 homogenous matrix use to transform the points of an object
+// from 'Object Space' to 'Parent Space'. When separated into constituent
+// scale, rotate and translate components is best constructed in the
+// order T * R * S where transformations are applied right to left.
+// So first scale then rotate and finally translate. This order is arbitrary
+// but it feels the most natural. An object in 'Object Space' is first scaled,
+// then it is rotated around the 'Object Space' origin and finally it is
+// translated in the 'Parent Space' to its final location.
 type Matrix [16]float64
 
+// IdentityMatrix is a transform that does a 1:1 scale, no rotation and
+// no translation.
 var IdentityMatrix = Matrix{
 	1, 0, 0, 0,
 	0, 1, 0, 0,
@@ -16,9 +25,14 @@ var IdentityMatrix = Matrix{
 	0, 0, 0, 1,
 }
 
-func M(dq dualquat.DualQuaternion) Matrix {
-	return Matrix(dq.Matrix())
+// Matrixer is an interface implemented by objects that can return
+// a homogeneous 4x4 matrix (per row) as an [16]float array.
+type Matrixer interface {
+	Matrix() [16]float64
 }
+
+// M converts a Matrixer to a Matrix.
+func M(m Matrixer) Matrix { return Matrix(m.Matrix()) }
 
 // Frustum will return a matrix capabable of projecting points inside the cube specified
 // by l,r,b,t,n,f = -r,r,-t,t,-n,-f to clip coordinates. For all valid (non clipped)

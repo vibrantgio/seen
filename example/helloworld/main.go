@@ -51,7 +51,7 @@ func HelloWorld() {
 	animator := context.Animate()
 	animator.OnBefore(func(t, dt time.Duration) {
 		dtms := float64(dt.Milliseconds())
-		r := quat.RotY(0.7 * dtms * 1e-4).MulRotX(dtms * 1e-4).Mul(shape.Rotation())
+		r := quat.RotY(0.7 * dtms * 1e-4).RotX(dtms * 1e-4).Mul(shape.Rotation())
 		shape.SetRotation(r)
 	})
 	animator.Start()
@@ -59,7 +59,7 @@ func HelloWorld() {
 	// Enable drag-to-rotate
 	drag := context.Drag(seen.Inertia(true))
 	drag.On(func(e seen.DragEvent) {
-		r := quat.RotY(e.Dx / 150).MulRotX(e.Dy / 150).Mul(shape.Rotation())
+		r := quat.RotY(e.Dx / 150).RotX(e.Dy / 150).Mul(shape.Rotation())
 		shape.SetRotation(r)
 		context.Render()
 	})
