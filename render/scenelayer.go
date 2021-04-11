@@ -20,7 +20,7 @@ func SceneLayerWith(scene *seen.Scene) *SceneLayer {
 		Scene:          scene,
 		renderSurfaces: make([]*RenderSurface, 0, 32),
 		renderCache:    make(map[string]*RenderSurface),
-}
+	}
 }
 
 // Paint creates a RenderSurface for every Surface in the scene's models.
@@ -39,42 +39,42 @@ func (s *SceneLayer) Paint(painter Painter) {
 
 	// Process all renderable objects
 	s.Model.EachRenderable(func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
-			for _, surface := range shape.Surfaces {
+		for _, surface := range shape.Surfaces {
 			renderModel := s.RenderSurfaceWith(&surface, transform, projection, viewport)
 
-				// Assign the correct render function to the render model
-				switch shape.Kind {
-				case "text":
-					renderModel.Render = TextRender
-				default:
-					renderModel.Render = PathRender
-				}
-
-				// Test projected normal's z-coordinate for culling (if enabled).
-			if (s.ShowBackfaces || surface.ShowBackfaces || renderModel.Normal.Z < 0.0) && renderModel.InFrustum {
-					// Render fill and stroke using material and shader.
-					if surface.FillMaterial != nil {
-						fill := surface.FillMaterial.Render(lights, s.Shader, renderModel.ShaderData)
-						renderModel.Fill = &fill
-					}
-					if surface.StrokeMaterial != nil {
-						stroke := surface.StrokeMaterial.Render(lights, s.Shader, renderModel.ShaderData)
-						renderModel.Stroke = &stroke
-					}
-
-					// Round coordinates (if enabled)
-					if !s.FractionalPoints {
-						pts := renderModel.ProjectedPoints
-						for i, pt := range pts {
-							pts[i] = pt.Round()
-						}
-					}
-
-					// Add the render model to the renderModels slice
-				s.renderSurfaces = append(s.renderSurfaces, renderModel)
-				}
+			// Assign the correct render function to the render model
+			switch shape.Type {
+			case "text":
+				renderModel.Render = TextRender
+			default:
+				renderModel.Render = PathRender
 			}
-		})
+
+			// Test projected normal's z-coordinate for culling (if enabled).
+			if (s.ShowBackfaces || surface.ShowBackfaces || renderModel.Normal.Z < 0.0) && renderModel.InFrustum {
+				// Render fill and stroke using material and shader.
+				if surface.FillMaterial != nil {
+					fill := surface.FillMaterial.Render(lights, s.Shader, renderModel.ShaderData)
+					renderModel.Fill = &fill
+				}
+				if surface.StrokeMaterial != nil {
+					stroke := surface.StrokeMaterial.Render(lights, s.Shader, renderModel.ShaderData)
+					renderModel.Stroke = &stroke
+				}
+
+				// Round coordinates (if enabled)
+				if !s.FractionalPoints {
+					pts := renderModel.ProjectedPoints
+					for i, pt := range pts {
+						pts[i] = pt.Round()
+					}
+				}
+
+				// Add the render model to the renderModels slice
+				s.renderSurfaces = append(s.renderSurfaces, renderModel)
+			}
+		}
+	})
 
 	// Sort render models by projected z coordinate. This ensures that the surfaces
 	// farthest from the eye are painted first. (Painter's Algorithm)

@@ -50,7 +50,7 @@ func Text() {
 		uc.SetFill("#0088FF")
 		uc.SetScale(20, d, 20)
 		uc.SetTranslation(float64(i*30)-160, -50, 0)
-		model.Add(uc)
+		model.Add(&uc)
 	}
 
 	// Draw text above bars
@@ -66,7 +66,7 @@ func Text() {
 		t.SetShowBackfaces(true)
 		t.SetTranslation(float64(i)*30+10-160, d+10-50, 10)
 		t.SetFill("#000000")
-		model.Add(t)
+		model.Add(&t)
 	}
 
 	model.SetScale(2, 2, 2)

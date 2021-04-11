@@ -40,7 +40,7 @@ func HelloWorld() {
 
 	// Create scene and add shape to model
 	scene := seen.DefaultScene()
-	scene.Model.Add(shape)
+	scene.Model.Add(&shape)
 	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create a render layer and render context

@@ -13,7 +13,7 @@ func mock_ModelShapeFunc(shape *Shape, lights []LightShaderData, transform Matri
 	mock_ShapeCount++
 }
 
-func mock_Rectangle() *Shape {
+func mock_Rectangle() Shape {
 	points := Points{
 		{0, 0, 0},
 		{0, 0.5, 0},
@@ -24,11 +24,10 @@ func mock_Rectangle() *Shape {
 		{0, 1, 2},
 		{2, 1, 3},
 	}
-	s := ShapeWith("rectangle", SurfacesWith(points, coords))
-	return &s
+	return Shape{"rectangle", DefaultTransform, SurfacesWith(points, coords)}
 }
 
-func mock_Text(message string) *Shape {
+func mock_Text(message string) Shape {
 	points := Points{
 		{0, 0, 0},
 		{0, 0.5, 0},
@@ -36,8 +35,7 @@ func mock_Text(message string) *Shape {
 	}
 	s := SurfaceWith(points)
 	s.Options["text"] = message
-	t := ShapeWith("text", []Surface{*s})
-	return &t
+	return Shape{"text", DefaultTransform, []Surface{*s}}
 }
 
 func TestModelAdding(t *testing.T) {
@@ -47,9 +45,9 @@ func TestModelAdding(t *testing.T) {
 	// Rotate around y axis (rhs coord system with +y pointing up,
 	// +x pointing right and +z pointing out of the screen)
 	r := quat.AxisAngle(0, 1, 0, math.Pi/4.0)
-	m2 := ModelWith(s, tx)
+	m2 := ModelWith(&s, &tx)
 	m2.SetRotation(r)
-	m := ModelWith(s, m2)
+	m := ModelWith(&s, m2)
 
 	m.EachRenderable(mock_ModelShapeFunc)
 

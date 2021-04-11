@@ -111,10 +111,6 @@ func TestDemoSimple(t *testing.T) {
 
 	// Add icosahedron to the scene
 	icosahedron := shape.Icosahedron()
-	if icosahedron == nil {
-		t.Fail()
-		return
-	}
 	scale := float64(400) * 0.3
 	icosahedron.SetScale(scale, scale, scale)
 	icosahedron.SetRotation(quat.AxisAngle(1, 1, 0, 0.25*math.Pi))
@@ -123,14 +119,10 @@ func TestDemoSimple(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	s.Model.Add(icosahedron)
+	s.Model.Add(&icosahedron)
 
 	// Add a cube to the scene
 	cube := shape.UnitCube()
-	if cube == nil {
-		t.Fail()
-		return
-	}
 	cube.SetScale(scale, scale, scale)
 	cube.SetRotation(quat.AxisAngle(0.1, 1, 0, 0.1*math.Pi))
 	cube.SetTranslation(-350, 0, 0)
@@ -139,7 +131,7 @@ func TestDemoSimple(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	s.Model.Add(cube)
+	s.Model.Add(&cube)
 
 	s.Viewport = seen.CenterViewport(0, 0, width, height)
 	// Add scene as a layer to the render context
@@ -182,7 +174,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		spheres = append(spheres, sphere)
+		spheres = append(spheres, &sphere)
 	}
 
 	// Create one scene for each shape
@@ -256,7 +248,7 @@ func TestDemoText(t *testing.T) {
 		uc.SetScale(20.0, d, 20.0)
 		uc.SetTranslation(float64(i)*30.0, 0, 0)
 		uc.SetFill("#0088FF")
-		scene.Model.Add(uc)
+		scene.Model.Add(&uc)
 	}
 
 	// Draw text above bars
@@ -271,7 +263,7 @@ func TestDemoText(t *testing.T) {
 		t.SetShowBackfaces(true)
 		t.SetTranslation(float64(i)*30+10, d+10, 10)
 		t.SetFill("#000000")
-		scene.Model.Add(t)
+		scene.Model.Add(&t)
 	}
 
 	// Create scene
