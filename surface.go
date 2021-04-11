@@ -79,9 +79,9 @@ func (s *Surface) SetStroke(value interface{}) (err error) {
 
 type Surfaces []Surface
 
-// SetColorsFrom sets a color on every surface by reading it from
+// SetColorFrom sets a color on every surface by reading it from
 // the passed in colors.Source.
-func (s Surfaces) SetColorsFrom(source colors.Source) (err error) {
+func (s Surfaces) SetColorFrom(source colors.Source) (err error) {
 	err = nil
 	for i := range s {
 		if err = s[i].SetFill(source.Read()); err != nil {

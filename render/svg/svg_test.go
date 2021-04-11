@@ -118,7 +118,7 @@ func TestDemoSimple(t *testing.T) {
 	scale := float64(400) * 0.3
 	icosahedron.SetScale(scale, scale, scale)
 	icosahedron.SetRotation(quat.AxisAngle(1, 1, 0, 0.25*math.Pi))
-	err = icosahedron.SetColorsFrom(source)
+	err = icosahedron.SetColorFrom(source)
 	if err != nil {
 		t.Error(err)
 		return
@@ -134,7 +134,7 @@ func TestDemoSimple(t *testing.T) {
 	cube.SetScale(scale, scale, scale)
 	cube.SetRotation(quat.AxisAngle(0.1, 1, 0, 0.1*math.Pi))
 	cube.SetTranslation(-350, 0, 0)
-	err = cube.SetColorsFrom(source)
+	err = cube.SetColorFrom(source)
 	if err != nil {
 		t.Error(err)
 		return
@@ -177,7 +177,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 		scale := float64(height) * 0.4
 		sphere.SetScale(scale, scale, scale)
 		source := colors.RandomSource2With(colors.Drift(0.03), colors.Sat(0.5))
-		err := sphere.SetColorsFrom(source)
+		err := sphere.SetColorFrom(source)
 		if err != nil {
 			t.Error(err)
 			return
