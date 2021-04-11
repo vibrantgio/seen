@@ -11,15 +11,15 @@ import (
 // SceneLayer implements the RenderLayer interface.
 type SceneLayer struct {
 	*seen.Scene
-	renderSurfaces []*RenderSurface
-	renderCache    map[string]*RenderSurface
+	surfaces []*RenderSurface
+	cache    map[string]*RenderSurface
 }
 
 func SceneLayerWith(scene *seen.Scene) *SceneLayer {
 	return &SceneLayer{
-		Scene:          scene,
-		renderSurfaces: make([]*RenderSurface, 0, 32),
-		renderCache:    make(map[string]*RenderSurface),
+		Scene:    scene,
+		surfaces: make([]*RenderSurface, 0, 32),
+		cache:    make(map[string]*RenderSurface),
 	}
 }
 
@@ -35,7 +35,7 @@ func (s *SceneLayer) Paint(painter Painter) {
 	viewport := s.Viewport.Postscale
 
 	// Clear out the render models, but reuse the already existing array backing the slice
-	s.renderSurfaces = s.renderSurfaces[:0]
+	s.surfaces = s.surfaces[:0]
 
 	// Process all renderable objects
 	s.Model.EachRenderable(func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
@@ -62,17 +62,17 @@ func (s *SceneLayer) Paint(painter Painter) {
 				}
 
 				// Add the render model to the renderSurfaces slice
-				s.renderSurfaces = append(s.renderSurfaces, rs)
+				s.surfaces = append(s.surfaces, rs)
 			}
 		}
 	})
 
 	// Sort render models by projected z coordinate. This ensures that the surfaces
 	// farthest from the eye are painted first. (Painter's Algorithm)
-	sort.Sort(ByZ(s.renderSurfaces))
+	sort.Sort(ByZ(s.surfaces))
 
 	// Now for every render model, render it on the given Painter
-	for _, rs := range s.renderSurfaces {
+	for _, rs := range s.surfaces {
 		rs.Paint(painter)
 	}
 }
@@ -86,13 +86,13 @@ func (s *SceneLayer) RenderSurfaceWith(kind string, surface *seen.Surface, trans
 		return RenderSurfaceWith(kind, surface, transform, projection, viewport)
 	}
 	// Caching enabled, see if its present in the cache
-	if rs, ok := s.renderCache[surface.Id]; ok {
+	if rs, ok := s.cache[surface.Id]; ok {
 		rs.Update(transform, projection, viewport)
 		return rs
 	}
 	// Create new RenderSurface and add to the cache
 	rs := RenderSurfaceWith(kind, surface, transform, projection, viewport)
-	s.renderCache[surface.Id] = rs
+	s.cache[surface.Id] = rs
 	return rs
 }
 
@@ -100,8 +100,8 @@ func (s *SceneLayer) RenderSurfaceWith(kind string, surface *seen.Surface, trans
 // if you add and remove many shapes from the scene's models since this
 // cache has no eviction policy.
 func (s *SceneLayer) FlushCache() {
-	for k := range s.renderCache {
-		delete(s.renderCache, k)
+	for k := range s.cache {
+		delete(s.cache, k)
 	}
 }
 
