@@ -40,38 +40,38 @@ func (s *SceneLayer) Paint(painter Painter) {
 	// Process all renderable objects
 	s.Model.EachRenderable(func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
 		for _, surface := range shape.Surfaces {
-			renderModel := s.RenderSurfaceWith(&surface, transform, projection, viewport)
+			renderSurface := s.RenderSurfaceWith(&surface, transform, projection, viewport)
 
 			// Assign the correct render function to the render model
 			switch shape.Type {
 			case "text":
-				renderModel.Render = TextRender
+				renderSurface.Render = TextRender
 			default:
-				renderModel.Render = PathRender
+				renderSurface.Render = PathRender
 			}
 
 			// Test projected normal's z-coordinate for culling (if enabled).
-			if (s.ShowBackfaces || surface.ShowBackfaces || renderModel.Normal.Z < 0.0) && renderModel.InFrustum {
+			if (s.ShowBackfaces || surface.ShowBackfaces || renderSurface.Normal.Z < 0.0) && renderSurface.InFrustum {
 				// Render fill and stroke using material and shader.
 				if surface.FillMaterial != nil {
-					fill := surface.FillMaterial.Render(lights, s.Shader, renderModel.ShaderData)
-					renderModel.Fill = &fill
+					fill := surface.FillMaterial.Render(lights, s.Shader, renderSurface.ShaderData)
+					renderSurface.Fill = &fill
 				}
 				if surface.StrokeMaterial != nil {
-					stroke := surface.StrokeMaterial.Render(lights, s.Shader, renderModel.ShaderData)
-					renderModel.Stroke = &stroke
+					stroke := surface.StrokeMaterial.Render(lights, s.Shader, renderSurface.ShaderData)
+					renderSurface.Stroke = &stroke
 				}
 
 				// Round coordinates (if enabled)
 				if !s.FractionalPoints {
-					pts := renderModel.ProjectedPoints
+					pts := renderSurface.ProjectedPoints
 					for i, pt := range pts {
 						pts[i] = pt.Round()
 					}
 				}
 
-				// Add the render model to the renderModels slice
-				s.renderSurfaces = append(s.renderSurfaces, renderModel)
+				// Add the render model to the renderSurfaces slice
+				s.renderSurfaces = append(s.renderSurfaces, renderSurface)
 			}
 		}
 	})
@@ -81,12 +81,12 @@ func (s *SceneLayer) Paint(painter Painter) {
 	sort.Sort(ByZ(s.renderSurfaces))
 
 	// Now for every render model, render it on the given Painter
-	for _, m := range s.renderSurfaces {
-		m.Paint(painter)
+	for _, rs := range s.renderSurfaces {
+		rs.Paint(painter)
 	}
 }
 
-// RenderSurfaceWith will get or create the rendermodel for
+// RenderSurfaceWith will get or create the renderSurface for
 // the given surface. If Regenerate is false, we cache
 // these models to reduce object creation and recomputation.
 func (s *SceneLayer) RenderSurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
@@ -95,15 +95,14 @@ func (s *SceneLayer) RenderSurfaceWith(surface *seen.Surface, transform, project
 		return RenderSurfaceWith(surface, transform, projection, viewport)
 	}
 	// Caching enabled, see if its present in the cache
-	m, ok := s.renderCache[surface.Id]
-	if ok {
-		m.Update(transform, projection, viewport)
-		return m
+	if rs, ok := s.renderCache[surface.Id]; ok {
+		rs.Update(transform, projection, viewport)
+		return rs
 	}
 	// Create new RenderSurface and add to the cache
-	m = RenderSurfaceWith(surface, transform, projection, viewport)
-	s.renderCache[surface.Id] = m
-	return m
+	rs := RenderSurfaceWith(surface, transform, projection, viewport)
+	s.renderCache[surface.Id] = rs
+	return rs
 }
 
 // FlushCache removes all elements from the cache. This may be necessary
