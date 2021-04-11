@@ -16,7 +16,7 @@ import (
 	"github.com/reactivego/seen/quat"
 	"github.com/reactivego/seen/render"
 	"github.com/reactivego/seen/render/gio"
-	"github.com/reactivego/seen/shapes"
+	"github.com/reactivego/seen/shape"
 )
 
 const WidthDp = 900
@@ -46,7 +46,7 @@ func Text() {
 
 	// Draw bars for data
 	for i, d := range data {
-		uc := shapes.UnitCube()
+		uc := shape.UnitCube()
 		uc.SetFill("#0088FF")
 		uc.SetScale(20, d, 20)
 		uc.SetTranslation(float64(i*30)-160, -50, 0)
@@ -62,7 +62,7 @@ func Text() {
 			"anchor":      "middle",
 			"textLength":  "200px",
 		}
-		t := shapes.Text(strconv.FormatFloat(d, 'f', 1, 64), opts)
+		t := shape.Text(strconv.FormatFloat(d, 'f', 1, 64), opts)
 		t.SetShowBackfaces(true)
 		t.SetTranslation(float64(i)*30+10-160, d+10-50, 10)
 		t.SetFill("#000000")

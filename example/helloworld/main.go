@@ -15,7 +15,7 @@ import (
 	"github.com/reactivego/seen/quat"
 	"github.com/reactivego/seen/render"
 	"github.com/reactivego/seen/render/gio"
-	"github.com/reactivego/seen/shapes"
+	"github.com/reactivego/seen/shape"
 )
 
 const WidthDp = 900
@@ -34,7 +34,7 @@ func HelloWorld() {
 	)
 
 	// Create sphere shape with randomly colored surfaces
-	shape := shapes.Sphere(2)
+	shape := shape.Sphere(2)
 	shape.SetScale(HeightDp*0.4, HeightDp*0.4, HeightDp*0.4)
 	shape.ColorSurfaces(colors.DefaultRandomSource2())
 
