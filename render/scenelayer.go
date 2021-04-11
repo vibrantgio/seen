@@ -40,38 +40,29 @@ func (s *SceneLayer) Paint(painter Painter) {
 	// Process all renderable objects
 	s.Model.EachRenderable(func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
 		for _, surface := range shape.Surfaces {
-			renderSurface := s.RenderSurfaceWith(&surface, transform, projection, viewport)
-
-			// Assign the correct render function to the render model
-			switch shape.Type {
-			case "text":
-				renderSurface.Render = TextRender
-			default:
-				renderSurface.Render = PathRender
-			}
-
+			rs := s.RenderSurfaceWith(shape.Type, &surface, transform, projection, viewport)
 			// Test projected normal's z-coordinate for culling (if enabled).
-			if (s.ShowBackfaces || surface.ShowBackfaces || renderSurface.Normal.Z < 0.0) && renderSurface.InFrustum {
+			if (s.ShowBackfaces || surface.ShowBackfaces || rs.Normal.Z < 0.0) && rs.InFrustum {
 				// Render fill and stroke using material and shader.
 				if surface.FillMaterial != nil {
-					fill := surface.FillMaterial.Render(lights, s.Shader, renderSurface.ShaderData)
-					renderSurface.Fill = &fill
+					fill := surface.FillMaterial.Render(lights, s.Shader, rs.ShaderData)
+					rs.Fill = &fill
 				}
 				if surface.StrokeMaterial != nil {
-					stroke := surface.StrokeMaterial.Render(lights, s.Shader, renderSurface.ShaderData)
-					renderSurface.Stroke = &stroke
+					stroke := surface.StrokeMaterial.Render(lights, s.Shader, rs.ShaderData)
+					rs.Stroke = &stroke
 				}
 
 				// Round coordinates (if enabled)
 				if !s.FractionalPoints {
-					pts := renderSurface.ProjectedPoints
+					pts := rs.ProjectedPoints
 					for i, pt := range pts {
 						pts[i] = pt.Round()
 					}
 				}
 
 				// Add the render model to the renderSurfaces slice
-				s.renderSurfaces = append(s.renderSurfaces, renderSurface)
+				s.renderSurfaces = append(s.renderSurfaces, rs)
 			}
 		}
 	})
@@ -89,10 +80,10 @@ func (s *SceneLayer) Paint(painter Painter) {
 // RenderSurfaceWith will get or create the renderSurface for
 // the given surface. If Regenerate is false, we cache
 // these models to reduce object creation and recomputation.
-func (s *SceneLayer) RenderSurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
+func (s *SceneLayer) RenderSurfaceWith(kind string, surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
 	if s.Regenerate {
 		// No caching
-		return RenderSurfaceWith(surface, transform, projection, viewport)
+		return RenderSurfaceWith(kind, surface, transform, projection, viewport)
 	}
 	// Caching enabled, see if its present in the cache
 	if rs, ok := s.renderCache[surface.Id]; ok {
@@ -100,7 +91,7 @@ func (s *SceneLayer) RenderSurfaceWith(surface *seen.Surface, transform, project
 		return rs
 	}
 	// Create new RenderSurface and add to the cache
-	rs := RenderSurfaceWith(surface, transform, projection, viewport)
+	rs := RenderSurfaceWith(kind, surface, transform, projection, viewport)
 	s.renderCache[surface.Id] = rs
 	return rs
 }

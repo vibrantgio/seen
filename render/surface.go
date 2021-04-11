@@ -2,6 +2,7 @@ package render
 
 import (
 	"github.com/reactivego/seen"
+	"github.com/reactivego/seen/affine"
 	"github.com/reactivego/seen/colors"
 )
 
@@ -16,9 +17,8 @@ import (
 //
 // RenderSurface manages the painting of a single Surface.
 type RenderSurface struct {
-	// Render is a reference to a specific render function to be used to render
-	// the RenderSurface on a Painter.
-	Render func(*RenderSurface, Painter)
+	// Paint is the paint function to be used to paint this surface.
+	Paint func(Painter)
 
 	// Surface is a reference to the Surface that is being painted.
 	// The reference is retained so it can be checked for the Dirty flag.
@@ -45,53 +45,112 @@ type RenderSurface struct {
 	Stroke *colors.Color
 }
 
-func RenderSurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
-	m := &RenderSurface{}
-	m.Surface = surface
-	m.Points = surface.Points
+func RenderSurfaceWith(kind string, surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
+	rs := &RenderSurface{}
+	// Assign the correct render function to the render model
+	if kind == "text" {
+		rs.Paint = rs.PaintText
+	} else {
+		rs.Paint = rs.PaintPath
+	}
+	rs.Surface = surface
+	rs.Points = surface.Points
 
-	m.Transform = transform
-	m.Projection = projection
-	m.Viewport = viewport
-	m.update()
-	return m
+	rs.Transform = transform
+	rs.Projection = projection
+	rs.Viewport = viewport
+	rs.update()
+	return rs
 }
 
-func (m *RenderSurface) Paint(painter Painter) {
-	m.Render(m, painter)
-}
-
-func (m *RenderSurface) Update(transform, projection, viewport seen.Matrix) {
-	if m.Surface.Dirty || !transform.Equal(m.Transform) || !projection.Equal(m.Projection) || !viewport.Equal(m.Viewport) {
-		m.Transform = transform
-		m.Projection = projection
-		m.Viewport = viewport
-		m.update()
+func (rs *RenderSurface) Update(transform, projection, viewport seen.Matrix) {
+	if rs.Surface.Dirty || !transform.Equal(rs.Transform) || !projection.Equal(rs.Projection) || !viewport.Equal(rs.Viewport) {
+		rs.Transform = transform
+		rs.Projection = projection
+		rs.Viewport = viewport
+		rs.update()
 	}
 }
 
-func (m *RenderSurface) update() {
-	if len(m.WorldSpacePoints) != len(m.Points) {
-		m.WorldSpacePoints = make([]seen.Point, len(m.Points))
+func (rs *RenderSurface) update() {
+	if len(rs.WorldSpacePoints) != len(rs.Points) {
+		rs.WorldSpacePoints = make([]seen.Point, len(rs.Points))
 	}
-	if len(m.ProjectedPoints) != len(m.Points) {
-		m.ProjectedPoints = make([]seen.Point, len(m.Points))
+	if len(rs.ProjectedPoints) != len(rs.Points) {
+		rs.ProjectedPoints = make([]seen.Point, len(rs.Points))
 	}
 
 	// Apply model transform to surface points. Calculates transformed points and barycenter
-	wsBaryCenter := m.Points.Mul(m.Transform, m.WorldSpacePoints)
-	wsNormal := m.WorldSpacePoints.Normal().Normalize()
+	wsBaryCenter := rs.Points.Mul(rs.Transform, rs.WorldSpacePoints)
+	wsNormal := rs.WorldSpacePoints.Normal().Normalize()
 
 	// Initialize the shader data with the baryCenter and the normal of the transformed points.
-	m.ShaderData = &seen.SurfaceShaderData{Barycenter: wsBaryCenter, Normal: wsNormal}
+	rs.ShaderData = &seen.SurfaceShaderData{Barycenter: wsBaryCenter, Normal: wsNormal}
 
-	var clippedPoints = make(seen.Points, len(m.WorldSpacePoints))
-	if m.InFrustum = m.WorldSpacePoints.Clip(m.Projection, -2, clippedPoints); m.InFrustum {
+	var clippedPoints = make(seen.Points, len(rs.WorldSpacePoints))
+	if rs.InFrustum = rs.WorldSpacePoints.Clip(rs.Projection, -2, clippedPoints); rs.InFrustum {
 		// Project camera space points into screen space
-		m.Barycenter = clippedPoints.Mul(m.Viewport, m.ProjectedPoints)
-		m.Normal = m.ProjectedPoints.Normal().Normalize()
+		rs.Barycenter = clippedPoints.Mul(rs.Viewport, rs.ProjectedPoints)
+		rs.Normal = rs.ProjectedPoints.Normal().Normalize()
 
 		// Surface has been updated, we can clear the Dirty flag
-		m.Surface.Dirty = false
+		rs.Surface.Dirty = false
 	}
+}
+
+// PaintPath paints a path render surface onto a Painter.
+func (rs *RenderSurface) PaintPath(painter Painter) {
+	path := painter.Path()
+	path.Path(rs.ProjectedPoints)
+
+	if rs.Fill != nil {
+		path.Fill(map[string]string{
+			"fill":         rs.Fill.Hex(),
+			"fill-opacity": Ftoa(rs.Fill.A),
+		})
+	}
+
+	if rs.Stroke != nil {
+		strokeWidth := "1"
+		if v, ok := rs.Surface.Options["stroke-width"]; ok {
+			strokeWidth = v
+		}
+		path.Stroke(map[string]string{
+			"fill":         "none",
+			"stroke":       rs.Stroke.Hex(),
+			"stroke-width": strokeWidth,
+		})
+	}
+}
+
+// PaintText paints a text render surface onto a Painter.
+func (rs *RenderSurface) PaintText(painter Painter) {
+	style := map[string]string{
+		"fill":        "none",
+		"text-anchor": "middle",
+	}
+	if rs.Fill != nil {
+		style["fill"] = rs.Fill.Hex()
+	}
+	if font, present := rs.Surface.Options["font"]; present {
+		style["font"] = font
+	}
+	if family, present := rs.Surface.Options["font-family"]; present {
+		style["font-family"] = family
+	}
+	if size, present := rs.Surface.Options["font-size"]; present {
+		style["font-size"] = size
+	}
+	if weight, present := rs.Surface.Options["font-weight"]; present {
+		style["font-weight"] = weight
+	}
+	if anchor, present := rs.Surface.Options["anchor"]; present {
+		style["text-anchor"] = anchor
+	}
+	if length, present := rs.Surface.Options["textLength"]; present {
+		style["textLength"] = length
+	}
+	xform := affine.SolveForAffineTransform(rs.ProjectedPoints)
+	text := rs.Surface.Options["text"]
+	painter.Text().FillText(xform, text, style)
 }
