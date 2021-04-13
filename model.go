@@ -65,6 +65,9 @@ func (m *Model) eachRenderable(shape ShapeFunc, lsd []LightShaderData, transform
 }
 
 type ModelVisitor interface {
+	Push()
+	Pop()
+
 	VisitLight(l *Light)
 
 	VisitSurface(s *Surface)
@@ -76,6 +79,7 @@ type ModelVisitor interface {
 }
 
 func (m *Model) Accept(v ModelVisitor) {
+	v.Push()
 	v.EnterModel(m)
 	for _, light := range m.Lights {
 		v.VisitLight(light)
@@ -83,10 +87,13 @@ func (m *Model) Accept(v ModelVisitor) {
 	for _, child := range m.Children {
 		switch c := child.(type) {
 		case *Shape:
+			v.Push()
 			v.EnterShape(c)
 			for i := range c.Surfaces {
 				v.VisitSurface(&c.Surfaces[i])
 			}
+			v.LeaveShape(c)
+			v.Pop()
 		case *Model:
 			c.Accept(v)
 		default:
@@ -94,4 +101,5 @@ func (m *Model) Accept(v ModelVisitor) {
 		}
 	}
 	v.LeaveModel(m)
+	v.Pop()
 }
