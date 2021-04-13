@@ -12,14 +12,14 @@ import (
 type SceneLayer struct {
 	*seen.Scene
 	surfaces []*RenderSurface
-	cache    map[string]*RenderSurface
+	cache    map[int]*RenderSurface
 }
 
 func SceneLayerWith(scene *seen.Scene) *SceneLayer {
 	return &SceneLayer{
 		Scene:    scene,
 		surfaces: make([]*RenderSurface, 0, 32),
-		cache:    make(map[string]*RenderSurface),
+		cache:    make(map[int]*RenderSurface),
 	}
 }
 

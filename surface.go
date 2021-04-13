@@ -13,7 +13,7 @@ type Surface struct {
 	// Id holds a unique identifier for the surface.
 	// We store a unique Id for every surface so we can look them up quickly
 	// with the render model cache.
-	Id string
+	Id int
 
 	// ShowBackfaces when set to true will override backface culling, which is useful if your
 	// material is transparent. See comment in Scene.
@@ -51,7 +51,7 @@ func SurfacesWith(points Points, coordinateMap [][]int) (surfaces Surfaces) {
 	surfaces = make(Surfaces, len(coordinateMap))
 	for s, coords := range coordinateMap {
 		for _, c := range coords {
-			surfaces[s].Id = UniqueId("s")
+			surfaces[s].Id = UniqueId()
 			surfaces[s].Options = make(map[string]string)
 			surfaces[s].Points = append(surfaces[s].Points, points[c])
 		}
@@ -61,7 +61,7 @@ func SurfacesWith(points Points, coordinateMap [][]int) (surfaces Surfaces) {
 
 func SurfaceWith(points Points) *Surface {
 	s := &Surface{}
-	s.Id = UniqueId("s")
+	s.Id = UniqueId()
 	s.Options = make(map[string]string)
 	s.Points = append(Points(nil), points...)
 	return s
