@@ -266,8 +266,15 @@ func (p *PathPainter) Fill(style render.Style) {
 		return
 	}
 	defer op.Save(p.Ops).Load()
+	fillOpacity := 1.0
+	if o, present := style["fill-opacity"]; present {
+		if o, err := strconv.ParseFloat(o, 64); err == nil {
+			fillOpacity = math.Min(math.Max(0.0, o), 1.0)
+		}
+	}
 	if c, present := style["fill"]; present {
 		if fill, err := colors.ColorWithString(c); err == nil {
+			fill.A = fillOpacity
 			paint.ColorOp{Color: fill.NRGBA()}.Add(p.Ops)
 		}
 	}
@@ -285,7 +292,6 @@ func (p *PathPainter) Fill(style render.Style) {
 // Stroke the outline of the path.
 // Key "stroke-width" is supported in style.
 func (p *PathPainter) Stroke(render.Style) {
-
 }
 
 // RectPainter

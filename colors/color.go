@@ -200,20 +200,33 @@ func init() {
 }
 
 // Option is the interface type for passing in color options for RandomSource2
-type Option interface{}
+type Option interface {
+	Value() float64
+}
 
 // Drift default is 0.03
 type Drift float64
 
+func (v Drift) Value() float64 { return float64(v) }
+
 // Sat default is 0.5
 type Sat float64
+
+func (v Sat) Value() float64 { return float64(v) }
 
 // Lit default is 0.4
 type Lit float64
 
+func (v Lit) Value() float64 { return float64(v) }
+
+// Opacity default is 1.0
+type Opacity float64
+
+func (v Opacity) Value() float64 { return float64(v) }
+
 // RandomSource2 is a source of random colors. It implements the Source interface.
 type RandomSource2 struct {
-	drift, sat, lit, hue float64
+	drift, sat, lit, hue, opacity float64
 }
 
 // DefaultRandomSource2 generates a random hue then randomly drifts the hue every
@@ -221,9 +234,10 @@ type RandomSource2 struct {
 // Lit: 0.4 as parameters for the hue generating algorithm.
 func DefaultRandomSource2() *RandomSource2 {
 	return &RandomSource2{
-		drift: 0.03,
-		sat:   0.5,
-		lit:   0.4,
+		drift:   0.03,
+		sat:     0.5,
+		lit:     0.4,
+		opacity: 1.0,
 	}
 }
 
@@ -233,11 +247,13 @@ func RandomSource2With(options ...Option) Source {
 	for _, opt := range options {
 		switch o := opt.(type) {
 		case Drift:
-			c.drift = float64(o)
+			c.drift = o.Value()
 		case Sat:
-			c.sat = float64(o)
+			c.sat = o.Value()
 		case Lit:
-			c.lit = float64(o)
+			c.lit = o.Value()
+		case Opacity:
+			c.opacity = o.Value()
 		}
 	}
 	c.hue = rand.Float64()
@@ -252,5 +268,5 @@ func (c *RandomSource2) Read() Color {
 	for c.hue > 1 {
 		c.hue -= 1
 	}
-	return ColorHsl(c.hue, c.sat, c.lit, 1.0)
+	return ColorHsl(c.hue, c.sat, c.lit, c.opacity)
 }
