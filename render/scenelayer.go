@@ -40,7 +40,23 @@ func (s *SceneLayer) Paint(painter Painter) {
 	// Process all renderable objects
 	s.Model.EachRenderable(func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
 		for _, surface := range shape.Surfaces {
-			rs := s.RenderSurfaceWith(shape.Type, &surface, transform, projection, viewport)
+			// Get or create the renderSurface for the given surface.
+			var rs *RenderSurface
+			// If Regenerate is false, we cache the render models to reduce object
+			// creation and recomputation.
+			if s.Regenerate {
+				// No caching
+				rs = RenderSurfaceWith(shape.Type, &surface, transform, projection, viewport)
+			} else {
+				// Caching enabled, see if its present in the cache
+				if cs, ok := s.cache[surface.Id]; ok {
+					cs.Update(transform, projection, viewport)
+					rs = cs
+				}
+				// Create new RenderSurface and add to the cache
+				rs = RenderSurfaceWith(shape.Type, &surface, transform, projection, viewport)
+				s.cache[surface.Id] = rs
+			}
 			// Test projected normal's z-coordinate for culling (if enabled).
 			if (s.ShowBackfaces || surface.ShowBackfaces || rs.Normal.Z < 0.0) && rs.InFrustum {
 				// Render fill and stroke using material and shader.
@@ -69,31 +85,12 @@ func (s *SceneLayer) Paint(painter Painter) {
 
 	// Sort render models by projected z coordinate. This ensures that the surfaces
 	// farthest from the eye are painted first. (Painter's Algorithm)
-	sort.Sort(ByZ(s.surfaces))
+	sort.Sort(sort.Reverse(ByZ(s.surfaces)))
 
 	// Now for every render model, render it on the given Painter
 	for _, rs := range s.surfaces {
 		rs.Paint(painter)
 	}
-}
-
-// RenderSurfaceWith will get or create the renderSurface for
-// the given surface. If Regenerate is false, we cache
-// these models to reduce object creation and recomputation.
-func (s *SceneLayer) RenderSurfaceWith(kind string, surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
-	if s.Regenerate {
-		// No caching
-		return RenderSurfaceWith(kind, surface, transform, projection, viewport)
-	}
-	// Caching enabled, see if its present in the cache
-	if rs, ok := s.cache[surface.Id]; ok {
-		rs.Update(transform, projection, viewport)
-		return rs
-	}
-	// Create new RenderSurface and add to the cache
-	rs := RenderSurfaceWith(kind, surface, transform, projection, viewport)
-	s.cache[surface.Id] = rs
-	return rs
 }
 
 // FlushCache removes all elements from the cache. This may be necessary
@@ -117,5 +114,5 @@ func (a ByZ) Swap(i, j int) {
 }
 
 func (a ByZ) Less(i, j int) bool {
-	return a[i].Barycenter.Z > a[j].Barycenter.Z
+	return a[i].Barycenter.Z < a[j].Barycenter.Z
 }
