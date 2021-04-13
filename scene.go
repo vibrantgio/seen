@@ -43,8 +43,8 @@ type Scene struct {
 
 // EmptyScene returns a new Scene that has a default Camera, Viewport and Shader and
 // an empty Model.
-func EmptyScene() Scene {
-	return Scene{
+func EmptyScene() *Scene {
+	return &Scene{
 		Model:    EmptyModel(),
 		Camera:   DefaultCamera,
 		Viewport: OriginViewport(0, 0, 1, 1),
@@ -54,8 +54,8 @@ func EmptyScene() Scene {
 
 // DefaultScene returns a new Scene that has a default Camera, Viewport and Shader and
 // a Model with Hollywood-style 3-part lighting.
-func DefaultScene() Scene {
-	return Scene{
+func DefaultScene() *Scene {
+	return &Scene{
 		Model:    ModelWith(DefaultLights()...),
 		Camera:   DefaultCamera,
 		Viewport: OriginViewport(0, 0, 1, 1),

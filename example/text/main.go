@@ -75,7 +75,7 @@ func Text() {
 	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create a render layer and render context
-	layer := render.SceneLayerWith(&scene)
+	layer := render.SceneLayerWith(scene)
 	layer.FractionalPoints = true
 	context := gio.ContextWith(window, layer)
 
