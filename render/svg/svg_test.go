@@ -94,7 +94,8 @@ func TestDemoSimple(t *testing.T) {
 		return
 	}
 
-	context := ContextWith(svg.GetElementById(svgId), render.FillLayerWith(width, height, 8, 8, "#eeddff"))
+	blueish, _ := colors.ColorWithString("#eeddff")
+	context := ContextWith(svg.GetElementById(svgId), render.FillLayerWith(width, height, 8, 8, blueish))
 	if context == nil {
 		t.Error("Expected to be able to create RenderContext")
 		return
@@ -135,7 +136,7 @@ func TestDemoSimple(t *testing.T) {
 
 	s.Viewport = seen.CenterViewport(0, 0, width, height)
 	// Add scene as a layer to the render context
-	context.Layer(render.SceneLayerWith(&s))
+	context.Layers(render.SceneLayerWith(&s))
 
 	// Actually render the scene on the context
 	context.Render()
