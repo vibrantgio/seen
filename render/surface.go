@@ -63,13 +63,15 @@ func RenderSurfaceWith(kind string, surface *seen.Surface, transform, projection
 	return rs
 }
 
-func (rs *RenderSurface) Update(transform, projection, viewport seen.Matrix) {
+func (rs *RenderSurface) Update(transform, projection, viewport seen.Matrix) (updated bool) {
 	if rs.Surface.Dirty || !transform.Equal(rs.Transform) || !projection.Equal(rs.Projection) || !viewport.Equal(rs.Viewport) {
 		rs.Transform = transform
 		rs.Projection = projection
 		rs.Viewport = viewport
 		rs.update()
+		updated = true
 	}
+	return
 }
 
 func (rs *RenderSurface) update() {
