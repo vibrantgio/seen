@@ -39,6 +39,10 @@ type Scene struct {
 	// map keyed by the surface's unique id. The cache has no eviction policy.
 	// To flush the cache, call FlushCache()
 	Regenerate bool
+
+	// BSP is a Binary Space Partitioning generated for the scene.
+	// The BSP must be re-generated whenever the scene graph geometry is modified.
+	BSP *BSP
 }
 
 // EmptyScene returns a new Scene that has a default Camera, Viewport and Shader and
