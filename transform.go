@@ -12,7 +12,7 @@ type Transformable interface {
 	Matrix() Matrix
 }
 
-// Transform type is embedded by Light, Shape, Model and Camera.
+// Transform type is embedded by Light, Shape, Group and Camera.
 // It uses a double quaternion for specifying the transform.
 // The component transformations are applied in the order TRS.
 // So Object coordinates are transformed into parent space by

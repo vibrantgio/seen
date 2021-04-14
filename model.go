@@ -1,30 +1,30 @@
 package seen
 
-// Model is the object model class. It stores Shapes, Lights, and other Models as
-// well as a transformation matrix.
+// Group is the object collection class.
+// It stores Shapes, Lights, and other Groups as well as a transformation matrix.
 //
-// Notably, models are hierarchical, like a tree. This means you can isolate
+// Notably, groups are hierarchical, like a tree. This means you can isolate
 // the transformation of groups of shapes in the scene, as well as create
 // chains of transformations for creating, for example, articulated skeletons.
-type Model struct {
+type Group struct {
 	Transform
 	Lights   []*Light
 	Children []Transformable
 }
 
-func EmptyModel() *Model {
-	return &Model{Transform: DefaultTransform}
+func EmptyGroup() *Group {
+	return &Group{Transform: DefaultTransform}
 }
 
-func ModelWith(children ...Transformable) *Model {
-	m := Model{Transform: DefaultTransform}
+func GroupWith(children ...Transformable) *Group {
+	m := Group{Transform: DefaultTransform}
 	m.Add(children...)
 	return &m
 }
 
-// Add a `Shape`, `Light`, and other `Model` as a child of this `Model`
+// Add a `Shape`, `Light`, and other `Group` as a child of this `Group`
 // Any number of children can by supplied as arguments.
-func (m *Model) Add(children ...Transformable) {
+func (m *Group) Add(children ...Transformable) {
 	for _, child := range children {
 		if light, ok := child.(*Light); ok {
 			m.Lights = append(m.Lights, light)
@@ -40,12 +40,12 @@ type ShapeFunc func(shape *Shape, lights []LightShaderData, transform Matrix)
 // matrices along the way. Each shape callback will be called with each shape and
 // its accumulated transform as well as the list of light render datas that apply
 // to that shape.
-func (m *Model) EachRenderable(shape ShapeFunc) {
+func (m *Group) EachRenderable(shape ShapeFunc) {
 	m.eachRenderable(shape, []LightShaderData{}, m.Matrix())
 }
 
-// Go through the model depth first recursively and call the shape function for every shape.
-func (m *Model) eachRenderable(shape ShapeFunc, lsd []LightShaderData, transform Matrix) {
+// Go through the group depth first recursively and call the shape function for every shape.
+func (m *Group) eachRenderable(shape ShapeFunc, lsd []LightShaderData, transform Matrix) {
 	for _, light := range m.Lights {
 		if light.Enabled {
 			t := transform.Mul(light.Matrix())
@@ -56,7 +56,7 @@ func (m *Model) eachRenderable(shape ShapeFunc, lsd []LightShaderData, transform
 		switch c := child.(type) {
 		case *Shape:
 			shape(c, lsd, transform.Mul(c.Matrix()))
-		case *Model:
+		case *Group:
 			c.eachRenderable(shape, lsd, transform.Mul(c.Matrix()))
 		default:
 			// skip
@@ -64,7 +64,7 @@ func (m *Model) eachRenderable(shape ShapeFunc, lsd []LightShaderData, transform
 	}
 }
 
-type ModelVisitor interface {
+type GroupVisitor interface {
 	Push()
 	Pop()
 
@@ -74,13 +74,13 @@ type ModelVisitor interface {
 	EnterShape(s *Shape)
 	LeaveShape(s *Shape)
 
-	EnterModel(m *Model)
-	LeaveModel(m *Model)
+	EnterGroup(m *Group)
+	LeaveGroup(m *Group)
 }
 
-func (m *Model) Accept(v ModelVisitor) {
+func (m *Group) Accept(v GroupVisitor) {
 	v.Push()
-	v.EnterModel(m)
+	v.EnterGroup(m)
 	for _, light := range m.Lights {
 		v.VisitLight(light)
 	}
@@ -95,12 +95,12 @@ func (m *Model) Accept(v ModelVisitor) {
 			}
 			v.LeaveShape(c)
 			v.Pop()
-		case *Model:
+		case *Group:
 			c.Accept(v)
 		default:
 			// skip
 		}
 	}
-	v.LeaveModel(m)
+	v.LeaveGroup(m)
 	v.Pop()
 }

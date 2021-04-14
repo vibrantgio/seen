@@ -23,7 +23,7 @@ func SceneLayerWith(scene *seen.Scene) *SceneLayer {
 	}
 }
 
-// Paint creates a RenderSurface for every Surface in the scene's models.
+// Paint creates a RenderSurface for every Surface in the scene's groups.
 // When encountering a TextShape assign a TextPainter to the RenderSurface.
 // When encountering any other shape assign a PathPainter to the RenderSurface.
 func (s *SceneLayer) Paint(painter Painter) {
@@ -34,15 +34,15 @@ func (s *SceneLayer) Paint(painter Painter) {
 	// Last transformation from normalized screen space into real screen space.
 	viewport := s.Viewport.Postscale
 
-	// Clear out the render models, but reuse the already existing array backing the slice
+	// Clear out the render surfaces, but reuse the already existing array backing the slice
 	s.surfaces = s.surfaces[:0]
 
 	// Process all renderable objects
-	s.Model.EachRenderable(func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
+	s.Group.EachRenderable(func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
 		for _, surface := range shape.Surfaces {
 			// Get or create the renderSurface for the given surface.
 			var rs *RenderSurface
-			// If Regenerate is false, we cache the render models to reduce object
+			// If Regenerate is false, we cache the render surfaces to reduce object
 			// creation and recomputation.
 			if s.Regenerate {
 				// No caching
@@ -79,24 +79,24 @@ func (s *SceneLayer) Paint(painter Painter) {
 					}
 				}
 
-				// Add the render model to the renderSurfaces slice
+				// Add the render surface to the surfaces slice
 				s.surfaces = append(s.surfaces, rs)
 			}
 		}
 	})
 
-	// Sort render models by projected z coordinate. This ensures that the surfaces
+	// Sort render surfaces by projected z coordinate. This ensures that the surfaces
 	// farthest from the eye are painted first. (Painter's Algorithm)
 	sort.Sort(sort.Reverse(ByZ(s.surfaces)))
 
-	// Now for every render model, render it on the given Painter
+	// Now for every render surface, render it on the given Painter
 	for _, rs := range s.surfaces {
 		rs.Paint(painter)
 	}
 }
 
 // FlushCache removes all elements from the cache. This may be necessary
-// if you add and remove many shapes from the scene's models since this
+// if you add and remove many shapes from the scene's groups since this
 // cache has no eviction policy.
 func (s *SceneLayer) FlushCache() {
 	for k := range s.cache {

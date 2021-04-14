@@ -41,8 +41,8 @@ func Text() {
 	}
 
 	scene := seen.DefaultScene()
-	model := seen.EmptyModel()
-	scene.Model.Add(model)
+	group := seen.EmptyGroup()
+	scene.Group.Add(group)
 
 	// Draw bars for data
 	for i, d := range data {
@@ -50,7 +50,7 @@ func Text() {
 		uc.SetFill("#0088FF")
 		uc.SetScale(20, d, 20)
 		uc.SetTranslation(float64(i*30)-160, -50, 0)
-		model.Add(uc)
+		group.Add(uc)
 	}
 
 	// Draw text above bars
@@ -66,12 +66,12 @@ func Text() {
 		t.SetShowBackfaces(true)
 		t.SetTranslation(float64(i)*30+10-160, d+10-50, 10)
 		t.SetFill("#000000")
-		model.Add(t)
+		group.Add(t)
 	}
 
-	model.SetScale(2, 2, 2)
+	group.SetScale(2, 2, 2)
 
-	// Create scene and add shape to model
+	// Create scene and add shape to group
 	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create a render layer and render context
@@ -83,23 +83,23 @@ func Text() {
 	animator := context.Animate()
 	animator.OnBefore(func(t, dt time.Duration) {
 		dtms := float64(dt.Milliseconds())
-		model.SetRotation(model.Rotation().RotY(0.7 * dtms * 1e-4))
+		group.SetRotation(group.Rotation().RotY(0.7 * dtms * 1e-4))
 	})
 	animator.Start()
 
 	// Enable drag-to-rotate
 	drag := context.Drag(seen.Inertia(true))
 	drag.On(func(e seen.DragEvent) {
-		r := quat.RotX(e.Dy / 150).Mul(model.Rotation()).RotY(e.Dx / 150)
-		model.SetRotation(r)
+		r := quat.RotX(e.Dy / 150).Mul(group.Rotation()).RotY(e.Dx / 150)
+		group.SetRotation(r)
 		context.Render()
 	})
 
 	// Enable mouse-wheel zoom
 	zoom := context.Zoom()
 	zoom.On(func(e seen.ZoomEvent) {
-		sx, sy, sz := model.Scale()
-		model.SetScale(sx*e.Zoom, sy*e.Zoom, sz*e.Zoom)
+		sx, sy, sz := group.Scale()
+		group.SetScale(sx*e.Zoom, sy*e.Zoom, sz*e.Zoom)
 	})
 
 	ops := &op.Ops{}

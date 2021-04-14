@@ -15,7 +15,7 @@ type Surface struct {
 
 	// Id holds a unique identifier for the surface.
 	// We store a unique Id for every surface so we can look them up quickly
-	// with the render model cache.
+	// with the render surface cache.
 	Id int
 
 	// ShowBackfaces when set to true will override backface culling, which is useful if your

@@ -1,6 +1,6 @@
 package seen
 
-// Camera model contains all three major components of the 3D to 2D tranformation.
+// Camera contains all three major components of the 3D to 2D tranformation.
 //
 // First, we transform object from world-space (the same space that the coordinates of
 // surface points are in after all their transforms are applied) to camera space. Typically,

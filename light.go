@@ -4,7 +4,7 @@ import "github.com/reactivego/seen/color"
 
 type LightKind string
 
-// Light model object holds the attributes and transformation of a light source.
+// Light object holds the attributes and transformation of a light source.
 type Light struct {
 	Transform
 	Kind  LightKind

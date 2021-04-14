@@ -2,9 +2,9 @@ package seen
 
 // Scene
 type Scene struct {
-	// Model is the root model for the scene, which contains Shapes, Lights, and
-	// other Models
-	Model *Model
+	// Group is the root group for the scene, which contains Shapes, Lights, and
+	// other Groups
+	Group *Group
 
 	// Camera which defines the projection transformation.
 	// The default projection is perspective.
@@ -33,19 +33,19 @@ type Scene struct {
 	// jittering effect when animating.
 	FractionalPoints bool
 
-	// Regenerate is a bool that when set to true will force regeneration of render models.
-	// A render model is generated for each surface in the scene. When Regenerate is set
-	// to false (default), the generated render models will be cached. The cache is a simple
+	// Regenerate is a bool that when set to true will force regeneration of render surfaces.
+	// A render surface is generated for each surface in the scene. When Regenerate is set
+	// to false (default), the generated render surfaces will be cached. The cache is a simple
 	// map keyed by the surface's unique id. The cache has no eviction policy.
 	// To flush the cache, call FlushCache()
 	Regenerate bool
 }
 
 // EmptyScene returns a new Scene that has a default Camera, Viewport and Shader and
-// an empty Model.
+// an empty Group.
 func EmptyScene() *Scene {
 	return &Scene{
-		Model:    EmptyModel(),
+		Group:    EmptyGroup(),
 		Camera:   DefaultCamera,
 		Viewport: OriginViewport(0, 0, 1, 1),
 		Shader:   PhongShader,
@@ -53,10 +53,10 @@ func EmptyScene() *Scene {
 }
 
 // DefaultScene returns a new Scene that has a default Camera, Viewport and Shader and
-// a Model with Hollywood-style 3-part lighting.
+// a Group with Hollywood-style 3-part lighting.
 func DefaultScene() *Scene {
 	return &Scene{
-		Model:    ModelWith(DefaultLights()...),
+		Group:    GroupWith(DefaultLights()...),
 		Camera:   DefaultCamera,
 		Viewport: OriginViewport(0, 0, 1, 1),
 		Shader:   PhongShader,

@@ -38,10 +38,10 @@ func HelloWorld() {
 	shape.SetScale(HeightDp*0.4, HeightDp*0.4, HeightDp*0.4)
 	shape.SetColorFrom(color.RandomSource2With(color.Opacity(0.9)))
 
-	// Create scene and add shape to model
+	// Create scene and add shape to group
 	scene := seen.DefaultScene()
 	scene.ShowBackfaces = true
-	scene.Model.Add(shape)
+	scene.Group.Add(shape)
 	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create a render layer and render context

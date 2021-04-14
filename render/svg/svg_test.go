@@ -122,7 +122,7 @@ func TestDemoSimple(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	s.Model.Add(icosahedron)
+	s.Group.Add(icosahedron)
 
 	// Add a cube to the scene
 	cube := shape.UnitCube()
@@ -134,7 +134,7 @@ func TestDemoSimple(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	s.Model.Add(cube)
+	s.Group.Add(cube)
 
 	s.Viewport = seen.CenterViewport(0, 0, width, height)
 	// Add scene as a layer to the render context
@@ -186,7 +186,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 		scene := seen.DefaultScene()
 		scene.Shader = seen.PhongShader
 		scene.FractionalPoints = true
-		scene.Model.Add(sphere)
+		scene.Group.Add(sphere)
 		scene.Viewport = seen.CenterViewport(0, 0, width, height)
 		scenes = append(scenes, render.SceneLayerWith(scene))
 	}
@@ -242,7 +242,7 @@ func TestDemoText(t *testing.T) {
 		data = append(data, rand.Float64()*80.0+20.0)
 	}
 
-	// Create scene model
+	// Create scene
 	scene := seen.DefaultScene()
 
 	// Draw bars for data
@@ -251,7 +251,7 @@ func TestDemoText(t *testing.T) {
 		uc.SetScale(20.0, d, 20.0)
 		uc.SetTranslation(float64(i)*30.0, 0, 0)
 		uc.SetFill("#0088FF")
-		scene.Model.Add(uc)
+		scene.Group.Add(uc)
 	}
 
 	// Draw text above bars
@@ -266,12 +266,12 @@ func TestDemoText(t *testing.T) {
 		t.SetShowBackfaces(true)
 		t.SetTranslation(float64(i)*30+10, d+10, 10)
 		t.SetFill("#000000")
-		scene.Model.Add(t)
+		scene.Group.Add(t)
 	}
 
 	// Create scene
-	scene.Model.SetTranslation(-150, -50, 0)
-	scene.Model.SetScale(2, 2, 2)
+	scene.Group.SetTranslation(-150, -50, 0)
+	scene.Group.SetScale(2, 2, 2)
 	scene.Viewport = seen.CenterViewport(0, 0, width, height)
 	scene.Camera.SetRotation(quat.AxisAngle(0.1, 1, 0, math.Pi*0.2))
 

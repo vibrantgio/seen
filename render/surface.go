@@ -47,7 +47,7 @@ type RenderSurface struct {
 
 func RenderSurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
 	rs := &RenderSurface{}
-	// Assign the correct render function to the render model
+	// Assign the correct render function to the render surface
 	if surface.Shape.Type == "text" {
 		rs.Paint = rs.PaintText
 	} else {
@@ -82,7 +82,7 @@ func (rs *RenderSurface) update() {
 		rs.ProjectedPoints = make([]seen.Point, len(rs.Points))
 	}
 
-	// Apply model transform to surface points. Calculates transformed points and barycenter
+	// Apply transform to surface points. Calculates transformed points and barycenter
 	wsBaryCenter := rs.Points.Mul(rs.Transform, rs.WorldSpacePoints)
 	wsNormal := rs.WorldSpacePoints.Normal().Normalize()
 
