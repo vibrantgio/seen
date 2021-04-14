@@ -3,7 +3,6 @@ package gio
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"math"
 	"strconv"
 	"strings"
@@ -27,7 +26,7 @@ import (
 
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/affine"
-	"github.com/reactivego/seen/colors"
+	colors "github.com/reactivego/seen/color"
 	"github.com/reactivego/seen/render"
 )
 
@@ -349,7 +348,7 @@ func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) 
 
 	font := RobotoNormal
 	size := 10
-	fill := color.NRGBA{0, 0, 0, 255}
+	fill := colors.Black
 
 	if family, present := style["font-family"]; present {
 		font.Typeface = text.Typeface(family)
@@ -372,7 +371,7 @@ func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) 
 	}
 	if c, present := style["fill"]; present {
 		if f, err := colors.ColorWithString(c); err == nil {
-			fill = f.NRGBA()
+			fill = f
 		}
 	}
 	ax, ay := float32(0.5), float32(1.0)
@@ -414,7 +413,7 @@ func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) 
 		op.Offset(offset).Add(p.Ops)
 		offset.Y += float32(line.Descent.Ceil())
 		shaper.Shape(font, fixed.I(size), line.Layout).Add(p.Ops)
-		paint.ColorOp{Color: fill}.Add(p.Ops)
+		paint.ColorOp{Color: fill.NRGBA()}.Add(p.Ops)
 		paint.PaintOp{}.Add(p.Ops)
 		state.Load()
 	}

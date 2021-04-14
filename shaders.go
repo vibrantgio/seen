@@ -3,7 +3,7 @@ package seen
 import (
 	"math"
 
-	"github.com/reactivego/seen/colors"
+	colors "github.com/reactivego/seen/color"
 )
 
 // Shader implements the Shade method

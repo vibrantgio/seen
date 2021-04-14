@@ -1,6 +1,8 @@
 package seen
 
-import "github.com/reactivego/seen/colors"
+import (
+	colors "github.com/reactivego/seen/color"
+)
 
 type LightKind string
 

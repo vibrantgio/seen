@@ -3,7 +3,7 @@ package render
 import (
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/affine"
-	"github.com/reactivego/seen/colors"
+	colors "github.com/reactivego/seen/color"
 )
 
 // RenderSurface contains the transformed and projected points as

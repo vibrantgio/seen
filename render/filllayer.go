@@ -1,6 +1,8 @@
 package render
 
-import "github.com/reactivego/seen/colors"
+import (
+	colors "github.com/reactivego/seen/color"
+)
 
 // FillLayer
 // implements RenderLayer

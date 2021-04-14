@@ -1,6 +1,8 @@
 package seen
 
-import "github.com/reactivego/seen/colors"
+import (
+	colors "github.com/reactivego/seen/color"
+)
 
 // Surface is a defined as a planar object in 3D space. These paths don't
 // necessarily need to be convex, but they should be non-degenerate. This

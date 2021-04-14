@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/reactivego/seen"
-	"github.com/reactivego/seen/colors"
+	colors "github.com/reactivego/seen/color"
 	"github.com/reactivego/seen/document"
 	"github.com/reactivego/seen/quat"
 	"github.com/reactivego/seen/render"
