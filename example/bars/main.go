@@ -23,13 +23,13 @@ const WidthDp = 900
 const HeightDp = 500
 
 func main() {
-	go Text()
+	go Bars()
 	app.Main()
 }
 
-func Text() {
+func Bars() {
 	window := app.NewWindow(
-		app.Title("Seen - Text"),
+		app.Title("Seen - Bars"),
 		app.Size(unit.Dp(WidthDp), unit.Dp(HeightDp)),
 		app.MinSize(unit.Dp(640), unit.Dp(480)),
 	)
