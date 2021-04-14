@@ -6,6 +6,9 @@ import "github.com/reactivego/seen/colors"
 // necessarily need to be convex, but they should be non-degenerate. This
 // library does not support shapes with holes.
 type Surface struct {
+	// Shape points to the shape to which this surface belongs.
+	*Shape
+
 	// Points contain a list of vertices of the planar polygon that defines the
 	// outline of the surface.
 	Points Points

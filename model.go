@@ -90,6 +90,7 @@ func (m *Model) Accept(v ModelVisitor) {
 			v.Push()
 			v.EnterShape(c)
 			for i := range c.Surfaces {
+				c.Surfaces[i].Shape = c
 				v.VisitSurface(&c.Surfaces[i])
 			}
 			v.LeaveShape(c)
