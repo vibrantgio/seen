@@ -41,16 +41,16 @@ var CubeMap = [...][]int{
 }
 
 // Cube returns a 2x2x2 cube, centered on the origin.
-func Cube() seen.Shape {
-	return seen.Shape{
+func Cube() *seen.Shape {
+	return &seen.Shape{
 		Type:      "cube",
 		Transform: seen.DefaultTransform,
 		Surfaces:  seen.SurfacesWith(CubePoints[:], CubeMap[:])}
 }
 
 // UnitCube returns a 1x1x1 cube from the origin [0,0,0] to [1, 1, 1].
-func UnitCube() seen.Shape {
-	return seen.Shape{
+func UnitCube() *seen.Shape {
+	return &seen.Shape{
 		Type:      "unitcube",
 		Transform: seen.DefaultTransform,
 		Surfaces:  seen.SurfacesWith(UnitCubePoints[:], CubeMap[:])}
@@ -58,7 +58,7 @@ func UnitCube() seen.Shape {
 
 // Returns an axis-aligned 3D rectangle whose boundaries are defined by the
 // two supplied points.
-func Rectangle(point1, point2 seen.Point) seen.Shape {
+func Rectangle(point1, point2 seen.Point) *seen.Shape {
 	compose := func(x, y, z func(float64, float64) float64) seen.Point {
 		return seen.Point{
 			X: x(point1.X, point2.X),
@@ -76,7 +76,7 @@ func Rectangle(point1, point2 seen.Point) seen.Shape {
 		compose(math.Max, math.Max, math.Min),
 		compose(math.Max, math.Max, math.Max),
 	}
-	return seen.Shape{
+	return &seen.Shape{
 		Type:      "rect",
 		Transform: seen.DefaultTransform,
 		Surfaces:  seen.SurfacesWith(points[:], CubeMap[:])}

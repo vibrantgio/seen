@@ -122,7 +122,7 @@ func TestDemoSimple(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	s.Model.Add(&icosahedron)
+	s.Model.Add(icosahedron)
 
 	// Add a cube to the scene
 	cube := shape.UnitCube()
@@ -134,7 +134,7 @@ func TestDemoSimple(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	s.Model.Add(&cube)
+	s.Model.Add(cube)
 
 	s.Viewport = seen.CenterViewport(0, 0, width, height)
 	// Add scene as a layer to the render context
@@ -177,7 +177,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		spheres = append(spheres, &sphere)
+		spheres = append(spheres, sphere)
 	}
 
 	// Create one scene for each shape
@@ -251,7 +251,7 @@ func TestDemoText(t *testing.T) {
 		uc.SetScale(20.0, d, 20.0)
 		uc.SetTranslation(float64(i)*30.0, 0, 0)
 		uc.SetFill("#0088FF")
-		scene.Model.Add(&uc)
+		scene.Model.Add(uc)
 	}
 
 	// Draw text above bars
@@ -266,7 +266,7 @@ func TestDemoText(t *testing.T) {
 		t.SetShowBackfaces(true)
 		t.SetTranslation(float64(i)*30+10, d+10, 10)
 		t.SetFill("#000000")
-		scene.Model.Add(&t)
+		scene.Model.Add(t)
 	}
 
 	// Create scene

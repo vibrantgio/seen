@@ -44,8 +44,8 @@ var IcosahedronMap = [...][]int{
 }
 
 // Icosahedron returns an icosahedron that fits within a 2x2x2 cube, centered on the origin.
-func Icosahedron() seen.Shape {
-	return seen.Shape{
+func Icosahedron() *seen.Shape {
+	return &seen.Shape{
 		Type:      "icosahedron",
 		Transform: seen.DefaultTransform,
 		Surfaces:  seen.SurfacesWith(IcosahedronPoints[:], IcosahedronMap[:])}
@@ -56,7 +56,7 @@ func Icosahedron() seen.Shape {
 // parameter, for every triangle of the original sphere 4*4= 16 triangles will
 // be introduced. A subdivision value of 3 will generate 64 and a value
 // of 4 will generated 256 triangles for every original triangle.
-func Sphere(subdivisions int) seen.Shape {
+func Sphere(subdivisions int) *seen.Shape {
 
 	triangles := make([][3]seen.Point, len(IcosahedronMap))
 	for i, coords := range IcosahedronMap {
@@ -92,5 +92,5 @@ func Sphere(subdivisions int) seen.Shape {
 		surfaces[i] = *seen.SurfaceWith(triangle[:])
 	}
 
-	return seen.Shape{Type: "sphere", Transform: seen.DefaultTransform, Surfaces: surfaces}
+	return &seen.Shape{Type: "sphere", Transform: seen.DefaultTransform, Surfaces: surfaces}
 }
