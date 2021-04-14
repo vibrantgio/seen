@@ -46,7 +46,8 @@ func (s *SceneLayer) Paint(painter Painter) {
 			// creation and recomputation.
 			if s.Regenerate {
 				// No caching
-				rs = RenderSurfaceWith(shape.Type, &surface, transform, projection, viewport)
+				surface.Shape = shape
+				rs = RenderSurfaceWith(&surface, transform, projection, viewport)
 			} else {
 				// Caching enabled, see if its present in the cache
 				if cs, ok := s.cache[surface.Id]; ok {
@@ -54,7 +55,8 @@ func (s *SceneLayer) Paint(painter Painter) {
 					rs = cs
 				}
 				// Create new RenderSurface and add to the cache
-				rs = RenderSurfaceWith(shape.Type, &surface, transform, projection, viewport)
+				surface.Shape = shape
+				rs = RenderSurfaceWith(&surface, transform, projection, viewport)
 				s.cache[surface.Id] = rs
 			}
 			// Test projected normal's z-coordinate for culling (if enabled).

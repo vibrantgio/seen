@@ -45,10 +45,10 @@ type RenderSurface struct {
 	Stroke *colors.Color
 }
 
-func RenderSurfaceWith(kind string, surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
+func RenderSurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
 	rs := &RenderSurface{}
 	// Assign the correct render function to the render model
-	if kind == "text" {
+	if surface.Shape.Type == "text" {
 		rs.Paint = rs.PaintText
 	} else {
 		rs.Paint = rs.PaintPath
