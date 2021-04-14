@@ -3,7 +3,7 @@ package render
 import (
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/affine"
-	colors "github.com/reactivego/seen/color"
+	"github.com/reactivego/seen/color"
 )
 
 // RenderSurface contains the transformed and projected points as
@@ -40,9 +40,9 @@ type RenderSurface struct {
 
 	InFrustum bool
 
-	Fill *colors.Color
+	Fill *color.Color
 
-	Stroke *colors.Color
+	Stroke *color.Color
 }
 
 func RenderSurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {

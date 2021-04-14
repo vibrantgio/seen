@@ -1,8 +1,6 @@
 package seen
 
-import (
-	colors "github.com/reactivego/seen/color"
-)
+import "github.com/reactivego/seen/color"
 
 type LightKind string
 
@@ -13,7 +11,7 @@ type Light struct {
 	Point Point
 
 	// Color is the color of the light.
-	Color colors.Color
+	Color color.Color
 
 	// Intensity should be a value between 0.0 and 1.0 that determines the
 	// ammount of light contributed by this light. An intensity of 0.0
@@ -29,7 +27,7 @@ func LightWith(kind LightKind) (l Light) {
 	l.Transform = DefaultTransform
 	l.Kind = kind
 	l.Point = PointZero
-	l.Color = colors.White
+	l.Color = color.White
 	l.Intensity = 0.5 // 0.01
 	l.Normal = Point{1, -1, -1}.Normalize()
 	l.Enabled = true
@@ -41,7 +39,7 @@ func LightWith(kind LightKind) (l Light) {
 type LightShaderData struct {
 	Kind      LightKind
 	Point     Point
-	Color     colors.Color
+	Color     color.Color
 	Intensity float64
 	Normal    Point
 }
@@ -83,7 +81,7 @@ func DefaultLights() []Transformable {
 	// Key light
 	key := DirectionalLight()
 	key.Normal = Point{-1, 1, 1}.Normalize()
-	key.Color = colors.ColorHsl(0.1, 0.3, 0.7, 1.0)
+	key.Color = color.ColorHsl(0.1, 0.3, 0.7, 1.0)
 	key.Intensity = 1.0 // 0.004
 
 	// Back light

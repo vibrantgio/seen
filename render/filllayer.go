@@ -1,8 +1,6 @@
 package render
 
-import (
-	colors "github.com/reactivego/seen/color"
-)
+import "github.com/reactivego/seen/color"
 
 // FillLayer
 // implements RenderLayer
@@ -12,7 +10,7 @@ type FillLayer struct {
 	Fill          string // fill: #EEE
 }
 
-func FillLayerWith(width, height, rx, ry float64, fill colors.Color) FillLayer {
+func FillLayerWith(width, height, rx, ry float64, fill color.Color) FillLayer {
 	return FillLayer{width, height, rx, ry, fill.Hex()}
 }
 

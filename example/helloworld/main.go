@@ -11,7 +11,7 @@ import (
 	"gioui.org/unit"
 
 	"github.com/reactivego/seen"
-	colors "github.com/reactivego/seen/color"
+	"github.com/reactivego/seen/color"
 	"github.com/reactivego/seen/quat"
 	"github.com/reactivego/seen/render"
 	"github.com/reactivego/seen/render/gio"
@@ -36,7 +36,7 @@ func HelloWorld() {
 	// Create sphere shape with randomly colored surfaces
 	shape := shape.Sphere(2)
 	shape.SetScale(HeightDp*0.4, HeightDp*0.4, HeightDp*0.4)
-	shape.SetColorFrom(colors.RandomSource2With(colors.Opacity(0.9)))
+	shape.SetColorFrom(color.RandomSource2With(color.Opacity(0.9)))
 
 	// Create scene and add shape to model
 	scene := seen.DefaultScene()

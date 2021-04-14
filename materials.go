@@ -1,13 +1,11 @@
 package seen
 
-import (
-	colors "github.com/reactivego/seen/color"
-)
+import "github.com/reactivego/seen/color"
 
 // Material objects hold the attributes that desribe the color and finish of a surface.
 type Material struct {
 	// The base color of the material.
-	Color colors.Color
+	Color color.Color
 
 	// Metallic property determines how the specular highlights are
 	// calculated. Normally, specular highlights are the color of the light
@@ -16,7 +14,7 @@ type Material struct {
 	Metallic bool
 
 	// The color used for specular highlights when `metallic` is true.
-	SpecularColor colors.Color
+	SpecularColor color.Color
 
 	// SpecularExponent determines how "shiny" the material is. A low
 	// exponent will create a low-intesity, diffuse specular shine. A high
@@ -39,25 +37,25 @@ func MaterialWith(source interface{}) (m *Material, err error) {
 	case *Material:
 		mc := *s
 		m = &mc
-	case colors.Color:
+	case color.Color:
 		m = &Material{
 			Color:            s,
-			SpecularColor:    colors.White,
+			SpecularColor:    color.White,
 			SpecularExponent: 15.0,
 		}
 	case string:
-		c, err := colors.ColorWithString(s)
+		c, err := color.ColorWithString(s)
 		if err == nil {
 			m = &Material{
 				Color:            c,
-				SpecularColor:    colors.White,
+				SpecularColor:    color.White,
 				SpecularExponent: 15.0,
 			}
 		}
 	default:
 		m = &Material{
-			Color:            colors.Grey,
-			SpecularColor:    colors.White,
+			Color:            color.Grey,
+			SpecularColor:    color.White,
 			SpecularExponent: 15.0,
 		}
 	}
@@ -66,13 +64,13 @@ func MaterialWith(source interface{}) (m *Material, err error) {
 
 // Render applies the shader's shading to this material, with the option to override
 // the shader with the material's shader (if defined).
-func (m *Material) Render(lights []LightShaderData, shader Shader, surface *SurfaceShaderData) colors.Color {
-	var color colors.Color
+func (m *Material) Render(lights []LightShaderData, shader Shader, surface *SurfaceShaderData) color.Color {
+	var fill color.Color
 	if m.Shader != nil {
-		color = m.Shader.Shade(lights, surface, m)
+		fill = m.Shader.Shade(lights, surface, m)
 	} else {
-		color = shader.Shade(lights, surface, m)
+		fill = shader.Shade(lights, surface, m)
 	}
-	color.A = m.Color.A
-	return color
+	fill.A = m.Color.A
+	return fill
 }

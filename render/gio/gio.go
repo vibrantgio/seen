@@ -26,7 +26,7 @@ import (
 
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/affine"
-	colors "github.com/reactivego/seen/color"
+	"github.com/reactivego/seen/color"
 	"github.com/reactivego/seen/render"
 )
 
@@ -272,7 +272,7 @@ func (p *PathPainter) Fill(style render.Style) {
 		}
 	}
 	if c, present := style["fill"]; present {
-		if fill, err := colors.ColorWithString(c); err == nil {
+		if fill, err := color.ColorWithString(c); err == nil {
 			fill.A = fillOpacity
 			paint.ColorOp{Color: fill.NRGBA()}.Add(p.Ops)
 		}
@@ -314,7 +314,7 @@ func (p *RectPainter) CornerRadius(rx, ry float64) {
 func (p *RectPainter) Fill(style render.Style) {
 	defer op.Save(p.Ops).Load()
 	if c, present := style["fill"]; present {
-		if fill, err := colors.ColorWithString(c); err == nil {
+		if fill, err := color.ColorWithString(c); err == nil {
 			paint.ColorOp{Color: fill.NRGBA()}.Add(p.Ops)
 		}
 	}
@@ -348,7 +348,7 @@ func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) 
 
 	font := RobotoNormal
 	size := 10
-	fill := colors.Black
+	fill := color.Black
 
 	if family, present := style["font-family"]; present {
 		font.Typeface = text.Typeface(family)
@@ -370,7 +370,7 @@ func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) 
 		}
 	}
 	if c, present := style["fill"]; present {
-		if f, err := colors.ColorWithString(c); err == nil {
+		if f, err := color.ColorWithString(c); err == nil {
 			fill = f
 		}
 	}

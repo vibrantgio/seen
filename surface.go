@@ -1,8 +1,6 @@
 package seen
 
-import (
-	colors "github.com/reactivego/seen/color"
-)
+import "github.com/reactivego/seen/color"
 
 // Surface is a defined as a planar object in 3D space. These paths don't
 // necessarily need to be convex, but they should be non-degenerate. This
@@ -86,7 +84,7 @@ type Surfaces []Surface
 
 // SetColorFrom sets a color on every surface by reading it from
 // the passed in colors.Source.
-func (s Surfaces) SetColorFrom(source colors.Source) (err error) {
+func (s Surfaces) SetColorFrom(source color.Source) (err error) {
 	err = nil
 	for i := range s {
 		if err = s[i].SetFill(source.Read()); err != nil {

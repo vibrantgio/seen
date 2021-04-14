@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/reactivego/seen"
-	colors "github.com/reactivego/seen/color"
+	"github.com/reactivego/seen/color"
 	"github.com/reactivego/seen/document"
 	"github.com/reactivego/seen/quat"
 	"github.com/reactivego/seen/render"
@@ -96,7 +96,7 @@ func TestDemoSimple(t *testing.T) {
 		return
 	}
 
-	blueish, _ := colors.ColorWithString("#eeddff")
+	blueish, _ := color.ColorWithString("#eeddff")
 	context := ContextWith(svg.GetElementById(svgId), render.FillLayerWith(width, height, 8, 8, blueish))
 	if context == nil {
 		t.Error("Expected to be able to create RenderContext")
@@ -110,7 +110,7 @@ func TestDemoSimple(t *testing.T) {
 	s.Camera = seen.DefaultCamera
 	s.Camera.SetTranslation(0, 0, -550)
 
-	source := colors.RandomSource2With(colors.Drift(0.03), colors.Sat(0.5))
+	source := color.RandomSource2With(color.Drift(0.03), color.Sat(0.5))
 
 	// Add icosahedron to the scene
 	icosahedron := shape.Icosahedron()
@@ -171,7 +171,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 		sphere := shape.Sphere(i)
 		scale := float64(height) * 0.4
 		sphere.SetScale(scale, scale, scale)
-		source := colors.RandomSource2With(colors.Drift(0.03), colors.Sat(0.5))
+		source := color.RandomSource2With(color.Drift(0.03), color.Sat(0.5))
 		err := sphere.SetColorFrom(source)
 		if err != nil {
 			t.Error(err)
