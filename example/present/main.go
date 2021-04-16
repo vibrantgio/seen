@@ -20,8 +20,8 @@ import (
 	"github.com/reactivego/seen/render/svg"
 )
 
-const WidthDp = 900
-const HeightDp = 500
+const WidthDp = 1024
+const HeightDp = 1024
 
 func main() {
 	go Present()
@@ -36,20 +36,30 @@ func Present() {
 	)
 
 	// Colors to use
-	lightblue := color.Color{R: 1.0 / 255, G: 202.0 / 255, B: 252.0 / 255, A: 1.0}
-	darkblue := color.Color{R: 0.0, G: 130.0 / 255, B: 193.0 / 255, A: 1.0}
-	blue, _ := color.ColorWithString("#cceeff")
+	lightblue := color.Color{R: 1.0 / 255.0, G: 202.0 / 255.0, B: 252.0 / 255.0, A: 1.0}
+	darkblue := color.Color{R: 0.0, G: 130.0 / 255.0, B: 193.0 / 255.0, A: 1.0}
+	hardblue, _ := color.ColorWithString("#cceeff")
 	lightgrey, _ := color.ColorWithString("#eeeeee")
+	lightorange := color.Color{R: 247.0 / 255.0, G: 148.0 / 255.0, B: 29.0 / 255.0, A: 1.0}
+	darkorange := color.Color{R: 224.0 / 255.0, G: 134.0 / 255.0, B: 26.0 / 255.0, A: 1.0}
+
+	_,_,_,_,_,_ = lightblue,darkblue,hardblue,lightgrey, lightorange, darkorange
+
+
+	backdropfill := color.White
+	curtainfill := color.White
+	boxfill := lightblue
+	ribbonfill := darkorange
 
 	// Box with a lid
 	box := Box()
-	box.SetFill(lightblue)
+	box.SetFill(boxfill)
 	box.SetScale(49, 49, 49)
 	box.SetTranslation(0, 0, 0)
 
 	// Ribbon around box
 	ribbon := Ribbon()
-	ribbon.SetFill(darkblue)
+	ribbon.SetFill(ribbonfill)
 	ribbon.SetScale(50, 50, 50)
 	ribbon.SetTranslation(0, 0, 0)
 
@@ -65,8 +75,8 @@ func Present() {
 	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create separate layers for the stage.
-	backdrop := render.FillLayerWith(WidthDp, HeightDp, 0, 0, blue)
-	curtain := render.FillLayerWith(WidthDp, HeightDp/2, 0, 0, lightgrey)
+	backdrop := render.FillLayerWith(WidthDp, HeightDp, 0, 0, backdropfill)
+	curtain := render.FillLayerWith(WidthDp, HeightDp/2, 0, 0, curtainfill)
 	foreground := bsp.SceneLayerWith(scene)
 
 	context := gio.ContextWith(window, backdrop, curtain, foreground)
