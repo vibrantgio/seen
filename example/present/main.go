@@ -1,14 +1,19 @@
 package main
 
 import (
+	"image"
+	"image/png"
+	"log"
 	"math"
 	"os"
 
 	"gioui.org/app"
 	"gioui.org/f32"
+	"gioui.org/gpu/headless"
 	"gioui.org/io/system"
 	"gioui.org/op"
 	"gioui.org/unit"
+	"golang.org/x/image/draw"
 
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/bsp"
@@ -43,8 +48,7 @@ func Present() {
 	lightorange := color.Color{R: 247.0 / 255.0, G: 148.0 / 255.0, B: 29.0 / 255.0, A: 1.0}
 	darkorange := color.Color{R: 224.0 / 255.0, G: 134.0 / 255.0, B: 26.0 / 255.0, A: 1.0}
 
-	_,_,_,_,_,_ = lightblue,darkblue,hardblue,lightgrey, lightorange, darkorange
-
+	_, _, _, _, _, _ = lightblue, darkblue, hardblue, lightgrey, lightorange, darkorange
 
 	backdropfill := color.White
 	curtainfill := color.White
@@ -98,29 +102,62 @@ func Present() {
 	})
 
 	ops := &op.Ops{}
+	ppd := float32(1.0)
 	for event := range window.Events() {
 		if frame, ok := event.(system.FrameEvent); ok {
 			ops.Reset()
-			ppd := frame.Metric.PxPerDp
+			ppd = frame.Metric.PxPerDp
 			op.Affine(f32.NewAffine2D(ppd, 0, 0, 0, ppd, 0)).Add(ops)
 			context.Draw(ops, frame.Queue)
 			frame.Frame(ops)
 		}
 	}
-	// Save the object to an svg file
+
+	// Save scene to png file
+	if window, err := headless.NewWindow(int(ppd*WidthDp), int(ppd*HeightDp)); err == nil {
+		window.Frame(ops)
+		if src, err := window.Screenshot(); err == nil {
+			dst := src
+			// Scale image when ppdp (pixels per device pixel) is not 1.0
+			if ppd != 1.0 {
+				sb := src.Bounds()
+				w, h := int(float32(sb.Dx())/ppd), int(float32(sb.Dy())/ppd)
+				dst := image.NewRGBA(image.Rect(sb.Min.X, sb.Min.Y, w, h))
+				draw.BiLinear.Scale(dst, dst.Bounds(), src, src.Bounds(), draw.Over, nil)
+			}
+			f, err := os.Create("present.png")
+			if err != nil {
+				log.Fatal(err)
+			}
+			if err := png.Encode(f, dst); err != nil {
+				f.Close()
+				log.Fatal(err)
+			}
+			if err := f.Close(); err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			log.Fatal(err)
+		}
+	} else {
+		log.Fatal(err)
+	}
+
+	// Save scene to svg file
 	svgdoc, err := document.MakeSVG("seen-svg", WidthDp, HeightDp)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	if context := svg.ContextWith(svgdoc.GetElementById("seen-svg"), backdrop, curtain, foreground); context != nil {
 		context.Render()
 	} else {
-		panic("Render context is nil")
+		log.Fatal("Render context is nil")
 	}
 	err = svgdoc.SaveToFile("present.svg")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+
 	os.Exit(0)
 }
 
