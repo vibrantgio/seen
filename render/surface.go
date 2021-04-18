@@ -149,8 +149,8 @@ func (rs *RenderSurface) PaintText(painter Painter) {
 	if anchor, present := rs.Surface.Options["anchor"]; present {
 		style["text-anchor"] = anchor
 	}
-	if length, present := rs.Surface.Options["textLength"]; present {
-		style["textLength"] = length
+	if length, present := rs.Surface.Options["inline-size"]; present {
+		style["inline-size"] = length
 	}
 	xform := affine.SolveForAffineTransform(rs.ProjectedPoints)
 	text := rs.Surface.Options["text"]

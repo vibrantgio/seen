@@ -382,18 +382,18 @@ func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) 
 			ax = 1.0
 		}
 	}
-	textLength := 2000
-	if tl, present := style["textLength"]; present {
-		if strings.HasSuffix(tl, "px") {
-			tl = tl[:len(tl)-2]
+	maxWidth := 2000
+	if sz, present := style["inline-size"]; present {
+		if strings.HasSuffix(sz, "px") {
+			sz = sz[:len(sz)-2]
 		}
-		if tl, err := strconv.Atoi(tl); err == nil {
-			textLength = tl
+		if sz, err := strconv.Atoi(sz); err == nil {
+			maxWidth = sz
 		}
 	}
 
-	// Layout the txt string given font and size and a MaxLineWidth
-	lines := shaper.LayoutString(font, fixed.I(size), textLength, txt)
+	// Layout the txt string given font, size and max width.
+	lines := shaper.LayoutString(font, fixed.I(size), maxWidth, txt)
 
 	// Determine the size of the layout rectangle dx,dy
 	dx, dy := float32(0), float32(0)

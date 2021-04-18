@@ -60,7 +60,7 @@ func Bars() {
 			"font-weight": "normal", // normal | bold
 			"font-size":   "10px",
 			"anchor":      "middle",
-			"textLength":  "200px",
+			"inline-size": "200px",
 		}
 		t := shape.Text(strconv.FormatFloat(d, 'f', 1, 64), opts)
 		t.SetShowBackfaces(true)
