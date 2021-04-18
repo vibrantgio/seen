@@ -347,9 +347,6 @@ func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) 
 	op.Affine(aff).Add(p.Ops)
 
 	font := RobotoNormal
-	size := 10
-	fill := color.Black
-
 	if family, present := style["font-family"]; present {
 		font.Typeface = text.Typeface(family)
 	}
@@ -361,6 +358,7 @@ func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) 
 			font.Weight = text.Bold
 		}
 	}
+	size := 10
 	if sz, present := style["font-size"]; present {
 		if strings.HasSuffix(sz, "px") {
 			sz = sz[:len(sz)-2]
@@ -369,6 +367,7 @@ func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) 
 			size = sz
 		}
 	}
+	fill := color.Black
 	if c, present := style["fill"]; present {
 		if f, err := color.ColorWithString(c); err == nil {
 			fill = f
