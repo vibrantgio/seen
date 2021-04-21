@@ -12,6 +12,9 @@ type BSP struct {
 }
 
 func (bsp *BSP) Display(eye Point, f func([]Plane)) {
+	if bsp == nil || len(bsp.Plane) == 0 {
+		return
+	}
 	if bsp.Plane[0].Normal.Dot(eye) < bsp.Plane[0].Normal.Dot(bsp.Plane[0].Barycenter) {
 		// eye in front of bsp.Plane
 		if bsp.Back != nil {
