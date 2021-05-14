@@ -27,7 +27,7 @@ type Material struct {
 	Shader Shader
 }
 
-// MaterialWith makes a material based on the given source paramter.
+// MaterialWith makes a material based on the given source parameter.
 // The source can be another Material, Color, or string containing a hex color representation.
 func MaterialWith(source interface{}) (m *Material, err error) {
 	err = nil
