@@ -36,9 +36,9 @@ var AmbientShader = Shader(Ambient)
 
 func Ambient(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
 	c := color.Black
-	for _, light := range lights {
-		if light.Kind == "ambient" {
-			c = applyAmbient(c, light)
+	for _, lsd := range lights {
+		if lsd.Kind == "ambient" {
+			c = c.AddChannels(lsd.Color)
 		}
 	}
 	return c.MultiplyChannels(material.Color).Clamp(0.0, 1.0)
@@ -46,22 +46,28 @@ func Ambient(lights []LightShaderData, surface *SurfaceShaderData, material *Mat
 
 // DiffusePhong shader implements the Phong shading model with a diffuse
 // and ambient term (no specular).
-var DiffusePhongShader = Shader(DiffusePhong)
+var DiffusePhongShader = Shader(PhongDiffuseOnly)
 
-func DiffusePhong(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
+// PhongDiffuseOnly applies diffuse phong shading
+func PhongDiffuseOnly(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
 	c := color.Black
 	for _, lsd := range lights {
 		switch lsd.Kind {
 		case "ambient":
-			c = applyAmbient(c, lsd)
+			c = c.AddChannels(lsd.Color)
 		case "directional":
-			c = applyDiffuse(c, lsd, lsd.Normal, surface.Normal, material)
+			dot := lsd.Normal.Dot(surface.Normal)
+			if dot > 0.0 {
+				c = c.AddChannels(lsd.Color.Scale(dot))
+			}
 		case "point":
-			lightNormal := lsd.Point.Subtract(surface.Barycenter).Normalize()
-			c = applyDiffuse(c, lsd, lightNormal, surface.Normal, material)
+			dot := lsd.Point.Subtract(surface.Barycenter).Normalize().Dot(surface.Normal)
+			if dot > 0.0 {
+				c = c.AddChannels(lsd.Color.Scale(dot))
+			}
 		}
 	}
-	return c.MultiplyChannels(material.Color).Clamp(0, 1.0)
+	return c.MultiplyChannels(material.Color).Clamp(0.0, 1.0)
 }
 
 // PhongShader implements the Phong shading model with a diffuse,
@@ -69,17 +75,33 @@ func DiffusePhong(lights []LightShaderData, surface *SurfaceShaderData, material
 // See https://en.wikipedia.org/wiki/Phong_reflection_model for more information
 var PhongShader = Shader(Phong)
 
+// Phong applies diffuse and specular phong shading.
 func Phong(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
+	apply := func(c color.Color, lsd LightShaderData, lightNormal, surfaceNormal Point, material *Material) color.Color {
+		dot := lightNormal.Dot(surfaceNormal)
+		if dot <= 0.0 {
+			return c
+		}
+
+		// Apply diffuse phong shading
+		c = c.AddChannels(lsd.Color.Scale(dot))
+
+		// Compute and apply specular phong shading
+		reflectionNormal := surfaceNormal.Scale(dot * 2.0).Subtract(lightNormal)
+		specularIntensity := math.Pow(0.5+reflectionNormal.Dot(PointZ), material.SpecularExponent) / 255.0
+		specularColor := material.SpecularColor.Scale(specularIntensity * lsd.Intensity)
+		return c.AddChannels(specularColor)
+	}
 	c := color.Black
 	for _, lsd := range lights {
 		switch lsd.Kind {
 		case "ambient":
-			c = applyAmbient(c, lsd)
+			c = c.AddChannels(lsd.Color)
 		case "directional":
-			c = applyDiffuseAndSpecular(c, lsd, lsd.Normal, surface.Normal, material)
+			c = apply(c, lsd, lsd.Normal, surface.Normal, material)
 		case "point":
 			lightNormal := lsd.Point.Subtract(surface.Barycenter).Normalize()
-			c = applyDiffuseAndSpecular(c, lsd, lightNormal, surface.Normal, material)
+			c = apply(c, lsd, lightNormal, surface.Normal, material)
 		}
 	}
 	c = c.MultiplyChannels(material.Color)
@@ -87,37 +109,4 @@ func Phong(lights []LightShaderData, surface *SurfaceShaderData, material *Mater
 		c = c.MinChannels(material.SpecularColor)
 	}
 	return c.Clamp(0, 1.0)
-}
-
-// applyAmbient applies ambient shading
-func applyAmbient(c color.Color, lsd LightShaderData) color.Color {
-	return c.AddChannels(lsd.Color)
-}
-
-// applyDiffuse applies diffuse phong shading
-func applyDiffuse(c color.Color, lsd LightShaderData, lightNormal, surfaceNormal Point, material *Material) color.Color {
-	dot := lightNormal.Dot(surfaceNormal)
-	if dot <= 0.0 {
-		return c
-	}
-
-	// Apply diffuse phong shading
-	return c.AddChannels(lsd.Color.Scale(dot))
-}
-
-// applyDiffuseAndSpecular applies diffuse phong shading and specular phong shading.
-func applyDiffuseAndSpecular(c color.Color, lsd LightShaderData, lightNormal, surfaceNormal Point, material *Material) color.Color {
-	dot := lightNormal.Dot(surfaceNormal)
-	if dot <= 0.0 {
-		return c
-	}
-
-	// Apply diffuse phong shading
-	c = c.AddChannels(lsd.Color.Scale(dot))
-
-	// Compute and apply specular phong shading
-	reflectionNormal := surfaceNormal.Scale(dot * 2.0).Subtract(lightNormal)
-	specularIntensity := math.Pow(0.5+reflectionNormal.Dot(PointZ), material.SpecularExponent) / 255.0
-	specularColor := material.SpecularColor.Scale(specularIntensity * lsd.Intensity)
-	return c.AddChannels(specularColor)
 }
