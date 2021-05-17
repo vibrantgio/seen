@@ -1,6 +1,10 @@
 package seen
 
-import "github.com/reactivego/seen/color"
+import (
+	"strconv"
+
+	"github.com/reactivego/seen/color"
+)
 
 // Surface is a defined as a planar object in 3D space. These paths don't
 // necessarily need to be convex, but they should be non-degenerate. This
@@ -112,6 +116,13 @@ func (s Surfaces) SetStroke(value interface{}) (err error) {
 		}
 	}
 	return
+}
+
+// SetStrokeWidth sets the supplied stroke-width option on each surface
+func (s Surfaces) SetStrokeWidth(value int) {
+	for i := range s {
+		s[i].Options["stroke-width"] = strconv.Itoa(value)
+	}
 }
 
 // SetShowBackfaces will set the ShowBackfaces bool on the surfaces.

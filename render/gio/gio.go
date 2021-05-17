@@ -290,7 +290,34 @@ func (p *PathPainter) Fill(style render.Style) {
 
 // Stroke the outline of the path.
 // Key "stroke-width" is supported in style.
-func (p *PathPainter) Stroke(render.Style) {
+func (p *PathPainter) Stroke(style render.Style) {
+	if len(p.Points) == 0 {
+		return
+	}
+	defer op.Save(p.Ops).Load()
+	strokeWidth := 1
+	if sw, present := style["stroke-width"]; present {
+		if strings.HasSuffix(sw, "px") {
+			sw = sw[:len(sw)-2]
+		}
+		if sw, err := strconv.Atoi(sw); err == nil {
+			strokeWidth = sw
+		}
+	}
+	if c, present := style["stroke"]; present {
+		if stroke, err := color.ColorWithString(c); err == nil {
+			paint.ColorOp{Color: stroke.NRGBA()}.Add(p.Ops)
+		}
+	}
+	var path clip.Path
+	path.Begin(p.Ops)
+	path.MoveTo(p.Points[0])
+	for _, p := range p.Points[1:] {
+		path.LineTo(p)
+	}
+	path.Close()
+	clip.Stroke{Path: path.End(), Style: clip.StrokeStyle{Width: float32(strokeWidth)}}.Op().Add(p.Ops)
+	paint.PaintOp{}.Add(p.Ops)
 }
 
 // RectPainter
