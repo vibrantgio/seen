@@ -23,12 +23,17 @@ type Light struct {
 	Enabled bool
 }
 
+const DefaultIntensity = 255 * 0.01 // 2.55
+const KeyIntensity = 255 * 0.004    // 1.0
+const BackIntesity = 255 * 0.003    // 0.765
+const FillIntensity = 255 * 0.0015  // 0.3825
+
 func LightWith(kind LightKind) (l Light) {
 	l.Transform = DefaultTransform
 	l.Kind = kind
 	l.Point = PointZero
 	l.Color = color.White
-	l.Intensity = 0.5 // 0.01
+	l.Intensity = DefaultIntensity
 	l.Normal = Point{1, -1, -1}.Normalize()
 	l.Enabled = true
 	return
@@ -82,16 +87,16 @@ func DefaultLights() []Transformable {
 	key := DirectionalLight()
 	key.Normal = Point{-1, 1, 1}.Normalize()
 	key.Color = color.ColorHsl(0.1, 0.3, 0.7, 1.0)
-	key.Intensity = 1.0 // 0.004
+	key.Intensity = KeyIntensity
 
 	// Back light
 	back := DirectionalLight()
 	back.Normal = Point{1, 1, -1}.Normalize()
-	back.Intensity = 0.765 // 0.003
+	back.Intensity = BackIntesity
 
 	// Fill light
 	fill := AmbientLight()
-	fill.Intensity = 0.3825 // 0.0015
+	fill.Intensity = FillIntensity
 
 	return []Transformable{&key, &back, &fill}
 }
