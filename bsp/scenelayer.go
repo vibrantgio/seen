@@ -54,7 +54,7 @@ func (s *SceneLayer) Paint(painter render.Painter) {
 				if !rs.Surface.ShowBackfaces {
 					ed := plane[i].Normal.Dot(eye)
 					pd := plane[i].Normal.Dot(plane[i].Barycenter)
-					if float.Equal(ed, pd) && ed < pd {
+					if !float.Equal(ed, pd) && ed < pd {
 						continue
 					}
 				}
