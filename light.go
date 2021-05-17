@@ -2,7 +2,13 @@ package seen
 
 import "github.com/reactivego/seen/color"
 
-type LightKind string
+type LightKind int
+
+const (
+	AmbientKind LightKind = iota
+	PointKind
+	DirectionalKind
+)
 
 // Light object holds the attributes and transformation of a light source.
 type Light struct {
@@ -28,7 +34,7 @@ const KeyIntensity = 255 * 0.004    // 1.0
 const BackIntesity = 255 * 0.003    // 0.765
 const FillIntensity = 255 * 0.0015  // 0.3825
 
-func LightWith(kind LightKind) (l Light) {
+func LightOf(kind LightKind) (l Light) {
 	l.Transform = DefaultTransform
 	l.Kind = kind
 	l.Point = PointZero
@@ -63,8 +69,9 @@ func (l Light) ShaderData(transform Matrix) (lsd LightShaderData) {
 // PointLight is a Light that emits light in all directions from a single point.
 // The Point property determines the location of the point light. Note,
 // though, that it may also be moved through the transformation of the light.
+// A point light is also called an "Omni" light in some 3D editors.
 func PointLight() Light {
-	return LightWith(LightKind("point"))
+	return LightOf(PointKind)
 }
 
 // DirectionalLight is a light that emits light in parallel lines,
@@ -72,13 +79,13 @@ func PointLight() Light {
 // property is used to determine the direction of the light. This may also
 // be transformed.
 func DirectionalLight() Light {
-	return LightWith(LightKind("directional"))
+	return LightOf(DirectionalKind)
 }
 
 // AmbientLight is a light that emits a constant amount of light
 // everywhere at once. Transformation of the light has no effect.
 func AmbientLight() Light {
-	return LightWith(LightKind("ambient"))
+	return LightOf(AmbientKind)
 }
 
 // DefaultLights are a set of lights to setup a standard Hollywood-style 3-part lighting

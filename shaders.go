@@ -37,7 +37,7 @@ var AmbientShader = Shader(Ambient)
 func Ambient(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
 	c := color.Black
 	for _, lsd := range lights {
-		if lsd.Kind == "ambient" {
+		if lsd.Kind == AmbientKind {
 			c = c.AddChannels(lsd.Color)
 		}
 	}
@@ -53,14 +53,14 @@ func PhongDiffuseOnly(lights []LightShaderData, surface *SurfaceShaderData, mate
 	c := color.Black
 	for _, lsd := range lights {
 		switch lsd.Kind {
-		case "ambient":
+		case AmbientKind:
 			c = c.AddChannels(lsd.Color)
-		case "directional":
+		case DirectionalKind:
 			dot := lsd.Normal.Dot(surface.Normal)
 			if dot > 0.0 {
 				c = c.AddChannels(lsd.Color.Scale(dot))
 			}
-		case "point":
+		case PointKind:
 			dot := lsd.Point.Subtract(surface.Barycenter).Normalize().Dot(surface.Normal)
 			if dot > 0.0 {
 				c = c.AddChannels(lsd.Color.Scale(dot))
@@ -95,11 +95,11 @@ func Phong(lights []LightShaderData, surface *SurfaceShaderData, material *Mater
 	c := color.Black
 	for _, lsd := range lights {
 		switch lsd.Kind {
-		case "ambient":
+		case AmbientKind:
 			c = c.AddChannels(lsd.Color)
-		case "directional":
+		case DirectionalKind:
 			c = apply(c, lsd, lsd.Normal, surface.Normal, material)
-		case "point":
+		case PointKind:
 			lightNormal := lsd.Point.Subtract(surface.Barycenter).Normalize()
 			c = apply(c, lsd, lightNormal, surface.Normal, material)
 		}
