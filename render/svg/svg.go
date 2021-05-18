@@ -198,7 +198,7 @@ func MakeSvgPathPainter(elementFactory func(tag string) *document.Element) *SvgP
 func (p *SvgPathPainter) Path(points []seen.Point) {
 	str := "M"
 	for _, point := range points {
-		str += render.Fjoin(point.X, point.Y) + "L"
+		str += Fjoin(point.X, point.Y) + "L"
 	}
 	p.attributes["d"] = str[:len(str)-1]
 }
@@ -216,7 +216,7 @@ func (p *SvgTextPainter) FillText(t affine.Matrix, text string, style render.Sty
 	el := p.elementFactory(p.svgTag)
 
 	// set the transform attribute given the matrix m
-	el.SetAttribute("transform", "matrix("+render.Fjoin(t.A, t.B, t.C, t.D, t.E, t.F)+")")
+	el.SetAttribute("transform", "matrix("+Fjoin(t.A, t.B, t.C, t.D, t.E, t.F)+")")
 
 	// serialize the style map.
 	str := ""
@@ -248,11 +248,11 @@ func MakeSvgRectPainter(elementFactory func(tag string) *document.Element) *SvgR
 }
 
 func (p *SvgRectPainter) Size(width, height float64) {
-	p.attributes["width"] = render.Ftoa(width)
-	p.attributes["height"] = render.Ftoa(height)
+	p.attributes["width"] = Ftoa(width)
+	p.attributes["height"] = Ftoa(height)
 }
 
 func (p *SvgRectPainter) CornerRadius(rx, ry float64) {
-	p.attributes["rx"] = render.Ftoa(rx)
-	p.attributes["ry"] = render.Ftoa(ry)
+	p.attributes["rx"] = Ftoa(rx)
+	p.attributes["ry"] = Ftoa(ry)
 }

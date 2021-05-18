@@ -1,6 +1,8 @@
 package render
 
 import (
+	"strconv"
+
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/affine"
 	"github.com/reactivego/seen/color"
@@ -108,7 +110,7 @@ func (rs *RenderSurface) PaintPath(painter Painter) {
 	if rs.Fill != nil {
 		path.Fill(map[string]string{
 			"fill":         rs.Fill.Hex(),
-			"fill-opacity": Ftoa(rs.Fill.A),
+			"fill-opacity": strconv.FormatFloat(rs.Fill.A, 'f', -1, 64),
 		})
 	}
 
