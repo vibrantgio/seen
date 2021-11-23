@@ -27,6 +27,8 @@ import (
 
 const WidthDp = 1024
 const HeightDp = 1024
+const MinWidthDp = 1024
+const MinHeightDp = 1024
 
 func main() {
 	go Present()
@@ -37,7 +39,7 @@ func Present() {
 	window := app.NewWindow(
 		app.Title("Seen - Present"),
 		app.Size(unit.Dp(WidthDp), unit.Dp(HeightDp)),
-		app.MinSize(unit.Dp(WidthDp), unit.Dp(HeightDp)),
+		app.MinSize(unit.Dp(MinWidthDp), unit.Dp(MinHeightDp)),
 	)
 
 	// Colors to use
@@ -55,33 +57,76 @@ func Present() {
 	boxfill := lightblue
 	ribbonfill := darkorange
 
-	// Box with a lid
-	box := Box()
-	box.SetFill(boxfill)
-	box.SetScale(49, 49, 49)
-	box.SetTranslation(0, 0, 0)
+	// QuartRibbon
+	qrib := QuartRibbon()
+	qrib.SetFill(ribbonfill)
+	qrib.SetStroke(ribbonfill)
+	qrib.SetScale(50, 50, 50)
 
-	// Ribbon around box
-	ribbon := Ribbon()
-	ribbon.SetFill(ribbonfill)
-	ribbon.SetScale(50, 50, 50)
-	ribbon.SetTranslation(0, 0, 0)
+	qrib2 := QuartRibbon()
+	qrib2.SetFill(ribbonfill)
+	qrib2.SetStroke(ribbonfill)
+	qrib2.SetScale(50, 50, 50)
+	qrib2.SetRotation(quat.RotY(math.Pi / 2.0))
+
+	qrib3 := QuartRibbon()
+	qrib3.SetFill(ribbonfill)
+	qrib3.SetStroke(ribbonfill)
+	qrib3.SetScale(50, 50, 50)
+	qrib3.SetRotation(quat.RotY(math.Pi))
+
+	qrib4 := QuartRibbon()
+	qrib4.SetFill(ribbonfill)
+	qrib4.SetStroke(ribbonfill)
+	qrib4.SetScale(50, 50, 50)
+	qrib4.SetRotation(quat.RotY(-math.Pi / 2.0))
+
+	qcorn := QuartCorner()
+	qcorn.SetFill(boxfill)
+	qcorn.SetStroke(boxfill)
+	qcorn.SetScale(50, 50, 50)
+
+	qcorn2 := QuartCorner()
+	qcorn2.SetFill(boxfill)
+	qcorn2.SetStroke(boxfill)
+	qcorn2.SetScale(50, 50, 50)
+	qcorn2.SetRotation(quat.RotY(math.Pi / 2.0))
+
+	qcorn3 := QuartCorner()
+	qcorn3.SetFill(boxfill)
+	qcorn3.SetStroke(boxfill)
+	qcorn3.SetScale(50, 50, 50)
+	qcorn3.SetRotation(quat.RotY(math.Pi))
+
+	qcorn4 := QuartCorner()
+	qcorn4.SetFill(boxfill)
+	qcorn4.SetStroke(boxfill)
+	qcorn4.SetScale(50, 50, 50)
+	qcorn4.SetRotation(quat.RotY(1.5 * math.Pi))
 
 	// Present is a box with a lid and a ribbon around it
-	present := seen.GroupWith(box, ribbon)
+	//present := seen.GroupWith(box , ribbon)
+	present := seen.GroupWith(qrib, qrib2, qrib3, qrib4, qcorn, qcorn2, qcorn3, qcorn4)
 	present.SetRotation(quat.RotX(0.25 * math.Pi).RotY(-0.25 * math.Pi))
 
 	// Create scene and add shape to group
 	scene := seen.DefaultScene()
+	scene.Shader = seen.PhongShader
 	scene.FractionalPoints = true
 	scene.Group.Add(present)
-	scene.Group.SetScale(2, 2, 2)
+	scene.Group.SetScale(3, 3, 3)
 	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create separate layers for the stage.
 	backdrop := render.FillLayerWith(WidthDp, HeightDp, 0, 0, backdropfill)
 	curtain := render.FillLayerWith(WidthDp, HeightDp/2, 0, 0, curtainfill)
-	foreground := bsp.SceneLayerWith(scene)
+
+	var foreground render.RenderLayer
+	if true {
+		foreground = bsp.SceneLayerWith(scene)
+	} else {
+		foreground = render.SceneLayerWith(scene)
+	}
 
 	context := gio.ContextWith(window, backdrop, curtain, foreground)
 
@@ -161,127 +206,117 @@ func Present() {
 	os.Exit(0)
 }
 
-var BoxPoints = [...]seen.Point{
-	// lid
-	0: {X: -1, Y: 0.75, Z: -1},
-	1: {X: -1, Y: 0.75, Z: 1},
-	2: {X: -1, Y: 1, Z: -1},
-	3: {X: -1, Y: 1, Z: 1},
-	4: {X: 1, Y: 0.75, Z: -1},
-	5: {X: 1, Y: 0.75, Z: 1},
-	6: {X: 1, Y: 1, Z: -1},
-	7: {X: 1, Y: 1, Z: 1},
-	// box
-	8:  {X: -0.9, Y: -1, Z: -0.9},   // 0'
-	9:  {X: -0.9, Y: -1, Z: 0.9},    // 1'
-	10: {X: -0.9, Y: 0.75, Z: -0.9}, // 2'
-	11: {X: -0.9, Y: 0.75, Z: 0.9},  // 3'
-	12: {X: 0.9, Y: -1, Z: -0.9},    // 4'
-	13: {X: 0.9, Y: -1, Z: 0.9},     // 5'
-	14: {X: 0.9, Y: 0.75, Z: -0.9},  // 6'
-	15: {X: 0.9, Y: 0.75, Z: 0.9},   // 7'
+const chamfer = 0.015
+
+var QuartRibbonPoints = [...]seen.Point{
+	// lid-top
+	0: {X: 0, Y: 1, Z: 0},
+	1: {X: 0.2, Y: 1, Z: -0.2},
+	2: {X: 0.2, Y: 1, Z: 0.2},
+	3: {X: 1.0 - chamfer, Y: 1, Z: -0.2},
+	4: {X: 1.0 - chamfer, Y: 1, Z: 0.2},
+	// lid-top-chamfer
+	5: {X: 1.0, Y: 1.0 - chamfer, Z: -0.2},
+	6: {X: 1.0, Y: 1.0 - chamfer, Z: 0.2},
+	// lid-side
+	7: {X: 1.0, Y: 0.7 + chamfer, Z: -0.2},
+	8: {X: 1.0, Y: 0.7 + chamfer, Z: 0.2},
+	// lid-bottom-chamfer
+	9:  {X: 1.0 - chamfer, Y: 0.7, Z: -0.2},
+	10: {X: 1.0 - chamfer, Y: 0.7, Z: 0.2},
+	// lid-bottom
+	11: {X: 0.85, Y: 0.7, Z: -0.2},
+	12: {X: 0.85, Y: 0.7, Z: 0.2},
+	// side
+	13: {X: 0.85, Y: -1, Z: -0.2},
+	14: {X: 0.85, Y: -1, Z: 0.2},
+	// bottom
+	15: {X: 0.2, Y: -1, Z: -0.2},
+	16: {X: 0.2, Y: -1, Z: 0.2},
+	17: {X: 0, Y: -1, Z: 0},
 }
 
-// Map to points in the surfaces of a cube
-var BoxMap = [...][]int{
-	// lid
-	{0, 1, 3, 2}, // left
-	{5, 4, 6, 7}, // right
-	{2, 3, 7, 6}, // top
-	{3, 1, 5, 7}, // front
-	{0, 2, 6, 4}, // back
-	// Lid-bottom & box-top
-	{0, 2 + 8, 3 + 8, 1}, // a
-	{0, 4, 6 + 8, 2 + 8}, // b
-	{4, 5, 7 + 8, 6 + 8}, // c
-	{1, 3 + 8, 7 + 8, 5}, // d
-	// box
-	{0 + 8, 1 + 8, 3 + 8, 2 + 8}, // left'
-	{5 + 8, 4 + 8, 6 + 8, 7 + 8}, // right'
-	{3 + 8, 1 + 8, 5 + 8, 7 + 8}, // front'
-	{0 + 8, 2 + 8, 6 + 8, 4 + 8}, // back'
-	{1 + 8, 0 + 8, 4 + 8, 5 + 8}, // bottom'
+var QuartRibbonMap = [...][]int{
+	0: {1, 0, 2, 4, 3},      // lid-top
+	1: {3, 4, 6, 5},         // lid-top-chamfer
+	2: {5, 6, 8, 7},         // lid-side
+	3: {7, 8, 10, 9},        // lid-bottom-chamfer
+	4: {9, 10, 12, 11},      // lid-bottom
+	5: {11, 12, 14, 13},     // side
+	6: {13, 14, 16, 17, 15}, // bottom
 }
 
-func Box() *seen.Shape {
+func QuartRibbon() *seen.Shape {
 	return &seen.Shape{
-		Type:      "box",
+		Type:      "qribbon",
 		Transform: seen.DefaultTransform,
-		Surfaces:  seen.SurfacesWith(BoxPoints[:], BoxMap[:]),
+		Surfaces:  seen.SurfacesWith(QuartRibbonPoints[:], QuartRibbonMap[:]),
 	}
 }
 
-var RibbonPoints = [...]seen.Point{
-	0:  {X: 1.0, Y: 1.0, Z: 0.2},
-	1:  {X: 1.0, Y: 1.0, Z: -0.2},
-	2:  {X: 0.2, Y: 1.0, Z: -1.0},
-	3:  {X: -0.2, Y: 1.0, Z: -1.0},
-	4:  {X: -1.0, Y: 1.0, Z: -0.2},
-	5:  {X: -1.0, Y: 1.0, Z: 0.2},
-	6:  {X: -0.2, Y: 1.0, Z: 1.0},
-	7:  {X: 0.2, Y: 1.0, Z: 1.0},
-	8:  {X: 0.2, Y: 1.0, Z: 0.2},
-	9:  {X: 0.2, Y: 1.0, Z: -0.2},
-	10: {X: -0.2, Y: 1.0, Z: -0.2},
-	11: {X: -0.2, Y: 1.0, Z: 0.2},
+var QuartCornerPoints = [...]seen.Point{
+	// lid top
+	0: {X: 0.2, Y: 1, Z: 1.0 - chamfer},
+	1: {X: 0.2, Y: 1, Z: 0.2},
+	2: {X: 1.0 - chamfer, Y: 1, Z: 1.0 - chamfer},
+	3: {X: 1.0 - chamfer, Y: 1, Z: 0.2},
+	// chamfer
+	4: {X: 1.0, Y: 1 - chamfer, Z: 1.0 - chamfer},
+	5: {X: 1.0, Y: 1 - chamfer, Z: 0.2},
+	// lid side
+	6: {X: 1.0, Y: 0.7 + chamfer, Z: 1.0 - chamfer},
+	7: {X: 1.0, Y: 0.7 + chamfer, Z: 0.2},
+	// chamfer
+	8: {X: 1.0 - chamfer, Y: 0.7, Z: 1.0 - chamfer},
+	9: {X: 1.0 - chamfer, Y: 0.7, Z: 0.2},
+	// lid bottom
+	10: {X: 0.85, Y: 0.7, Z: 0.85},
+	11: {X: 0.85, Y: 0.7, Z: 0.2},
+	// box side
+	12: {X: 0.85, Y: -1.0, Z: 0.85},
+	13: {X: 0.85, Y: -1.0, Z: 0.2},
+	// box bottom
+	14: {X: 0.2, Y: -1, Z: 0.85},
+	15: {X: 0.2, Y: -1, Z: 0.2},
+	//
+	16: {X: 0.2, Y: 1 - chamfer, Z: 1.0},
+	17: {X: 1.0 - chamfer, Y: 1 - chamfer, Z: 1.0},
+	//
+	18: {X: 0.2, Y: 0.7 + chamfer, Z: 1.0},
+	19: {X: 1.0 - chamfer, Y: 0.7 + chamfer, Z: 1.0},
+	//
+	20: {X: 0.2, Y: 0.7, Z: 1.0 - chamfer},
+	21: {X: 1.0 - chamfer, Y: 0.7, Z: 1.0 - chamfer},
+	//
+	22: {X: 0.2, Y: 0.7, Z: 0.85},
+	23: {X: 0.85, Y: 0.7, Z: 0.85},
+	//
+	24: {X: 0.2, Y: -1, Z: 0.85},
+	25: {X: 0.85, Y: -1, Z: 0.85},
 }
 
-func Ribbon() *seen.Shape {
-	points := RibbonPoints[:]
-	for i := range RibbonPoints {
-		p := RibbonPoints[i]
-		p.Y *= -1.0
-		points = append(points, p)
-	}
+var QuartCornerMap = [...][]int{
+	0:  {1, 0, 2, 3},
+	1:  {3, 2, 4, 5},
+	2:  {5, 4, 6, 7},
+	3:  {7, 6, 8, 9},
+	4:  {9, 8, 10, 11},
+	5:  {11, 10, 12, 13},
+	6:  {13, 12, 14, 15},
+	7:  {2, 0, 16, 17},
+	8:  {17, 16, 18, 19},
+	9:  {19, 18, 20, 21},
+	10: {21, 20, 22, 23},
+	11: {23, 22, 24, 25},
+	12: {2, 17, 4},
+	13: {4, 17, 19, 6},
+	14: {6, 19, 8},
+}
 
-	faces := [][]int(nil)
-	face := func(p ...int) {
-		faces = append(faces, p)
-	}
-	extrude := func(p, q int, d seen.Point) (r, s int) {
-		points = append(points, points[p].Add(d))
-		r = len(points) - 1
-		points = append(points, points[q].Add(d))
-		s = len(points) - 1
-		face(p, q, s, r)
-		return
-	}
-	move := func(n, o, p, q int, d seen.Point) (r, s, t, u int) {
-		points = append(points, points[n].Add(d))
-		r = len(points) - 1
-		points = append(points, points[o].Add(d))
-		s = len(points) - 1
-		points = append(points, points[p].Add(d))
-		t = len(points) - 1
-		points = append(points, points[q].Add(d))
-		u = len(points) - 1
-		return
-	}
-
-	face(0, 1, 9, 2, 3, 10, 4, 5, 11, 6, 7, 8)
-
-	p1, p0 := extrude(1, 0, seen.Pt(0.0, -0.30, 0.0))
-	p1, p0 = extrude(p1, p0, seen.Pt(-0.1, 0.0, 0.0))
-	p1, p0 = extrude(p1, p0, seen.Pt(0.0, -1.70, 0.0))
-
-	p3, p2 := extrude(3, 2, seen.Pt(0.0, -0.30, 0.0))
-	p3, p2 = extrude(p3, p2, seen.Pt(0.0, 0.0, 0.1))
-	p3, p2 = extrude(p3, p2, seen.Pt(0.0, -1.70, 0.0))
-
-	p5, p4 := extrude(5, 4, seen.Pt(0.0, -0.30, 0.0))
-	p5, p4 = extrude(p5, p4, seen.Pt(0.1, 0.0, 0.0))
-	p5, p4 = extrude(p5, p4, seen.Pt(0.0, -1.70, 0.0))
-
-	p7, p6 := extrude(7, 6, seen.Pt(0.0, -0.30, 0.0))
-	p7, p6 = extrude(p7, p6, seen.Pt(0.0, 0.0, -0.1))
-	p7, p6 = extrude(p7, p6, seen.Pt(0.0, -1.70, 0.0))
-
-	p8, p9, p10, p11 := move(8, 9, 10, 11, seen.Pt(0.0, -2.0, 0.0))
-	face(p1, p0, p8, p7, p6, p11, p5, p4, p10, p3, p2, p9)
-
+func QuartCorner() *seen.Shape {
 	return &seen.Shape{
-		Type:      "ribbon",
+		Type:      "qcorner",
 		Transform: seen.DefaultTransform,
-		Surfaces:  seen.SurfacesWith(points, faces),
+		Surfaces:  seen.SurfacesWith(QuartCornerPoints[:], QuartCornerMap[:]),
 	}
 }
