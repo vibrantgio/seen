@@ -13,8 +13,8 @@ import (
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/color"
 	"github.com/reactivego/seen/quat"
-	"github.com/reactivego/seen/render"
 	"github.com/reactivego/seen/render/gio"
+	"github.com/reactivego/seen/render/zsort"
 	"github.com/reactivego/seen/shape"
 )
 
@@ -45,7 +45,7 @@ func HelloWorld() {
 	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create a render layer and render context
-	layer := render.SceneLayerWith(scene)
+	layer := zsort.LayerWith(scene)
 	context := gio.ContextWith(window, layer)
 
 	// Slowly rotate sphere

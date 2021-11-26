@@ -14,6 +14,7 @@ import (
 	"github.com/reactivego/seen/document"
 	"github.com/reactivego/seen/quat"
 	"github.com/reactivego/seen/render"
+	"github.com/reactivego/seen/render/zsort"
 	"github.com/reactivego/seen/shape"
 )
 
@@ -68,7 +69,7 @@ func TestDemoEmpty(t *testing.T) {
 	}
 
 	scene := seen.EmptyScene()
-	l := render.SceneLayerWith(scene)
+	l := zsort.LayerWith(scene)
 	if l == nil {
 		t.Error("unable to create scene layer")
 		return
@@ -138,7 +139,7 @@ func TestDemoSimple(t *testing.T) {
 
 	s.Viewport = seen.CenterViewport(0, 0, width, height)
 	// Add scene as a layer to the render context
-	context.Layers(render.SceneLayerWith(s))
+	context.Layers(zsort.LayerWith(s))
 
 	// Actually render the scene on the context
 	context.Render()
@@ -181,14 +182,14 @@ func TestDemoSvgCanvas(t *testing.T) {
 	}
 
 	// Create one scene for each shape
-	scenes := []*render.SceneLayer{}
+	scenes := []*zsort.SceneLayer{}
 	for _, sphere := range spheres {
 		scene := seen.DefaultScene()
 		scene.Shader = seen.PhongShader
 		scene.FractionalPoints = true
 		scene.Group.Add(sphere)
 		scene.Viewport = seen.CenterViewport(0, 0, width, height)
-		scenes = append(scenes, render.SceneLayerWith(scene))
+		scenes = append(scenes, zsort.LayerWith(scene))
 	}
 
 	// Create a render context for each SVG and Canvas
@@ -276,7 +277,7 @@ func TestDemoText(t *testing.T) {
 	scene.Camera.SetRotation(quat.AxisAngle(0.1, 1, 0, math.Pi*0.2))
 
 	// Create render context from canvas
-	context := ContextWith(svg.GetElementById("seen-svg"), render.SceneLayerWith(scene))
+	context := ContextWith(svg.GetElementById("seen-svg"), zsort.LayerWith(scene))
 	if context == nil {
 		t.Error("Render context is nil")
 		return

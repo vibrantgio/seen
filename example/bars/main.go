@@ -75,7 +75,7 @@ func Bars() {
 	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create a render layer and render context
-	layer := bsp.SceneLayerWith(scene)
+	layer := bsp.LayerWith(scene)
 	layer.FractionalPoints = true
 	context := gio.ContextWith(window, layer)
 

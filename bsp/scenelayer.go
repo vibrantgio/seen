@@ -20,7 +20,7 @@ type SceneLayer struct {
 	cache    SurfaceCache
 }
 
-func SceneLayerWith(scene *seen.Scene) *SceneLayer {
+func LayerWith(scene *seen.Scene) *SceneLayer {
 	return &SceneLayer{
 		Scene:    scene,
 		surfaces: make([]*render.RenderSurface, 0, 32),

@@ -23,6 +23,7 @@ import (
 	"github.com/reactivego/seen/render"
 	"github.com/reactivego/seen/render/gio"
 	"github.com/reactivego/seen/render/svg"
+	"github.com/reactivego/seen/render/zsort"
 )
 
 const WidthDp = 1024
@@ -123,9 +124,9 @@ func Present() {
 
 	var foreground render.Layer
 	if true {
-		foreground = bsp.SceneLayerWith(scene)
+		foreground = bsp.LayerWith(scene)
 	} else {
-		foreground = render.SceneLayerWith(scene)
+		foreground = zsort.LayerWith(scene)
 	}
 
 	context := gio.ContextWith(window, backdrop, curtain, foreground)
