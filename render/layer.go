@@ -1,6 +1,6 @@
 package render
 
-// RenderLayer
-type RenderLayer interface {
+// Layer
+type Layer interface {
 	Paint(Painter)
 }

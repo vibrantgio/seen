@@ -121,7 +121,7 @@ func Present() {
 	backdrop := render.FillLayerWith(WidthDp, HeightDp, 0, 0, backdropfill)
 	curtain := render.FillLayerWith(WidthDp, HeightDp/2, 0, 0, curtainfill)
 
-	var foreground render.RenderLayer
+	var foreground render.Layer
 	if true {
 		foreground = bsp.SceneLayerWith(scene)
 	} else {

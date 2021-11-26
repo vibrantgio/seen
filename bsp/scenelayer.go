@@ -8,7 +8,7 @@ import (
 
 // SceneLayer extends seen.Scene with a function to paint the
 // the scene on a Painter. By implementing this function the
-// SceneLayer implements the RenderLayer interface.
+// SceneLayer implements the render.Layer interface.
 type SceneLayer struct {
 	*seen.Scene
 

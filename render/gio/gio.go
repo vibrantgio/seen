@@ -77,7 +77,7 @@ type Context struct {
 }
 
 // ContextWith creates a render context for the given op.Ops and layer.
-func ContextWith(window *app.Window, layers ...render.RenderLayer) *Context {
+func ContextWith(window *app.Window, layers ...render.Layer) *Context {
 	context := &Context{window: window}
 	if layers != nil {
 		context.Layers(layers...)
@@ -201,7 +201,7 @@ func (c *Context) Zoom(options ...seen.ZoomOption) *seen.Zoom {
 	return zoom
 }
 
-func (c *Context) Layers(layers ...render.RenderLayer) {
+func (c *Context) Layers(layers ...render.Layer) {
 	for _, l := range layers {
 		layer := l
 		c.render = append(c.render, layer.Paint)

@@ -17,7 +17,7 @@ type Context struct {
 
 // ContextWith creates a render context for the element with the
 // specified 'elementId'. This element should be an 'svg' element.
-func ContextWith(element *document.Element, layers ...render.RenderLayer) render.RenderContext {
+func ContextWith(element *document.Element, layers ...render.Layer) render.RenderContext {
 	if element == nil {
 		return nil
 	}
@@ -31,8 +31,8 @@ func ContextWith(element *document.Element, layers ...render.RenderLayer) render
 	return context
 }
 
-func (c *Context) Layers(layers ...render.RenderLayer) {
-	add := func(layer render.RenderLayer) {
+func (c *Context) Layers(layers ...render.Layer) {
+	add := func(layer render.Layer) {
 		group := c.svg.CreateElementNS(document.SVG_NS, "g")
 		c.svg.AppendChild(group)
 		painter := MakeSvgPainter(group)

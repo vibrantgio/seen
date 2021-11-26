@@ -4,7 +4,7 @@ import "github.com/reactivego/seen"
 
 // RenderContext
 type RenderContext interface {
-	Layers(...RenderLayer)
+	Layers(...Layer)
 	Render()
 	Animate() *seen.Animator
 	Drag() *seen.Drag

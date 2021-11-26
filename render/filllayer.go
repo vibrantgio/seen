@@ -3,7 +3,7 @@ package render
 import "github.com/reactivego/seen/color"
 
 // FillLayer
-// implements RenderLayer
+// implements Layer
 type FillLayer struct {
 	Width, Height float64 //# 500,500
 	Rx, Ry        float64
