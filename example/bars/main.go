@@ -13,8 +13,8 @@ import (
 	"gioui.org/unit"
 
 	"github.com/reactivego/seen"
-	"github.com/reactivego/seen/bsp"
 	"github.com/reactivego/seen/quat"
+	"github.com/reactivego/seen/render/bsp"
 	"github.com/reactivego/seen/render/gio"
 	"github.com/reactivego/seen/shape"
 )
