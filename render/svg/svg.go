@@ -17,11 +17,11 @@ type Context struct {
 
 // ContextWith creates a render context for the element with the
 // specified 'elementId'. This element should be an 'svg' element.
-func ContextWith(element *document.Element, layers ...render.Layer) render.RenderContext {
+func ContextWith(element *document.Element, layers ...render.Layer) *Context {
 	if element == nil {
 		return nil
 	}
-	var context render.RenderContext
+	var context *Context
 	tag := strings.ToUpper(element.Tag)
 	if tag != "SVG" && tag != "G" {
 		return nil

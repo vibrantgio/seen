@@ -100,7 +100,7 @@ func TestDemoSimple(t *testing.T) {
 	blueish, _ := color.ColorWithString("#eeddff")
 	context := ContextWith(svg.GetElementById(svgId), render.FillLayerWith(width, height, 8, 8, blueish))
 	if context == nil {
-		t.Error("Expected to be able to create RenderContext")
+		t.Error("Expected to be able to create render.Context")
 		return
 	}
 
@@ -193,7 +193,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 	}
 
 	// Create a render context for each SVG and Canvas
-	contexts := []render.RenderContext{}
+	contexts := []*Context{}
 	for i, scene := range scenes {
 		for _, kind := range []string{ /*"canvas",*/ "svg"} {
 			elementId := "seen-" + kind + "-" + strconv.Itoa(i)
