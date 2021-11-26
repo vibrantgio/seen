@@ -70,8 +70,8 @@ func (v *Builder) VisitSurface(s *seen.Surface) {
 	v.Planes = append(v.Planes, p)
 }
 
-func process(plane []seen.Plane, i int, recursion int, report func(...interface{})) *seen.BSP {
-	bsp := seen.BSP{Plane: []seen.Plane{plane[i]}}
+func process(plane []seen.Plane, i int, recursion int, report func(...interface{})) *BSP {
+	bsp := BSP{Plane: []seen.Plane{plane[i]}}
 	planei := bsp.Plane[0]
 	var before, behind []seen.Plane
 	for j, planej := range plane {
@@ -119,7 +119,7 @@ func process(plane []seen.Plane, i int, recursion int, report func(...interface{
 	return &bsp
 }
 
-func (v *Builder) Build() *seen.BSP {
+func (v *Builder) Build() *BSP {
 	if len(v.Planes) == 0 {
 		return nil
 	}

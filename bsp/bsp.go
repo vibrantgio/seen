@@ -1,17 +1,19 @@
-package seen
+package bsp
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/reactivego/seen"
 )
 
 type BSP struct {
-	Plane []Plane
+	Plane []seen.Plane
 	Front *BSP
 	Back  *BSP
 }
 
-func (bsp *BSP) Display(eye Point, f func([]Plane)) {
+func (bsp *BSP) Display(eye seen.Point, f func([]seen.Plane)) {
 	if bsp == nil || len(bsp.Plane) == 0 {
 		return
 	}

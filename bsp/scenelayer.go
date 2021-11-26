@@ -11,6 +11,11 @@ import (
 // SceneLayer implements the RenderLayer interface.
 type SceneLayer struct {
 	*seen.Scene
+
+	// BSP is a Binary Space Partitioning generated for the scene.
+	// The BSP must be re-generated whenever the scene graph geometry is modified.
+	bsp *BSP
+
 	surfaces []*render.RenderSurface
 	cache    SurfaceCache
 }
@@ -29,16 +34,16 @@ func SceneLayerWith(scene *seen.Scene) *SceneLayer {
 func (s *SceneLayer) Paint(painter render.Painter) {
 	// projection matrix transforms points from world space into camera space and then
 	// through viewport prescale and projection matrix into normalized screen space.
-	projection := s.Camera.Projection.Mul(s.Viewport.Prescale).Mul(s.Camera.Matrix())
+	projection := s.Scene.Camera.Projection.Mul(s.Scene.Viewport.Prescale).Mul(s.Scene.Camera.Matrix())
 
 	// Last transformation from normalized screen space into real screen space.
-	viewport := s.Viewport.Postscale
+	viewport := s.Scene.Viewport.Postscale
 
 	// Update render surfaces in the cache
-	if s.cache.Update(s.Scene, projection, viewport) || s.BSP == nil {
+	if s.cache.Update(s.Scene, projection, viewport) || s.bsp == nil {
 		buildbsp := &Builder{}
-		s.Group.Accept(buildbsp)
-		s.BSP = buildbsp.Build()
+		s.Scene.Group.Accept(buildbsp)
+		s.bsp = buildbsp.Build()
 		// fmt.Printf("#planes %d\n", len(buildbsp.Planes))
 	}
 
@@ -47,11 +52,11 @@ func (s *SceneLayer) Paint(painter render.Painter) {
 	// fmt.Printf("eye: %v\n", eye)
 
 	// Walk the bsp tree and render the render surface back to front
-	s.BSP.Display(eye, func(plane []seen.Plane) {
+	s.bsp.Display(eye, func(plane []seen.Plane) {
 		for i := range plane {
 			rs := s.cache[plane[i].Id]
 			if rs.InFrustum {
-				if !rs.Surface.ShowBackfaces {
+				if !s.Scene.ShowBackfaces && !rs.Surface.ShowBackfaces {
 					ed := plane[i].Normal.Dot(eye)
 					pd := plane[i].Normal.Dot(plane[i].Barycenter)
 					if !float.Equal(ed, pd) && ed < pd {
