@@ -5,7 +5,7 @@ import (
 	"github.com/reactivego/seen/render"
 )
 
-type SurfaceCache map[int]*render.RenderSurface
+type SurfaceCache map[int]*render.Surface
 
 func (cache SurfaceCache) Update(scene *seen.Scene, projection, viewport seen.Matrix) (updated bool) {
 	updatecache := &UpdateCache{Scene: scene, Projection: projection, Viewport: viewport, Cache: cache}
@@ -43,14 +43,14 @@ func (v *UpdateCache) VisitLight(l *seen.Light) {
 }
 
 func (v *UpdateCache) VisitSurface(surface *seen.Surface) {
-	var rs *render.RenderSurface
+	var rs *render.Surface
 	if cs, ok := v.Cache[surface.Id]; ok {
 		if cs.Update(v.Transform, v.Projection, v.Viewport) {
 			v.Updated = true
 		}
 		rs = cs
 	} else {
-		rs = render.RenderSurfaceWith(surface, v.Transform, v.Projection, v.Viewport)
+		rs = render.SurfaceWith(surface, v.Transform, v.Projection, v.Viewport)
 		v.Cache[surface.Id] = rs
 		v.Updated = true
 	}

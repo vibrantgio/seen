@@ -8,8 +8,8 @@ import (
 	"github.com/reactivego/seen/color"
 )
 
-// RenderSurface contains the transformed and projected points as
-// well as various data needed to shade and paint a `Surface`.
+// render.Surface contains the transformed and projected points as
+// well as various data needed to shade and paint a `seen.Surface`.
 //
 // Once initialized, the object will have a constant memory footprint down to
 // `Number` primitives. Also, we compare each transform and projection to
@@ -17,14 +17,14 @@ import (
 //
 // If you need to force a re-computation, mark the surface as 'dirty'.
 //
-// RenderSurface manages the painting of a single Surface.
-type RenderSurface struct {
+// render.Surface manages the painting of a single seen.Surface.
+type Surface struct {
 	// Paint is the paint function to be used to paint this surface.
 	Paint func(Painter)
 
-	// Surface is a reference to the Surface that is being painted.
+	// Surface is a reference to the seen.Surface that is being painted.
 	// The reference is retained so it can be checked for the Dirty flag.
-	// When the Dirty flag is set, the RenderSurface needs to be regenerated.
+	// When the Dirty flag is set, the render.Surface needs to be regenerated.
 	Surface *seen.Surface
 	Points  seen.Points
 
@@ -47,8 +47,8 @@ type RenderSurface struct {
 	Stroke *color.Color
 }
 
-func RenderSurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *RenderSurface {
-	rs := &RenderSurface{}
+func SurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *Surface {
+	rs := &Surface{}
 	// Assign the correct render function to the render surface
 	if surface.Shape.Type == "text" {
 		rs.Paint = rs.PaintText
@@ -65,7 +65,7 @@ func RenderSurfaceWith(surface *seen.Surface, transform, projection, viewport se
 	return rs
 }
 
-func (rs *RenderSurface) Update(transform, projection, viewport seen.Matrix) (updated bool) {
+func (rs *Surface) Update(transform, projection, viewport seen.Matrix) (updated bool) {
 	if rs.Surface.Dirty || !transform.Equal(rs.Transform) || !projection.Equal(rs.Projection) || !viewport.Equal(rs.Viewport) {
 		rs.Transform = transform
 		rs.Projection = projection
@@ -76,7 +76,7 @@ func (rs *RenderSurface) Update(transform, projection, viewport seen.Matrix) (up
 	return
 }
 
-func (rs *RenderSurface) update() {
+func (rs *Surface) update() {
 	if len(rs.WorldSpacePoints) != len(rs.Points) {
 		rs.WorldSpacePoints = make([]seen.Point, len(rs.Points))
 	}
@@ -103,7 +103,7 @@ func (rs *RenderSurface) update() {
 }
 
 // PaintPath paints a path render surface onto a Painter.
-func (rs *RenderSurface) PaintPath(painter Painter) {
+func (rs *Surface) PaintPath(painter Painter) {
 	path := painter.Path()
 	path.Path(rs.ProjectedPoints)
 
@@ -128,7 +128,7 @@ func (rs *RenderSurface) PaintPath(painter Painter) {
 }
 
 // PaintText paints a text render surface onto a Painter.
-func (rs *RenderSurface) PaintText(painter Painter) {
+func (rs *Surface) PaintText(painter Painter) {
 	style := map[string]string{
 		"fill":        "none",
 		"text-anchor": "middle",

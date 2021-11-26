@@ -12,21 +12,21 @@ import (
 // SceneLayer implements the render.Layer interface.
 type SceneLayer struct {
 	*seen.Scene
-	surfaces []*render.RenderSurface
-	cache    map[int]*render.RenderSurface
+	surfaces []*render.Surface
+	cache    map[int]*render.Surface
 }
 
 func LayerWith(scene *seen.Scene) *SceneLayer {
 	return &SceneLayer{
 		Scene:    scene,
-		surfaces: make([]*render.RenderSurface, 0, 32),
-		cache:    make(map[int]*render.RenderSurface),
+		surfaces: make([]*render.Surface, 0, 32),
+		cache:    make(map[int]*render.Surface),
 	}
 }
 
-// Paint creates a RenderSurface for every Surface in the scene's groups.
-// When encountering a TextShape assign a TextPainter to the RenderSurface.
-// When encountering any other shape assign a PathPainter to the RenderSurface.
+// Paint creates a render.Surface for every seen.Surface in the scene's groups.
+// When encountering a TextShape assign a TextPainter to the render.Surface.
+// When encountering any other shape assign a PathPainter to the render.Surface.
 func (s *SceneLayer) Paint(painter render.Painter) {
 	// projection matrix transforms points from world space into camera space and then
 	// through viewport prescale and projection matrix into normalized screen space.
@@ -42,22 +42,22 @@ func (s *SceneLayer) Paint(painter render.Painter) {
 	s.Group.EachRenderable(func(shape *seen.Shape, lights []seen.LightShaderData, transform seen.Matrix) {
 		for _, surface := range shape.Surfaces {
 			// Get or create the renderSurface for the given surface.
-			var rs *render.RenderSurface
+			var rs *render.Surface
 			// If Regenerate is false, we cache the render surfaces to reduce object
 			// creation and recomputation.
 			if s.Regenerate {
 				// No caching
 				surface.Shape = shape
-				rs = render.RenderSurfaceWith(&surface, transform, projection, viewport)
+				rs = render.SurfaceWith(&surface, transform, projection, viewport)
 			} else {
 				// Caching enabled, see if its present in the cache
 				if cs, ok := s.cache[surface.Id]; ok {
 					cs.Update(transform, projection, viewport)
 					rs = cs
 				}
-				// Create new RenderSurface and add to the cache
+				// Create new render.Surface and add to the cache
 				surface.Shape = shape
-				rs = render.RenderSurfaceWith(&surface, transform, projection, viewport)
+				rs = render.SurfaceWith(&surface, transform, projection, viewport)
 				s.cache[surface.Id] = rs
 			}
 			// Test projected normal's z-coordinate for culling (if enabled).
@@ -106,7 +106,7 @@ func (s *SceneLayer) FlushCache() {
 }
 
 // ByZ implements sorting by comparing the Z of the Barycenter of the Projected points
-type ByZ []*render.RenderSurface
+type ByZ []*render.Surface
 
 func (a ByZ) Len() int {
 	return len(a)

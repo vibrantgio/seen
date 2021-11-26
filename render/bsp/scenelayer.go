@@ -16,21 +16,21 @@ type SceneLayer struct {
 	// The BSP must be re-generated whenever the scene graph geometry is modified.
 	bsp *BSP
 
-	surfaces []*render.RenderSurface
+	surfaces []*render.Surface
 	cache    SurfaceCache
 }
 
 func LayerWith(scene *seen.Scene) *SceneLayer {
 	return &SceneLayer{
 		Scene:    scene,
-		surfaces: make([]*render.RenderSurface, 0, 32),
-		cache:    make(map[int]*render.RenderSurface),
+		surfaces: make([]*render.Surface, 0, 32),
+		cache:    make(map[int]*render.Surface),
 	}
 }
 
-// Paint creates a RenderSurface for every Surface in the scene's objects.
-// When encountering a TextShape assign a TextPainter to the RenderSurface.
-// When encountering any other shape assign a PathPainter to the RenderSurface.
+// Paint creates a render.Surface for every seen.Surface in the scene's objects.
+// When encountering a TextShape assign a TextPainter to the render.Surface.
+// When encountering any other shape assign a PathPainter to the render.Surface.
 func (s *SceneLayer) Paint(painter render.Painter) {
 	// projection matrix transforms points from world space into camera space and then
 	// through viewport prescale and projection matrix into normalized screen space.
