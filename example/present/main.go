@@ -26,6 +26,10 @@ import (
 	"github.com/reactivego/seen/render/zsort"
 )
 
+const should_use_bsp_sorter = true
+const should_save_to_png = false
+const should_save_to_svg = false
+
 const WidthDp = 1024
 const HeightDp = 1024
 const MinWidthDp = 1024
@@ -53,7 +57,7 @@ func Present() {
 
 	_, _, _, _, _, _ = lightblue, darkblue, hardblue, lightgrey, lightorange, darkorange
 
-	backdropfill := color.White
+	backdropfill := darkblue
 	curtainfill := color.White
 	boxfill := lightblue
 	ribbonfill := darkorange
@@ -116,19 +120,20 @@ func Present() {
 	scene.FractionalPoints = true
 	scene.Group.Add(present)
 	scene.Group.SetScale(3, 3, 3)
-	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
 	// Create separate layers for the stage.
 	backdrop := render.FillLayerWith(WidthDp, HeightDp, 0, 0, backdropfill)
 	curtain := render.FillLayerWith(WidthDp, HeightDp/2, 0, 0, curtainfill)
 
+	// Create a layer that renders a scene by sorting the polygons
 	var foreground render.Layer
-	if true {
+	if should_use_bsp_sorter {
 		foreground = bsp.LayerWith(scene)
 	} else {
 		foreground = zsort.LayerWith(scene)
 	}
 
+	// Create a context that hooks seen into the gio window
 	context := gio.ContextWith(window, backdrop, curtain, foreground)
 
 	// Enable drag-to-rotate
@@ -148,11 +153,14 @@ func Present() {
 	})
 
 	ops := &op.Ops{}
-	ppd := float32(1.0)
+	ppd, dx, dy := float32(1.0), float32(WidthDp), float32(HeightDp)
 	for event := range window.Events() {
 		if frame, ok := event.(system.FrameEvent); ok {
+			ppd, dx, dy = frame.Metric.PxPerDp, float32(frame.Size.X), float32(frame.Size.Y)
 			ops.Reset()
-			ppd = frame.Metric.PxPerDp
+			backdrop.Width, backdrop.Height = float64(dx/ppd), float64(dy/ppd)
+			curtain.Width, curtain.Height = float64(dx/ppd), float64(dy/ppd)/2
+			scene.Viewport = seen.CenterViewport(0, 0, float64(dx/ppd), float64(dy/ppd))
 			op.Affine(f32.NewAffine2D(ppd, 0, 0, 0, ppd, 0)).Add(ops)
 			context.Draw(ops, frame.Queue)
 			frame.Frame(ops)
@@ -160,48 +168,52 @@ func Present() {
 	}
 
 	// Save scene to png file
-	if window, err := headless.NewWindow(int(ppd*WidthDp), int(ppd*HeightDp)); err == nil {
-		window.Frame(ops)
-		if src, err := window.Screenshot(); err == nil {
-			dst := src
-			// Scale image when ppdp (pixels per device pixel) is not 1.0
-			if ppd != 1.0 {
-				sb := src.Bounds()
-				w, h := int(float32(sb.Dx())/ppd), int(float32(sb.Dy())/ppd)
-				dst := image.NewRGBA(image.Rect(sb.Min.X, sb.Min.Y, w, h))
-				draw.BiLinear.Scale(dst, dst.Bounds(), src, src.Bounds(), draw.Over, nil)
-			}
-			f, err := os.Create("present.png")
-			if err != nil {
-				log.Fatal(err)
-			}
-			if err := png.Encode(f, dst); err != nil {
-				f.Close()
-				log.Fatal(err)
-			}
-			if err := f.Close(); err != nil {
+	if should_save_to_png {
+		if window, err := headless.NewWindow(int(dx), int(dy)); err == nil {
+			window.Frame(ops)
+			if src, err := window.Screenshot(); err == nil {
+				dst := src
+				// Scale image when ppdp (pixels per device pixel) is not 1.0
+				if ppd != 1.0 {
+					sb := src.Bounds()
+					w, h := int(float32(sb.Dx())/ppd), int(float32(sb.Dy())/ppd)
+					dst = image.NewRGBA(image.Rect(sb.Min.X, sb.Min.Y, sb.Min.X+w, sb.Min.Y+h))
+					draw.BiLinear.Scale(dst, dst.Bounds(), src, src.Bounds(), draw.Over, nil)
+				}
+				f, err := os.Create("present.png")
+				if err != nil {
+					log.Fatal(err)
+				}
+				if err := png.Encode(f, dst); err != nil {
+					f.Close()
+					log.Fatal(err)
+				}
+				if err := f.Close(); err != nil {
+					log.Fatal(err)
+				}
+			} else {
 				log.Fatal(err)
 			}
 		} else {
 			log.Fatal(err)
 		}
-	} else {
-		log.Fatal(err)
 	}
 
 	// Save scene to svg file
-	svgdoc, err := document.MakeSVG("seen-svg", WidthDp, HeightDp)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if context := svg.ContextWith(svgdoc.GetElementById("seen-svg"), backdrop, curtain, foreground); context != nil {
-		context.Render()
-	} else {
-		log.Fatal("Render context is nil")
-	}
-	err = svgdoc.SaveToFile("present.svg")
-	if err != nil {
-		log.Fatal(err)
+	if should_save_to_svg {
+		svgdoc, err := document.MakeSVG("seen-svg", int(dx/ppd), int(dy/ppd))
+		if err != nil {
+			log.Fatal(err)
+		}
+		if context := svg.ContextWith(svgdoc.GetElementById("seen-svg"), backdrop, curtain, foreground); context != nil {
+			context.Render()
+		} else {
+			log.Fatal("Render context is nil")
+		}
+		err = svgdoc.SaveToFile("present.svg")
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	os.Exit(0)

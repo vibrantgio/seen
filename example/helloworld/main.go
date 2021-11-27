@@ -13,10 +13,14 @@ import (
 	"github.com/reactivego/seen"
 	"github.com/reactivego/seen/color"
 	"github.com/reactivego/seen/quat"
+	"github.com/reactivego/seen/render"
+	"github.com/reactivego/seen/render/bsp"
 	"github.com/reactivego/seen/render/gio"
 	"github.com/reactivego/seen/render/zsort"
 	"github.com/reactivego/seen/shape"
 )
+
+const should_use_bsp_sorter = true
 
 const WidthDp = 900
 const HeightDp = 500
@@ -42,10 +46,16 @@ func HelloWorld() {
 	scene := seen.DefaultScene()
 	scene.ShowBackfaces = true
 	scene.Group.Add(shape)
-	scene.Viewport = seen.CenterViewport(0, 0, WidthDp, HeightDp)
 
-	// Create a render layer and render context
-	layer := zsort.LayerWith(scene)
+	// Create a layer that renders a scene by sorting the polygons
+	var layer render.Layer
+	if should_use_bsp_sorter {
+		layer = bsp.LayerWith(scene)
+	} else {
+		layer = zsort.LayerWith(scene)
+	}
+
+	// Create a context that hooks seen into the gio window
 	context := gio.ContextWith(window, layer)
 
 	// Slowly rotate sphere
@@ -75,8 +85,9 @@ func HelloWorld() {
 	ops := &op.Ops{}
 	for event := range window.Events() {
 		if frame, ok := event.(system.FrameEvent); ok {
+			ppd, dx, dy := frame.Metric.PxPerDp, float32(frame.Size.X), float32(frame.Size.Y)
 			ops.Reset()
-			ppd := frame.Metric.PxPerDp
+			scene.Viewport = seen.CenterViewport(0, 0, float64(dx/ppd), float64(dy/ppd))
 			op.Affine(f32.NewAffine2D(ppd, 0, 0, 0, ppd, 0)).Add(ops)
 			context.Draw(ops, frame.Queue)
 			frame.Frame(ops)

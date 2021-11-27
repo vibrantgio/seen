@@ -10,8 +10,8 @@ type FillLayer struct {
 	Fill          string // fill: #EEE
 }
 
-func FillLayerWith(width, height, rx, ry float64, fill color.Color) FillLayer {
-	return FillLayer{width, height, rx, ry, fill.Hex()}
+func FillLayerWith(width, height, rx, ry float64, fill color.Color) *FillLayer {
+	return &FillLayer{width, height, rx, ry, fill.Hex()}
 }
 
 func (l FillLayer) Paint(painter Painter) {
