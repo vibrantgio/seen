@@ -116,8 +116,7 @@ func (c *Context) Animate() *seen.Animator {
 func (c *Context) Drag(options ...seen.DragOption) *seen.Drag {
 	drag := seen.DragWith(options...)
 	c.inputs = append(c.inputs, func(ops *op.Ops) {
-		defer op.Save(ops).Load()
-		pointer.PassOp{Pass: true}.Add(ops)
+		defer pointer.PassOp{}.Push(ops).Pop()
 		const types = pointer.Press | pointer.Drag | pointer.Release
 		pointer.InputOp{Tag: drag, Types: types}.Add(ops)
 	})
@@ -176,8 +175,7 @@ func (c *Context) Drag(options ...seen.DragOption) *seen.Drag {
 func (c *Context) Zoom(options ...seen.ZoomOption) *seen.Zoom {
 	zoom := seen.ZoomWith(options...)
 	c.inputs = append(c.inputs, func(ops *op.Ops) {
-		defer op.Save(ops).Load()
-		pointer.PassOp{Pass: true}.Add(ops)
+		pointer.PassOp{}.Push(ops).Pop()
 		pointer.InputOp{
 			Tag:          zoom,
 			Types:        pointer.Scroll,
@@ -264,7 +262,6 @@ func (p *PathPainter) Fill(style render.Style) {
 	if len(p.Points) == 0 {
 		return
 	}
-	defer op.Save(p.Ops).Load()
 	fillOpacity := 1.0
 	if o, present := style["fill-opacity"]; present {
 		if o, err := strconv.ParseFloat(o, 64); err == nil {
@@ -284,8 +281,9 @@ func (p *PathPainter) Fill(style render.Style) {
 		path.LineTo(p)
 	}
 	path.Close()
-	clip.Outline{Path: path.End()}.Op().Add(p.Ops)
+	state := clip.Outline{Path: path.End()}.Op().Push(p.Ops)
 	paint.PaintOp{}.Add(p.Ops)
+	state.Pop()
 }
 
 // Stroke the outline of the path.
@@ -294,7 +292,6 @@ func (p *PathPainter) Stroke(style render.Style) {
 	if len(p.Points) == 0 {
 		return
 	}
-	defer op.Save(p.Ops).Load()
 	strokeWidth := 1
 	if sw, present := style["stroke-width"]; present {
 		if strings.HasSuffix(sw, "px") {
@@ -316,8 +313,9 @@ func (p *PathPainter) Stroke(style render.Style) {
 		path.LineTo(p)
 	}
 	path.Close()
-	clip.Stroke{Path: path.End(), Style: clip.StrokeStyle{Width: float32(strokeWidth)}}.Op().Add(p.Ops)
+	state := clip.Stroke{Path: path.End(), Width: float32(strokeWidth)}.Op().Push(p.Ops)
 	paint.PaintOp{}.Add(p.Ops)
+	state.Pop()
 }
 
 // RectPainter
@@ -339,20 +337,24 @@ func (p *RectPainter) CornerRadius(rx, ry float64) {
 
 // Fill the rect
 func (p *RectPainter) Fill(style render.Style) {
-	defer op.Save(p.Ops).Load()
 	if c, present := style["fill"]; present {
 		if fill, err := color.ColorWithString(c); err == nil {
 			paint.ColorOp{Color: fill.NRGBA()}.Add(p.Ops)
 		}
 	}
 	if p.Rx == 0.0 && p.Ry == 0.0 {
-		clip.Rect(image.Rect(0, 0, int(p.Width), int(p.Height))).Add(p.Ops)
+		state := clip.Rect(image.Rect(0, 0, int(p.Width), int(p.Height))).Push(p.Ops)
+		paint.PaintOp{}.Add(p.Ops)
+		state.Pop()
 	} else if p.Rx == p.Ry {
-		clip.UniformRRect(f32.Rect(0, 0, p.Width, p.Height), p.Rx).Add(p.Ops)
+		state := clip.UniformRRect(f32.Rect(0, 0, p.Width, p.Height), p.Rx).Push(p.Ops)
+		paint.PaintOp{}.Add(p.Ops)
+		state.Pop()
 	} else {
+
 		// TBD
 	}
-	paint.PaintOp{}.Add(p.Ops)
+
 }
 
 // CirclePainter
@@ -369,9 +371,8 @@ type TextPainter struct{ *op.Ops }
 // text is the text to be painted.
 // Style supports the following keys: fill, font, text-anchor
 func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) {
-	defer op.Save(p.Ops).Load()
 	aff := f32.NewAffine2D(float32(t.A), float32(t.C), float32(t.E), float32(t.B), float32(t.D), float32(t.F))
-	op.Affine(aff).Add(p.Ops)
+	defer op.Affine(aff).Push(p.Ops).Pop()
 
 	font := RobotoNormal
 	if family, present := style["font-family"]; present {
@@ -434,13 +435,13 @@ func (p *TextPainter) FillText(t affine.Matrix, txt string, style render.Style) 
 	// Actually paint the txt
 	offset := f32.Pt(-ax*dx, -ay*dy)
 	for _, line := range lines {
-		state := op.Save(p.Ops)
 		offset.Y += float32(line.Ascent.Ceil())
-		op.Offset(offset).Add(p.Ops)
+		tstack := op.Offset(offset).Push(p.Ops)
 		offset.Y += float32(line.Descent.Ceil())
-		shaper.Shape(font, fixed.I(size), line.Layout).Add(p.Ops)
+		cstack := shaper.Shape(font, fixed.I(size), line.Layout).Push(p.Ops)
 		paint.ColorOp{Color: fill.NRGBA()}.Add(p.Ops)
 		paint.PaintOp{}.Add(p.Ops)
-		state.Load()
+		cstack.Pop()
+		tstack.Pop()
 	}
 }
