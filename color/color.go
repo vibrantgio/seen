@@ -209,6 +209,11 @@ type Drift float64
 
 func (v Drift) Value() float64 { return float64(v) }
 
+// Hue default is a random value in the range [0-1]
+type Hue float64
+
+func (v Hue) Value() float64 { return float64(v) }
+
 // Sat default is 0.5
 type Sat float64
 
@@ -244,8 +249,11 @@ func DefaultRandomSource2() *RandomSource2 {
 // RandomSource2With is used to intialize the instance of a RandomColorSource2 with options.
 func RandomSource2With(options ...Option) Source {
 	c := DefaultRandomSource2()
+	c.hue = rand.Float64()
 	for _, opt := range options {
 		switch o := opt.(type) {
+		case Hue:
+			c.hue = o.Value()
 		case Drift:
 			c.drift = o.Value()
 		case Sat:
@@ -256,7 +264,6 @@ func RandomSource2With(options ...Option) Source {
 			c.opacity = o.Value()
 		}
 	}
-	c.hue = rand.Float64()
 	return c
 }
 
