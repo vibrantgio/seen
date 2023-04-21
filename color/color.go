@@ -11,20 +11,6 @@ import (
 	"github.com/reactivego/seen/float"
 )
 
-type ColorError string
-
-func (e ColorError) Error() string { return string(e) }
-
-const ExpectedHash = ColorError("Parse Error: expected # as first character for color reference")
-const InvalidLength = ColorError("Parse Error: color reference does not have a valid length")
-const InvalidPattern = ColorError("Parse Error: color reference does not match pattern #rrggbbaa or #rrggbb")
-
-// Source is an interface to a color source. It is used for generating
-// a sequence of random colors that are slightly different.
-type Source interface {
-	Read() Color
-}
-
 // Color objects store RGB and Alpha values with components in range [0..1]
 type Color struct {
 	R, G, B, A float64
@@ -197,83 +183,4 @@ func (l Color) Clamp(min, max float64) Color {
 // This is needed by the RandomSource2 struct below.
 func init() {
 	rand.Seed(time.Now().UnixNano())
-}
-
-// Option is the interface type for passing in color options for RandomSource2
-type Option interface {
-	Value() float64
-}
-
-// Drift default is 0.03
-type Drift float64
-
-func (v Drift) Value() float64 { return float64(v) }
-
-// Hue default is a random value in the range [0-1]
-type Hue float64
-
-func (v Hue) Value() float64 { return float64(v) }
-
-// Sat default is 0.5
-type Sat float64
-
-func (v Sat) Value() float64 { return float64(v) }
-
-// Lit default is 0.4
-type Lit float64
-
-func (v Lit) Value() float64 { return float64(v) }
-
-// Opacity default is 1.0
-type Opacity float64
-
-func (v Opacity) Value() float64 { return float64(v) }
-
-// RandomSource2 is a source of random colors. It implements the Source interface.
-type RandomSource2 struct {
-	drift, sat, lit, hue, opacity float64
-}
-
-// DefaultRandomSource2 generates a random hue then randomly drifts the hue every
-// time a Color is read. It uses the default values Drift: 0.03, Sat: 0.5 and
-// Lit: 0.4 as parameters for the hue generating algorithm.
-func DefaultRandomSource2() *RandomSource2 {
-	return &RandomSource2{
-		drift:   0.03,
-		sat:     0.5,
-		lit:     0.4,
-		opacity: 1.0,
-	}
-}
-
-// RandomSource2With is used to intialize the instance of a RandomColorSource2 with options.
-func RandomSource2With(options ...Option) Source {
-	c := DefaultRandomSource2()
-	c.hue = rand.Float64()
-	for _, opt := range options {
-		switch o := opt.(type) {
-		case Hue:
-			c.hue = o.Value()
-		case Drift:
-			c.drift = o.Value()
-		case Sat:
-			c.sat = o.Value()
-		case Lit:
-			c.lit = o.Value()
-		case Opacity:
-			c.opacity = o.Value()
-		}
-	}
-	return c
-}
-
-func (c *RandomSource2) Read() Color {
-	c.hue += (rand.Float64() - 0.5) * c.drift
-	for c.hue < 0 {
-		c.hue += 1
-	}
-	for c.hue > 1 {
-		c.hue -= 1
-	}
-	return ColorHsl(c.hue, c.sat, c.lit, c.opacity)
 }
