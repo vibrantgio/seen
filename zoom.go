@@ -2,13 +2,9 @@ package seen
 
 import "math"
 
-type Zoom struct {
-	Speed float64
+type ZoomType string
 
-	handlers []ZoomHandler
-}
-
-type ZoomHandler func(ZoomEvent)
+const ZoomMove = ZoomType("Zoom")
 
 type ZoomEvent struct {
 	Type       ZoomType
@@ -18,9 +14,11 @@ type ZoomEvent struct {
 	Zoom       float64
 }
 
-type ZoomType string
+type ZoomHandler func(ZoomEvent)
 
-const ZoomMove = ZoomType("Zoom")
+type Zoomer interface {
+	On(handler ZoomHandler)
+}
 
 type ZoomOption func() float64
 
@@ -28,12 +26,18 @@ func Speed(speed float64) ZoomOption {
 	return func() float64 { return speed }
 }
 
+type Zoom struct {
+	Speed float64
+
+	handlers []ZoomHandler
+}
+
 func ZoomWith(options ...ZoomOption) *Zoom {
-	speed := 0.25
+	zoom := &Zoom{Speed: 0.25}
 	for _, option := range options {
-		speed = option()
+		zoom.Speed = option()
 	}
-	return &Zoom{Speed: speed}
+	return zoom
 }
 
 func (z *Zoom) On(handler ZoomHandler) {

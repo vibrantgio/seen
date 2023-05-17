@@ -8,12 +8,12 @@ import (
 )
 
 type BSP struct {
-	Plane []seen.Plane
+	Plane []Plane
 	Front *BSP
 	Back  *BSP
 }
 
-func (bsp *BSP) Display(eye seen.Point, f func([]seen.Plane)) {
+func (bsp *BSP) Display(eye seen.Point, f func([]Plane)) {
 	if bsp == nil || len(bsp.Plane) == 0 {
 		return
 	}

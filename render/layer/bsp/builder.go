@@ -17,7 +17,7 @@ const (
 	Splits
 )
 
-func Compare(l, r seen.Plane) PlaneComparison {
+func Compare(l, r Plane) PlaneComparison {
 	if parallel := float.Equal(l.Normal.Dot(r.Normal), 1.0); parallel {
 		d := l.Normal.Dot(l.Barycenter)
 		dr := r.Normal.Dot(r.Barycenter)
@@ -60,20 +60,20 @@ func Compare(l, r seen.Plane) PlaneComparison {
 
 type Builder struct {
 	TransformStack
-	Planes []seen.Plane
+	Planes []Plane
 }
 
 func (v *Builder) VisitSurface(s *seen.Surface) {
-	p := seen.Plane{Surface: s, Points: make(seen.Points, len(s.Points))}
+	p := Plane{Surface: s, Points: make(seen.Points, len(s.Points))}
 	p.Barycenter = s.Points.Mul(v.Transform, p.Points)
 	p.Normal = p.Points.Normal().Normalize()
 	v.Planes = append(v.Planes, p)
 }
 
-func process(plane []seen.Plane, i int, recursion int, report func(...interface{})) *BSP {
-	bsp := BSP{Plane: []seen.Plane{plane[i]}}
+func process(plane []Plane, i int, recursion int, report func(...interface{})) *BSP {
+	bsp := BSP{Plane: []Plane{plane[i]}}
 	planei := bsp.Plane[0]
-	var before, behind []seen.Plane
+	var before, behind []Plane
 	for j, planej := range plane {
 		if j == i {
 			continue
@@ -105,7 +105,7 @@ func process(plane []seen.Plane, i int, recursion int, report func(...interface{
 				behind = append(behind, planej)
 				if report != nil {
 					report("split conflict", i, j)
-					planej.Surface.FillMaterial, _ = seen.MaterialWith("#ff0000")
+					planej.Surface.FillMaterial, _ = seen.NewMaterialWith("#ff0000")
 				}
 			}
 		}

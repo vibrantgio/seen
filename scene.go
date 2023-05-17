@@ -41,24 +41,24 @@ type Scene struct {
 	Regenerate bool
 }
 
-// EmptyScene returns a new Scene that has a default Camera, Viewport and Shader and
-// an empty Group.
-func EmptyScene() *Scene {
+// NewScene returns a new Scene that has a default Camera, Viewport and Shader and
+// an empty Group. So, there are no lights present in the scene.
+func NewScene() *Scene {
 	return &Scene{
-		Group:    EmptyGroup(),
+		Group:    NewGroup(),
 		Camera:   DefaultCamera,
-		Viewport: OriginViewport(0, 0, 1, 1),
-		Shader:   PhongShader,
+		Viewport: DefaultViewport,
+		Shader:   DefaultShader,
 	}
 }
 
-// DefaultScene returns a new Scene that has a default Camera, Viewport and Shader and
+// NewDefaultScene returns a new Scene that has a default Camera, Viewport and Shader and
 // a Group with Hollywood-style 3-part lighting.
-func DefaultScene() *Scene {
+func NewDefaultScene() *Scene {
 	return &Scene{
-		Group:    GroupWith(DefaultLights()...),
+		Group:    NewGroupWith(DefaultLights()...),
 		Camera:   DefaultCamera,
-		Viewport: OriginViewport(0, 0, 1, 1),
-		Shader:   PhongShader,
+		Viewport: DefaultViewport,
+		Shader:   DefaultShader,
 	}
 }

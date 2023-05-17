@@ -3,8 +3,8 @@ package svg
 import (
 	"math"
 	"math/rand"
-	"os"
 	"path"
+	"runtime"
 	"strconv"
 	"testing"
 	"time"
@@ -14,9 +14,16 @@ import (
 	"github.com/reactivego/seen/document"
 	"github.com/reactivego/seen/quat"
 	"github.com/reactivego/seen/render"
-	"github.com/reactivego/seen/render/zsort"
+	"github.com/reactivego/seen/render/layer/zsort"
 	"github.com/reactivego/seen/shape"
 )
+
+// Helpers
+
+func SourceFile(filename string) string {
+	_, sourcepath, _, _ := runtime.Caller(1)
+	return path.Join(path.Dir(sourcepath), filename)
+}
 
 // Mocks
 
@@ -34,7 +41,7 @@ func (s *MockSceneLayer) Paint(painter render.Painter) {
 // Tests
 
 func TestContextWith(t *testing.T) {
-	dom := document.MakeDom()
+	dom := document.NewDom()
 	svg := dom.CreateElementNS(document.SVG_NS, "svg")
 	if svg == nil {
 		t.Error("Expected a valid svg element")
@@ -43,13 +50,13 @@ func TestContextWith(t *testing.T) {
 
 	s := &MockSceneLayer{}
 
-	c := ContextWith(nil, s)
+	c := NewTarget(nil, s)
 	if c != nil {
 		t.Error("Expected ContextWith to return nil")
 	}
 
 	if svg != nil {
-		c = ContextWith(svg.GetElementById("my-3d-svg"), s)
+		c = NewTarget(svg.GetElementById("my-3d-svg"), s)
 		if c == nil {
 			t.Error("Expected to get a render context for valid svg element.")
 		}
@@ -62,20 +69,20 @@ func TestDemoEmpty(t *testing.T) {
 	const width = 450
 	const height = 200
 
-	svg, err := document.MakeSVG("my-3d-svg", width, height)
+	svg, err := document.NewSVG("my-3d-svg", width, height)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	scene := seen.EmptyScene()
-	l := zsort.LayerWith(scene)
+	scene := seen.NewScene()
+	l := zsort.NewLayerForScene(scene)
 	if l == nil {
 		t.Error("unable to create scene layer")
 		return
 	}
 
-	context := ContextWith(svg.GetElementById("my-3d-svg"), l)
+	context := NewTarget(svg.GetElementById("my-3d-svg"), l)
 	if context == nil {
 		t.Error("unable to find element my-3d-svg")
 		return
@@ -91,27 +98,29 @@ func TestDemoSimple(t *testing.T) {
 
 	// Create the context to render to (svg in this case) and put a colored background in.
 	svgId := "my-3d-svg"
-	svg, err := document.MakeSVG(svgId, width, height)
+	svg, err := document.NewSVG(svgId, width, height)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	blueish, _ := color.ColorWithString("#eeddff")
-	context := ContextWith(svg.GetElementById(svgId), render.FillLayerWith(width, height, 8, 8, blueish))
+	context := NewTarget(svg.GetElementById(svgId))
 	if context == nil {
 		t.Error("Expected to be able to create render.Context")
 		return
 	}
 
+	blueish, _ := color.ColorWithString("#eeddff")
+	backdrop := render.NewBackdrop(width, height, 8, 8, blueish)
+
 	// Create the scene to render
-	s := seen.DefaultScene()
+	s := seen.NewDefaultScene()
 	s.FractionalPoints = true
 	s.Shader = seen.PhongShader
 	s.Camera = seen.DefaultCamera
 	s.Camera.SetTranslation(0, 0, -550)
 
-	source := color.RandomSource2With(color.Drift(0.03), color.Sat(0.5))
+	source := color.NewDriftingSourceWith(color.Drift(0.03), color.Sat(0.5))
 
 	// Add icosahedron to the scene
 	icosahedron := shape.Icosahedron()
@@ -139,13 +148,13 @@ func TestDemoSimple(t *testing.T) {
 
 	s.Viewport = seen.CenterViewport(0, 0, width, height)
 	// Add scene as a layer to the render context
-	context.Layers(zsort.LayerWith(s))
+	context.SetLayers(backdrop, zsort.NewLayerForScene(s))
 
 	// Actually render the scene on the context
 	context.Render()
 
 	// Save the generated svg to file
-	err = svg.SaveToFile(path.Join(os.Getenv("HOME"), "TestDemoSimple.svg"))
+	err = svg.SaveToFile(SourceFile("TestDemoSimple.svg"))
 	if err != nil {
 		t.Error(err)
 		return
@@ -156,7 +165,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 	const width = 450
 	const height = 200
 
-	html, err := document.MakeHTML()
+	html, err := document.NewHTML()
 	if err != nil {
 		t.Error(err)
 		return
@@ -172,7 +181,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 		sphere := shape.Sphere(i)
 		scale := float64(height) * 0.4
 		sphere.SetScale(scale, scale, scale)
-		source := color.RandomSource2With(color.Drift(0.03), color.Sat(0.5))
+		source := color.NewDriftingSourceWith(color.Drift(0.03), color.Sat(0.5))
 		err := sphere.SetColorFrom(source)
 		if err != nil {
 			t.Error(err)
@@ -182,22 +191,22 @@ func TestDemoSvgCanvas(t *testing.T) {
 	}
 
 	// Create one scene for each shape
-	scenes := []*zsort.SceneLayer{}
+	scenes := []*zsort.Layer{}
 	for _, sphere := range spheres {
-		scene := seen.DefaultScene()
+		scene := seen.NewDefaultScene()
 		scene.Shader = seen.PhongShader
 		scene.FractionalPoints = true
 		scene.Group.Add(sphere)
 		scene.Viewport = seen.CenterViewport(0, 0, width, height)
-		scenes = append(scenes, zsort.LayerWith(scene))
+		scenes = append(scenes, zsort.NewLayerForScene(scene))
 	}
 
 	// Create a render context for each SVG and Canvas
-	contexts := []*Context{}
+	contexts := []*Target{}
 	for i, scene := range scenes {
 		for _, kind := range []string{ /*"canvas",*/ "svg"} {
 			elementId := "seen-" + kind + "-" + strconv.Itoa(i)
-			context := ContextWith(html.GetElementById(elementId), scene)
+			context := NewTarget(html.GetElementById(elementId), scene)
 			if context == nil {
 				t.Errorf("Expected %q to be present", elementId)
 				return
@@ -208,7 +217,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 	}
 
 	// Slowly rotate shapes
-	a := &seen.Animator{}
+	a := &seen.Animation{}
 	a.OnFrame(func(t, dt time.Duration) {
 		for _, sphere := range spheres {
 			dtms := float64(dt.Milliseconds())
@@ -224,14 +233,14 @@ func TestDemoSvgCanvas(t *testing.T) {
 	a.Stop()
 
 	// Save the generated html element to file
-	html.SaveToFile(path.Join(os.Getenv("HOME"), "TestDemoSvgCanvas.html"))
+	html.SaveToFile(SourceFile("TestDemoSvgCanvas.html"))
 }
 
 func TestDemoText(t *testing.T) {
 	const width = 900
 	const height = 500
 
-	svg, err := document.MakeSVG("seen-svg", width, height)
+	svg, err := document.NewSVG("seen-svg", width, height)
 	if err != nil {
 		t.Error(err)
 		return
@@ -244,7 +253,7 @@ func TestDemoText(t *testing.T) {
 	}
 
 	// Create scene
-	scene := seen.DefaultScene()
+	scene := seen.NewDefaultScene()
 
 	// Draw bars for data
 	for i, d := range data {
@@ -277,7 +286,7 @@ func TestDemoText(t *testing.T) {
 	scene.Camera.SetRotation(quat.AxisAngle(0.1, 1, 0, math.Pi*0.2))
 
 	// Create render context from canvas
-	context := ContextWith(svg.GetElementById("seen-svg"), zsort.LayerWith(scene))
+	context := NewTarget(svg.GetElementById("seen-svg"), zsort.NewLayerForScene(scene))
 	if context == nil {
 		t.Error("Render context is nil")
 		return
@@ -285,7 +294,7 @@ func TestDemoText(t *testing.T) {
 	context.Render()
 
 	// Save the generated svg to file
-	err = svg.SaveToFile(path.Join(os.Getenv("HOME"), "TestDemoText.svg"))
+	err = svg.SaveToFile(SourceFile("TestDemoText.svg"))
 	if err != nil {
 		t.Error(err)
 		return

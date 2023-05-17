@@ -6,10 +6,10 @@ import (
 	"github.com/reactivego/seen/render"
 )
 
-// SceneLayer extends seen.Scene with a function to paint the
-// the scene on a Painter. By implementing this function the
-// SceneLayer implements the render.Layer interface.
-type SceneLayer struct {
+// Layer implements the render.Layer interface.
+// Layer extends seen.Scene with a function to paint the
+// the scene on a Painter.
+type Layer struct {
 	*seen.Scene
 
 	// BSP is a Binary Space Partitioning generated for the scene.
@@ -20,8 +20,10 @@ type SceneLayer struct {
 	cache    SurfaceCache
 }
 
-func LayerWith(scene *seen.Scene) *SceneLayer {
-	return &SceneLayer{
+var _ render.Layer = (*Layer)(nil)
+
+func NewLayerForScene(scene *seen.Scene) render.Layer {
+	return &Layer{
 		Scene:    scene,
 		surfaces: make([]*render.Surface, 0, 32),
 		cache:    make(map[int]*render.Surface),
@@ -31,7 +33,7 @@ func LayerWith(scene *seen.Scene) *SceneLayer {
 // Paint creates a render.Surface for every seen.Surface in the scene's objects.
 // When encountering a TextShape assign a TextPainter to the render.Surface.
 // When encountering any other shape assign a PathPainter to the render.Surface.
-func (s *SceneLayer) Paint(painter render.Painter) {
+func (s *Layer) Paint(painter render.Painter) {
 	// projection matrix transforms points from world space into camera space and then
 	// through viewport prescale and projection matrix into normalized screen space.
 	projection := s.Scene.Camera.Projection.Mul(s.Scene.Viewport.Prescale).Mul(s.Scene.Camera.Matrix())
@@ -52,7 +54,7 @@ func (s *SceneLayer) Paint(painter render.Painter) {
 	// fmt.Printf("eye: %v\n", eye)
 
 	// Walk the bsp tree and render the render surface back to front
-	s.bsp.Display(eye, func(plane []seen.Plane) {
+	s.bsp.Display(eye, func(plane []Plane) {
 		for i := range plane {
 			rs := s.cache[plane[i].Id]
 			if rs.InFrustum {

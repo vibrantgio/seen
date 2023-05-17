@@ -5,18 +5,14 @@ import (
 	"github.com/reactivego/seen/quat"
 )
 
-// Transformable is the interface every 3D object supports.
-type Transformable interface {
-	// Matrix returns the homogenous 4x4 matrix defining this Transformable's
-	// coordinate system w.r.t. to its parent object.
-	Matrix() Matrix
-}
-
-// Transform type is embedded by Light, Shape, Group and Camera.
-// It uses a double quaternion for specifying the transform.
-// The component transformations are applied in the order TRS.
-// So Object coordinates are transformed into parent space by
-// first scaling, then rotating and finally translating.
+// Transform is a type that is embedded by Light, Shape, Group and Camera.
+// It represents a 3D transformation using a double quaternion for rotation
+// and translation, with the scaling stored separately. This allows for
+// combining translation, rotation, and scaling operations in a single
+// transformation. The component transformations are applied in a right-to-left order.
+// Following the scheme T*R*S, where S is scaling, R is rotation, and T is translation.
+// Because operations apply right to left, the object is first scaled, then rotated,
+// and finally translated.
 type Transform struct {
 	dq dualquat.DualQuaternion
 	sx float64

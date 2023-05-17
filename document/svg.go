@@ -15,13 +15,13 @@ func (e SvgError) Error() string { return string(e) }
 // SVG
 type SVG struct{ *Element }
 
-// MakeSVG creates a simple document with just an svg element.
+// NewSVG creates a simple document with just an svg element.
 // <?xml version="1.0" standalone="yes"?>
 // <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 // <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="my-3d-svg" width="500" height="400">
 // </svg>
-func MakeSVG(id string, width, height int) (*SVG, error) {
-	svg := MakeDom().CreateElementNS(SVG_NS, "svg")
+func NewSVG(id string, width, height int) (*SVG, error) {
+	svg := NewDom().CreateElementNS(SVG_NS, "svg")
 	if svg == nil {
 		return nil, SvgError("Expected to be able to create an svg element")
 	}

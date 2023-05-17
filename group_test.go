@@ -33,7 +33,7 @@ func mock_Text(message string) Shape {
 		{0, 0.5, 0},
 		{0.5, 0, 0},
 	}
-	s := SurfaceWith(points)
+	s := NewSurfaceWith(points)
 	s.Options["text"] = message
 	return Shape{"text", DefaultTransform, []Surface{*s}}
 }
@@ -45,9 +45,9 @@ func TestGroupAdding(t *testing.T) {
 	// Rotate around y axis (rhs coord system with +y pointing up,
 	// +x pointing right and +z pointing out of the screen)
 	r := quat.AxisAngle(0, 1, 0, math.Pi/4.0)
-	m2 := GroupWith(&s, &tx)
+	m2 := NewGroupWith(&s, &tx)
 	m2.SetRotation(r)
-	m := GroupWith(&s, m2)
+	m := NewGroupWith(&s, m2)
 
 	m.EachRenderable(mock_GroupShapeFunc)
 

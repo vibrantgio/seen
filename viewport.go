@@ -19,3 +19,5 @@ func OriginViewport(offsetX, offsetY, width, height float64) Viewport {
 		Postscale: Translate(offsetX, offsetY, height).Scale(width, -height, height),
 	}
 }
+
+var DefaultViewport = OriginViewport(0, 0, 1, 1)

@@ -17,9 +17,9 @@ type HTML struct {
 	body *Element
 }
 
-// MakeHTML
-func MakeHTML() (*HTML, error) {
-	html := MakeDom().CreateElementNS("", "html")
+// NewHTML
+func NewHTML() (*HTML, error) {
+	html := NewDom().CreateElementNS("", "html")
 	if html == nil {
 		return nil, HtmlError("Expected to be able to create a html element")
 	}

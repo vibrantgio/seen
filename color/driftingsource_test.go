@@ -2,9 +2,9 @@ package color
 
 import "testing"
 
-func TestDefaultRandomSource2(t *testing.T) {
+func TestDefaultDriftingSource(t *testing.T) {
 
-	r := DefaultRandomSource2()
+	r := NewDriftingSource()
 	c0 := r.Read()
 	c1 := r.Read()
 	c2 := r.Read()

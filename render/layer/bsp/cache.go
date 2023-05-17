@@ -50,7 +50,7 @@ func (v *UpdateCache) VisitSurface(surface *seen.Surface) {
 		}
 		rs = cs
 	} else {
-		rs = render.SurfaceWith(surface, v.Transform, v.Projection, v.Viewport)
+		rs = render.NewSurfaceWith(surface, v.Transform, v.Projection, v.Viewport)
 		v.Cache[surface.Id] = rs
 		v.Updated = true
 	}

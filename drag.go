@@ -5,13 +5,14 @@ import (
 	"time"
 )
 
-type Drag struct {
-	handlers []DragHandler
-	inertia  *InertialMotion
-	iid      IntervalID
-}
+type DragType string
 
-type DragHandler func(DragEvent)
+const (
+	DragStart      = DragType("DragStart")
+	DragMove       = DragType("Drag")
+	DragEnd        = DragType("DragEnd")
+	DragEndInertia = DragType("DragEndInertia")
+)
 
 type DragEvent struct {
 	Type DragType
@@ -23,14 +24,11 @@ type DragEvent struct {
 	Dt   time.Duration
 }
 
-type DragType string
+type DragHandler func(DragEvent)
 
-const (
-	DragStart      = DragType("DragStart")
-	DragMove       = DragType("Drag")
-	DragEnd        = DragType("DragEnd")
-	DragEndInertia = DragType("DragEndInertia")
-)
+type Dragger interface {
+	On(handler DragHandler)
+}
 
 type DragOption func(*Drag)
 
@@ -43,6 +41,12 @@ func Inertia(value bool) DragOption {
 			d.inertia = nil
 		}
 	}
+}
+
+type Drag struct {
+	handlers []DragHandler
+	inertia  *InertialMotion
+	iid      IntervalID
 }
 
 func DragWith(options ...DragOption) *Drag {

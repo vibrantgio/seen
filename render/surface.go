@@ -47,7 +47,7 @@ type Surface struct {
 	Stroke *color.Color
 }
 
-func SurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *Surface {
+func NewSurfaceWith(surface *seen.Surface, transform, projection, viewport seen.Matrix) *Surface {
 	rs := &Surface{}
 	// Assign the correct render function to the render surface
 	if surface.Shape.Type == "text" {

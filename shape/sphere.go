@@ -39,7 +39,7 @@ func Sphere(subdivisions int) *seen.Shape {
 
 	surfaces := make(seen.Surfaces, len(triangles))
 	for i, triangle := range triangles {
-		surfaces[i] = *seen.SurfaceWith(triangle[:])
+		surfaces[i] = *seen.NewSurfaceWith(triangle[:])
 	}
 
 	return &seen.Shape{Type: "sphere", Transform: seen.DefaultTransform, Surfaces: surfaces}

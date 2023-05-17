@@ -1,22 +1,25 @@
-package seen
+package bsp
 
-import "github.com/reactivego/seen/float"
+import (
+	"github.com/reactivego/seen"
+	"github.com/reactivego/seen/float"
+)
 
 // Plane is the plane going through the Points of a
 // surface in the WorldSpace coordinate system.
 type Plane struct {
 	// Surface points to the Surface this Plane represents.
-	*Surface
+	*seen.Surface
 
 	// Points contains the Surface points in WorldSpace coordinates.
-	Points Points
+	Points seen.Points
 
 	// Barycenter contains the Barycenter of the Points.
-	Barycenter Point
+	Barycenter seen.Point
 
 	// Normal is the normal vector that is perpendicular
 	// to the plane going through Points.
-	Normal Point
+	Normal seen.Point
 }
 
 // ParallelWith returns true when this plane is parallel to the given plane.

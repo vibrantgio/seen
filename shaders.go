@@ -25,16 +25,16 @@ type SurfaceShaderData struct {
 
 // Shade for the `Flat` shader colors surfaces with the material color, disregarding all
 // light sources.
-var FlatShader = Shader(Flat)
+var FlatShader Shader = FlatShade
 
-func Flat(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
+func FlatShade(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
 	return material.Color
 }
 
 // AmbientShader for the `Ambient` shader colors surfaces from ambient light only.
-var AmbientShader = Shader(Ambient)
+var AmbientShader Shader = AmbientShade
 
-func Ambient(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
+func AmbientShade(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
 	c := color.Black
 	for _, lsd := range lights {
 		if lsd.Kind == AmbientKind {
@@ -46,10 +46,10 @@ func Ambient(lights []LightShaderData, surface *SurfaceShaderData, material *Mat
 
 // DiffusePhong shader implements the Phong shading model with a diffuse
 // and ambient term (no specular).
-var DiffusePhongShader = Shader(PhongDiffuseOnly)
+var DiffusePhongShader Shader = PhongDiffuseShade
 
-// PhongDiffuseOnly applies diffuse phong shading
-func PhongDiffuseOnly(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
+// PhongDiffuseShade applies diffuse phong shading and ignores specular.
+func PhongDiffuseShade(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
 	c := color.Black
 	for _, lsd := range lights {
 		switch lsd.Kind {
@@ -73,10 +73,10 @@ func PhongDiffuseOnly(lights []LightShaderData, surface *SurfaceShaderData, mate
 // PhongShader implements the Phong shading model with a diffuse,
 // specular, and ambient term.
 // See https://en.wikipedia.org/wiki/Phong_reflection_model for more information
-var PhongShader = Shader(Phong)
+var PhongShader Shader = PhongDiffuseAndSpecularShade
 
-// Phong applies diffuse and specular phong shading.
-func Phong(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
+// PhongDiffuseAndSpecularShade applies diffuse and specular phong shading.
+func PhongDiffuseAndSpecularShade(lights []LightShaderData, surface *SurfaceShaderData, material *Material) color.Color {
 	apply := func(c color.Color, lsd LightShaderData, lightNormal, surfaceNormal Point, material *Material) color.Color {
 		dot := lightNormal.Dot(surfaceNormal)
 		if dot <= 0.0 {
@@ -88,7 +88,7 @@ func Phong(lights []LightShaderData, surface *SurfaceShaderData, material *Mater
 
 		// Compute and apply specular phong shading
 		reflectionNormal := surfaceNormal.Scale(dot * 2.0).Subtract(lightNormal)
-		specularIntensity := math.Pow(0.5+reflectionNormal.Dot(PointZ), material.SpecularExponent) / 255.0
+		specularIntensity := math.Pow(0.5+reflectionNormal.Dot(Point{0, 0, 1}), material.SpecularExponent) / 255.0
 		specularColor := material.SpecularColor.Scale(specularIntensity * lsd.Intensity)
 		return c.AddChannels(specularColor)
 	}
@@ -110,3 +110,5 @@ func Phong(lights []LightShaderData, surface *SurfaceShaderData, material *Mater
 	}
 	return c.Clamp(0, 1.0)
 }
+
+var DefaultShader Shader = PhongDiffuseAndSpecularShade

@@ -27,10 +27,10 @@ var (
 	Black = Color{0.0, 0.0, 0.0, 1.0}
 )
 
-// ColorHsl creates a new `Color` using the supplied hue, saturation,
+// ColorHSL creates a new `Color` using the supplied hue, saturation,
 // and lightness (HSL) values.
 // Each value must be in the range [0.0, 1.0].
-func ColorHsl(h, s, l, a float64) Color {
+func ColorHSL(h, s, l, a float64) Color {
 	// When saturation is 0, the color is "achromatic" or "grayscale".
 	if s == 0 {
 		return Color{l, l, l, a}

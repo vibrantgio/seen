@@ -11,34 +11,38 @@ type Point struct {
 	X, Y, Z float64
 }
 
-// PointZero is the zero point
-var PointZero = Point{}
-
-// PointX is the unit X axis.
-var PointX = Point{1, 0, 0}
-
-// PointY is the unit Y axis.
-var PointY = Point{0, 1, 0}
-
-// PointZ is the unit Z axis.
-var PointZ = Point{0, 0, 1}
-
 func Pt(x, y, z float64) Point {
 	return Point{x, y, z}
+}
+
+func P[T int | float64](x, y, z T) Point {
+	return Point{float64(x), float64(y), float64(z)}
 }
 
 // Normalize returns a pointer to a copy of the Point after
 // normalizing the copy so the vector length is 1.0
 func (p Point) Normalize() Point {
 	mag := p.Length()
-	return Point{p.X / mag, p.Y / mag, p.Z / mag}
+	return Point{X: p.X / mag, Y: p.Y / mag, Z: p.Z / mag}
+}
+
+func (v Point) Unit() Point {
+	return v.DividedBy(v.Length())
+}
+
+func (v Point) Negated() Point {
+	return Point{X: -v.X, Y: -v.Y, Z: -v.Z}
 }
 
 // Subtract returns a pointer to a copy of this Point after
 // subtracting the passed in Point r from this copy.
 // The W values are not subtracted.
 func (l Point) Subtract(r Point) Point {
-	return Point{l.X - r.X, l.Y - r.Y, l.Z - r.Z}
+	return Point{X: l.X - r.X, Y: l.Y - r.Y, Z: l.Z - r.Z}
+}
+
+func (v Point) Minus(a Point) Point {
+	return Point{X: v.X - a.X, Y: v.Y - a.Y, Z: v.Z - a.Z}
 }
 
 // Length calculates the length of the X,Y,Z component vector
@@ -53,80 +57,44 @@ func (l Point) Equal(r Point) bool {
 
 // Add will add another Point's X,Y,Z compontents
 func (l Point) Add(r Point) Point {
-	return Point{l.X + r.X, l.Y + r.Y, l.Z + r.Z}
+	return Point{X: l.X + r.X, Y: l.Y + r.Y, Z: l.Z + r.Z}
+}
+
+func (v Point) Plus(a Point) Point {
+	return Point{X: v.X + a.X, Y: v.Y + a.Y, Z: v.Z + a.Z}
 }
 
 // Round rounds the X,Y,Z components to the nearest integer value.
 func (p Point) Round() Point {
-	return Point{math.Floor(p.X + 0.5), math.Floor(p.Y + 0.5), math.Floor(p.Z + 0.5)}
+	return Point{X: math.Floor(p.X + 0.5), Y: math.Floor(p.Y + 0.5), Z: math.Floor(p.Z + 0.5)}
 }
 
 // Scale multiplies the X,Y,Z components with a scalar value.
 func (p Point) Scale(s float64) Point {
-	return Point{p.X * s, p.Y * s, p.Z * s}
+	return Point{X: p.X * s, Y: p.Y * s, Z: p.Z * s}
 }
 
-func (l Point) Cross(r Point) Point {
-	return Point{l.Y*r.Z - l.Z*r.Y, l.Z*r.X - l.X*r.Z, l.X*r.Y - l.Y*r.X}
+func (v Point) Times(a float64) Point {
+	return Point{X: v.X * a, Y: v.Y * a, Z: v.Z * a}
+}
+
+func (v Point) DividedBy(a float64) Point {
+	return Point{X: v.X / a, Y: v.Y / a, Z: v.Z / a}
 }
 
 func (l Point) Dot(r Point) float64 {
 	return l.X*r.X + l.Y*r.Y + l.Z*r.Z
 }
 
+func (v Point) Lerp(a Point, t float64) Point {
+	return v.Plus(a.Minus(v).Times(t))
+}
+
+func (l Point) Cross(r Point) Point {
+	return Point{X: l.Y*r.Z - l.Z*r.Y, Y: l.Z*r.X - l.X*r.Z, Z: l.X*r.Y - l.Y*r.X}
+}
+
 func (p Point) Mul(m Matrix) Point {
 	x, y, z, _ := m.Transform(p.X, p.Y, p.Z, 1.0)
-	return Point{x, y, z}
-}
-
-type Points []Point
-
-func (points Points) Mul(m Matrix, transformedPoints Points) (barycenter Point) {
-	if len(transformedPoints) != len(points) {
-		panic("internal error, slice lengths don't match")
-	}
-
-	// Create Barycenter point used in sorting surfaces in the painters algorithm
-	barycenter = PointZero
-
-	// Apply transform to points
-	for i, p := range points {
-		p.X, p.Y, p.Z, _ = m.Transform(p.X, p.Y, p.Z, 1.0)
-		transformedPoints[i] = p
-		barycenter = barycenter.Add(p)
-	}
-
-	// Compute barycenter, which is used in sorting surfaces in the painters algorithm
-	return barycenter.Scale(1.0 / float64(len(points)))
-}
-
-func (points Points) Clip(m Matrix, Z float64, clippedPoints Points) bool {
-	if len(clippedPoints) != len(points) {
-		panic("internal error, slice lengths don't match")
-	}
-	for i, p := range points {
-		x, y, z, w := m.Transform(p.X, p.Y, p.Z, 1.0)
-		if z <= Z {
-			return false
-		}
-		// Apply the clip so it scales the x and y coordinates in a perspective projection.
-		// This is done by dividing the X,Y,Z components by W
-		clippedPoints[i] = Point{x / w, y / w, z / w}
-	}
-	return true
-}
-
-// Normal returns the normal (not normalize) for a slice
-// of points. Can be used for e.g. backface culling or shading.
-func (points Points) Normal() Point {
-	pointsLen := len(points)
-	if pointsLen < 3 {
-		return PointZ // Default normal
-	}
-	p0 := points[0]
-	p1 := points[1]
-	p2 := points[pointsLen-1]
-	v0 := p1.Subtract(p0)
-	v1 := p2.Subtract(p0)
-	return v0.Cross(v1)
+	return Point{X: x, Y: y, Z: z}
 }

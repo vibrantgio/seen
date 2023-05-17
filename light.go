@@ -37,10 +37,10 @@ const FillIntensity = 255 * 0.0015  // 0.3825
 func LightOf(kind LightKind) (l Light) {
 	l.Transform = DefaultTransform
 	l.Kind = kind
-	l.Point = PointZero
+	l.Point = Point{}
 	l.Color = color.White
 	l.Intensity = DefaultIntensity
-	l.Normal = Point{1, -1, -1}.Normalize()
+	l.Normal = Point{X: 1, Y: -1, Z: -1}.Normalize()
 	l.Enabled = true
 	return
 }
@@ -61,7 +61,7 @@ func (l Light) ShaderData(transform Matrix) (lsd LightShaderData) {
 	lsd.Point = l.Point.Mul(transform)
 	lsd.Color = l.Color.Scale(l.Intensity)
 	lsd.Intensity = l.Intensity
-	origin := PointZero.Mul(transform)
+	origin := Point{}.Mul(transform)
 	lsd.Normal = l.Normal.Mul(transform).Subtract(origin).Normalize()
 	return lsd
 }
@@ -92,13 +92,13 @@ func AmbientLight() Light {
 func DefaultLights() []Transformable {
 	// Key light
 	key := DirectionalLight()
-	key.Normal = Point{-1, 1, 1}.Normalize()
-	key.Color = color.ColorHsl(0.1, 0.3, 0.7, 1.0)
+	key.Normal = Point{X: -1, Y: 1, Z: 1}.Normalize()
+	key.Color = color.ColorHSL(0.1, 0.3, 0.7, 1.0)
 	key.Intensity = KeyIntensity
 
 	// Back light
 	back := DirectionalLight()
-	back.Normal = Point{1, 1, -1}.Normalize()
+	back.Normal = Point{X: 1, Y: 1, Z: -1}.Normalize()
 	back.Intensity = BackIntesity
 
 	// Fill light

@@ -4,7 +4,7 @@ type Dom struct {
 	ChildNodes map[string]*Element
 }
 
-func MakeDom() *Dom {
+func NewDom() *Dom {
 	return &Dom{ChildNodes: make(map[string]*Element)}
 }
 

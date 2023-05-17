@@ -2,6 +2,14 @@ package shape
 
 import "github.com/reactivego/seen"
 
+// Icosahedron returns an icosahedron that fits within a 2x2x2 cube, centered on the origin.
+func Icosahedron() *seen.Shape {
+	return &seen.Shape{
+		Type:      "icosahedron",
+		Transform: seen.DefaultTransform,
+		Surfaces:  seen.SurfacesWith(IcosahedronPoints[:], IcosahedronMap[:])}
+}
+
 const IcoXX = 0.525731112119133606
 const IcoXZ = 0.850650808352039932
 
@@ -41,12 +49,4 @@ var IcosahedronMap = [...][]int{
 	{9, 11, 2},
 	{9, 2, 5},
 	{7, 2, 11},
-}
-
-// Icosahedron returns an icosahedron that fits within a 2x2x2 cube, centered on the origin.
-func Icosahedron() *seen.Shape {
-	return &seen.Shape{
-		Type:      "icosahedron",
-		Transform: seen.DefaultTransform,
-		Surfaces:  seen.SurfacesWith(IcosahedronPoints[:], IcosahedronMap[:])}
 }

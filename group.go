@@ -12,11 +12,11 @@ type Group struct {
 	Children []Transformable
 }
 
-func EmptyGroup() *Group {
+func NewGroup() *Group {
 	return &Group{Transform: DefaultTransform}
 }
 
-func GroupWith(children ...Transformable) *Group {
+func NewGroupWith(children ...Transformable) *Group {
 	m := Group{Transform: DefaultTransform}
 	m.Add(children...)
 	return &m
