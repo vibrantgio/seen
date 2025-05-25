@@ -2,6 +2,7 @@ package solid
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -12,7 +13,7 @@ import (
 // since there is no distinction between internal and leaf nodes.
 type BSP struct {
 	Plane    *Plane
-	Polygons Polygons
+	Polygons []Polygon
 	Front    *BSP
 	Back     *BSP
 }
@@ -34,11 +35,11 @@ func (n *BSP) Invert() {
 
 // ClipPolygons recursively removes all polygons in `polygons` that are inside
 // this BSP tree.
-func (n BSP) ClipPolygons(polygons Polygons) Polygons {
+func (n BSP) ClipPolygons(polygons []Polygon) []Polygon {
 	if n.Plane == nil {
-		return append(Polygons(nil), polygons...)
+		return slices.Clone(polygons)
 	}
-	var front, back Polygons
+	var front, back []Polygon
 	for _, p := range polygons {
 		n.Plane.SplitPolygon(p, &front, &back, &front, &back)
 	}
@@ -66,8 +67,8 @@ func (n *BSP) ClipTo(bsp *BSP) {
 }
 
 // AllPolygons returns a list of all polygons in this BSP tree.
-func (n BSP) AllPolygons() Polygons {
-	polygons := append(Polygons(nil), n.Polygons...)
+func (n BSP) AllPolygons() []Polygon {
+	polygons := slices.Clone(n.Polygons)
 	if n.Front != nil {
 		polygons = append(polygons, n.Front.AllPolygons()...)
 	}
@@ -81,7 +82,7 @@ func (n BSP) AllPolygons() Polygons {
 // tree, the new polygons are filtered down to the bottom of the tree and become
 // new nodes there. Each set of polygons is partitioned using the first polygon
 // (no heuristic is used to pick a good split).
-func (n *BSP) AddPolygons(polygons Polygons) {
+func (n *BSP) AddPolygons(polygons []Polygon) {
 	if len(polygons) == 0 {
 		return
 	}
@@ -89,7 +90,7 @@ func (n *BSP) AddPolygons(polygons Polygons) {
 		p := polygons[0].Plane
 		n.Plane = &p
 	}
-	var front, back Polygons
+	var front, back []Polygon
 	for _, p := range polygons {
 		n.Plane.SplitPolygon(p, &n.Polygons, &n.Polygons, &front, &back)
 	}

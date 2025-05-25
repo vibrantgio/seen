@@ -1,8 +1,8 @@
 package solid
 
-import "github.com/reactivego/seen"
+import "github.com/vibrantgio/seen/point"
 
-type Vector = seen.Point
+type Vector = point.Point
 
 /*
 // Vector represents a 3D vector.

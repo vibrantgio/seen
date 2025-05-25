@@ -1,0 +1,3 @@
+#!/bin/zsh
+go run ./peg grammar.peg
+peg -noast -switch -inline -strict -output grammar.go grammar.peg.peg

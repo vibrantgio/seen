@@ -1,3 +1,3 @@
-module github.com/reactivego/seen
+module github.com/vibrantgio/seen
 
-go 1.20
+go 1.23

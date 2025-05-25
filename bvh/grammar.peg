@@ -1,0 +1,131 @@
+
+/*----------------------------------------------
+
+  Biovision BVH motion capture format
+
+  License : Apache-2.0
+  Author  : themadcreator@github
+
+  Adapted to Golang on March 15, 2025
+
+  To build parser:
+  > go install github.com/mna/pigeon@latest
+  > pigeon pigeon -o grammar.go -optimize-parser grammar.pigeon.peg
+  > goimports -w grammar.go
+
+-----------------------------------------------*/
+{
+package main
+
+type Hierarchy struct {
+    Root Joint
+    Motion Motion
+}
+
+type Joint struct {
+    Id string
+    Offset [3]float64
+    Channels []Channel
+    Joints []Joint
+    EndSite [3]float64
+}
+
+type Channel string
+
+const Xposition = Channel("Xposition")
+const Yposition = Channel("Yposition")
+const Zposition = Channel("Zposition")
+const Xrotation = Channel("Xrotation")
+const Yrotation = Channel("Yrotation")
+const Zrotation = Channel("Zrotation")
+
+type Motion struct {
+    FrameTime time.Duration
+    Frames []Frame
+}
+
+type Frame []float64
+
+}
+
+program <- "HIERARCHY"i _ root:root _ motion:motion {
+    return Hierarchy{Root:root.(Joint), Motion:motion.(Motion)}, nil
+}
+
+root <- "ROOT"i _ id:id _ '{' _ offset:offset _ channels:channels _ joints:joint* '}' {
+    jts := make([]Joint, len(joints.([]any)))
+    for i := range joints.([]any) {
+        jts[i] = joints.([]any)[i].(Joint)
+    }
+    return Joint{Id:id.(string), Offset:offset.([3]float64), Channels:channels.([]Channel), Joints:jts}, nil
+}
+
+joint <- "JOINT"i _ id:id _ '{' _ offset:offset _ channels:channels _ joints:joint* '}' _ {
+            jts := make([]Joint, len(joints.([]any)))
+            for i := range joints.([]any) {
+                jts[i] = joints.([]any)[i].(Joint)
+            }
+            return Joint{Id:id.(string), Offset:offset.([3]float64), Channels:channels.([]Channel), Joints:jts}, nil
+        }
+        / "END SITE"i _ '{' _ offset:offset _ '}' _ {
+            return Joint{Id:"END SITE", EndSite:offset.([3]float64)}, nil
+        }
+
+offset <- "OFFSET"i _ x:float _ y:float _ z:float {
+    return [3]float64{x.(float64), y.(float64), z.(float64)}, nil
+}
+
+channels <- "CHANNELS"i _ count:[0-9] _ channels:channel_type* {
+    chans := make([]Channel, len(channels.([]any)))
+    for i := range channels.([]any) {
+        chans[i] = channels.([]any)[i].(Channel)
+    }
+    return chans, nil
+}
+
+channel_type <- channel_type: (
+    "Xposition"i /
+    "Yposition"i /
+    "Zposition"i /
+    "Xrotation"i /
+    "Yrotation"i /
+    "Zrotation"i
+) _ {
+    return Channel(c.text), nil
+}
+
+motion <- "MOTION"i _ "Frames:"i _ frameCount:integer _ "Frame Time:"i _ frameTime:float _ frames:frame_data* {
+    frms := make([]Frame, frameCount.(int64))
+    for i := range frames.([]any) {
+        frms[i] = frames.([]any)[i].(Frame)
+    }
+    return Motion{FrameTime:time.Duration(frameTime.(float64) * float64(time.Second)), Frames:frms}, nil
+}
+
+frame_data <- frameValues:frame_value+ [\n\r]+ {
+    vals := make(Frame, len(frameValues.([]any)))
+    for i := range len(vals) {
+        vals[i] = frameValues.([]any)[i].(float64)
+    }
+    return vals, nil
+}
+
+frame_value <- value:float [ ]* {
+    return value, nil
+}
+
+id <- [a-zA-Z0-9-_]+ {
+    return string(c.text), nil
+}
+
+float <- value:[-0-9.eE]+ {
+    return strconv.ParseFloat(string(c.text), 64)
+}
+
+integer <- [-0-9eE]+ {
+    return strconv.ParseInt(string(c.text), 10, 64)
+}
+
+_ <- ([ \t\n\r]*) {
+    return nil, nil
+}

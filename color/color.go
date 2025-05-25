@@ -3,29 +3,16 @@ package color
 import (
 	"image/color"
 	"math"
-	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 
-	"github.com/reactivego/seen/float"
+	"github.com/vibrantgio/seen/float"
 )
 
 // Color objects store RGB and Alpha values with components in range [0..1]
 type Color struct {
 	R, G, B, A float64
 }
-
-var (
-	// White is a shortcut for the white color
-	White = Color{1.0, 1.0, 1.0, 1.0}
-
-	// Grey is a shortcut for the grey color.
-	Grey = Color{0.5, 0.5, 0.5, 1.0}
-
-	// Black is a shortcut for the black color.
-	Black = Color{0.0, 0.0, 0.0, 1.0}
-)
 
 // ColorHSL creates a new `Color` using the supplied hue, saturation,
 // and lightness (HSL) values.
@@ -177,10 +164,4 @@ func (l Color) Clamp(min, max float64) Color {
 	l.G = math.Min(max, math.Max(min, l.G))
 	l.B = math.Min(max, math.Max(min, l.B))
 	return l
-}
-
-// init will seed the default random generator with the current time.
-// This is needed by the RandomSource2 struct below.
-func init() {
-	rand.Seed(time.Now().UnixNano())
 }

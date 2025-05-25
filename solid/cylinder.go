@@ -1,8 +1,6 @@
 package solid
 
-import (
-	"math"
-)
+import "math"
 
 // Cylinder constructs a solid cylinder. Optional parameters are `Start`,
 // `End`, `Radius`, and `Slices`, which default to `Start(0, -1, 0)`,
@@ -16,7 +14,7 @@ import (
 //	  End(0, 1, 0),
 //	  Radius(1),
 //	  Slices(16))
-func Cylinder(options ...Option) *Solid {
+func Cylinder(options ...Option) CSG {
 	o := OptionsFrom(options)
 	s := o.Start
 	e := o.End
@@ -39,12 +37,12 @@ func Cylinder(options ...Option) *Solid {
 		normal := out.Times(1 - math.Abs(normalBlend)).Plus(axisZ.Times(normalBlend))
 		return Vertex{Pos: position, Normal: normal}
 	}
-	var polygons Polygons
+	var polygons CSG
 	for i := 0.0; i < slices; i++ {
 		t0, t1 := i/slices, (i+1)/slices
 		polygons = append(polygons, PolygonFromVertices(start, point(0, t0, -1), point(0, t1, -1)))
 		polygons = append(polygons, PolygonFromVertices(point(0, t1, 0), point(0, t0, 0), point(1, t0, 0), point(1, t1, 0)))
 		polygons = append(polygons, PolygonFromVertices(end, point(1, t1, 1), point(1, t0, 1)))
 	}
-	return SolidFromPolygons(polygons)
+	return polygons
 }

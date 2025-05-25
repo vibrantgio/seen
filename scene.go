@@ -1,5 +1,12 @@
 package seen
 
+import (
+	"github.com/vibrantgio/seen/camera"
+	"github.com/vibrantgio/seen/light"
+	"github.com/vibrantgio/seen/shader"
+	"github.com/vibrantgio/seen/viewport"
+)
+
 // Scene
 type Scene struct {
 	// Group is the root group for the scene, which contains Shapes, Lights, and
@@ -8,24 +15,24 @@ type Scene struct {
 
 	// Camera which defines the projection transformation.
 	// The default projection is perspective.
-	Camera Camera
+	Camera camera.Camera
 
 	// Viewport defines the projection from shape-space to
 	// projection-space then to screen-space. The default viewport is on a
 	// space from (0,0,0) to (1,1,1). To map more naturally to pixels, create a
 	// viewport with the same width/height as the DOM element.
-	Viewport Viewport
+	Viewport viewport.Viewport
 
 	// Shader determines which lighting model is used.
-	Shader Shader
+	Shader shader.Shader
 
 	// The ShowBackfaces bool can be used to turn on showing of backfaces
 	// for the whole scene. Beware, turning this on can slow down a scene's
 	// rendering by a factor of 2. You can also turn on backface showing for
-	// individual surfaces with a boolean on those objects.
+	// individual faces with a boolean on those objects.
 	ShowBackfaces bool
 
-	// FractionalPoints bool determines if we round the surface
+	// FractionalPoints bool determines if we round the face
 	// coordinates to the nearest integer. Rounding the coordinates before
 	// display speeds up path drawing  especially when using an SVG context
 	// since it cuts down on the length of path data. Anecdotally, my speedup
@@ -33,10 +40,10 @@ type Scene struct {
 	// jittering effect when animating.
 	FractionalPoints bool
 
-	// Regenerate is a bool that when set to true will force regeneration of render surfaces.
-	// A render surface is generated for each surface in the scene. When Regenerate is set
-	// to false (default), the generated render surfaces will be cached. The cache is a simple
-	// map keyed by the surface's unique id. The cache has no eviction policy.
+	// Regenerate is a bool that when set to true will force regeneration of render faces.
+	// A render face is generated for each face in the scene. When Regenerate is set
+	// to false (default), the generated render faces will be cached. The cache is a simple
+	// map keyed by the face's unique id. The cache has no eviction policy.
 	// To flush the cache, call FlushCache()
 	Regenerate bool
 }
@@ -46,9 +53,9 @@ type Scene struct {
 func NewScene() *Scene {
 	return &Scene{
 		Group:    NewGroup(),
-		Camera:   DefaultCamera,
-		Viewport: DefaultViewport,
-		Shader:   DefaultShader,
+		Camera:   camera.Default,
+		Viewport: viewport.Default,
+		Shader:   shader.Default,
 	}
 }
 
@@ -56,9 +63,13 @@ func NewScene() *Scene {
 // a Group with Hollywood-style 3-part lighting.
 func NewDefaultScene() *Scene {
 	return &Scene{
-		Group:    NewGroupWith(DefaultLights()...),
-		Camera:   DefaultCamera,
-		Viewport: DefaultViewport,
-		Shader:   DefaultShader,
+		Group:    NewGroupWithLights(light.DefaultLights()...),
+		Camera:   camera.Default,
+		Viewport: viewport.Default,
+		Shader:   shader.Default,
 	}
+}
+
+func (scene *Scene) Accept(handler Handler) {
+	scene.Group.Accept(NewVisitor(handler))
 }

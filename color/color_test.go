@@ -3,7 +3,7 @@ package color
 import (
 	"testing"
 
-	"github.com/reactivego/seen/float"
+	"github.com/vibrantgio/seen/float"
 )
 
 func TestColorScale(t *testing.T) {

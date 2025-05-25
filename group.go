@@ -1,5 +1,13 @@
 package seen
 
+import (
+	"slices"
+
+	"github.com/vibrantgio/seen/light"
+	"github.com/vibrantgio/seen/matrix"
+	"github.com/vibrantgio/seen/transform"
+)
+
 // Group is the object collection class.
 // It stores Shapes, Lights, and other Groups as well as a transformation matrix.
 //
@@ -7,100 +15,70 @@ package seen
 // the transformation of groups of shapes in the scene, as well as create
 // chains of transformations for creating, for example, articulated skeletons.
 type Group struct {
-	Transform
-	Lights   []*Light
-	Children []Transformable
+	transform.Transform
+	Lights   []Light
+	Children []Node
 }
 
-func NewGroup() *Group {
-	return &Group{Transform: DefaultTransform}
+var _ Node = (*Group)(nil)
+
+func NewGroup(children ...Node) *Group {
+	return &Group{Transform: transform.Default, Children: children}
 }
 
-func NewGroupWith(children ...Transformable) *Group {
-	m := Group{Transform: DefaultTransform}
-	m.Add(children...)
-	return &m
-}
-
-// Add a `Shape`, `Light`, and other `Group` as a child of this `Group`
-// Any number of children can by supplied as arguments.
-func (m *Group) Add(children ...Transformable) {
-	for _, child := range children {
-		if light, ok := child.(*Light); ok {
-			m.Lights = append(m.Lights, light)
-		} else {
-			m.Children = append(m.Children, child)
-		}
+func NewGroupWithLights(lights ...*light.Light) *Group {
+	g := &Group{Transform: transform.Default}
+	for light := range slices.Values(lights) {
+		g.Lights = append(g.Lights, light)
 	}
+	return g
 }
 
-type ShapeFunc func(shape *Shape, lights []LightShaderData, transform Matrix)
+func (m *Group) Kind() string {
+	return "group"
+}
 
-// EachRenderable visits each Shape, accumulating the recursive transformation
-// matrices along the way. Each shape callback will be called with each shape and
-// its accumulated transform as well as the list of light render datas that apply
-// to that shape.
-func (m *Group) EachRenderable(shape ShapeFunc) {
-	m.eachRenderable(shape, []LightShaderData{}, m.Matrix())
+// Add lights to this `Group`
+func (m *Group) AddLights(lights ...Light) {
+	m.Lights = append(m.Lights, lights...)
+}
+
+// Add Nodes as children of this `Group`
+// Any number of children can by supplied as arguments.
+func (m *Group) Add(children ...Node) {
+	m.Children = append(m.Children, children...)
+}
+
+type ObjectFunc func(object Object, lights []light.ShaderData, model matrix.Matrix)
+
+// EachRenderable visits each Node, recursively accumulating the model matrix
+// along the way. The model matrix is used to transform the points of a node
+// into the global World space. For every Node the callback is invoked passing
+// in the node and the model matrix as well as the list of light render datas
+// that apply to the node.
+func (m *Group) EachRenderable(cb ObjectFunc) {
+	m.eachRenderable(cb, nil, m.Matrix())
 }
 
 // Go through the group depth first recursively and call the shape function for every shape.
-func (m *Group) eachRenderable(shape ShapeFunc, lsd []LightShaderData, transform Matrix) {
+func (m *Group) eachRenderable(cb ObjectFunc, lsd []light.ShaderData, model matrix.Matrix) {
 	for _, light := range m.Lights {
-		if light.Enabled {
-			t := transform.Mul(light.Matrix())
-			lsd = append(lsd, light.ShaderData(t))
+		if light.IsEnabled() {
+			lsd = append(lsd, light.ShaderData(model.Mul(light.Matrix())))
 		}
 	}
-	for _, child := range m.Children {
-		switch c := child.(type) {
-		case *Shape:
-			shape(c, lsd, transform.Mul(c.Matrix()))
+	for _, c := range m.Children {
+		switch child := c.(type) {
+		case Object:
+			cb(child, lsd, model.Mul(child.Matrix()))
 		case *Group:
-			c.eachRenderable(shape, lsd, transform.Mul(c.Matrix()))
+			child.eachRenderable(cb, lsd, model.Mul(child.Matrix()))
 		default:
 			// skip
 		}
 	}
 }
 
-type GroupVisitor interface {
-	Push()
-	Pop()
-
-	VisitLight(l *Light)
-
-	VisitSurface(s *Surface)
-	EnterShape(s *Shape)
-	LeaveShape(s *Shape)
-
-	EnterGroup(m *Group)
-	LeaveGroup(m *Group)
-}
-
-func (m *Group) Accept(v GroupVisitor) {
-	v.Push()
-	v.EnterGroup(m)
-	for _, light := range m.Lights {
-		v.VisitLight(light)
-	}
-	for _, child := range m.Children {
-		switch c := child.(type) {
-		case *Shape:
-			v.Push()
-			v.EnterShape(c)
-			for i := range c.Surfaces {
-				c.Surfaces[i].Shape = c
-				v.VisitSurface(&c.Surfaces[i])
-			}
-			v.LeaveShape(c)
-			v.Pop()
-		case *Group:
-			c.Accept(v)
-		default:
-			// skip
-		}
-	}
-	v.LeaveGroup(m)
-	v.Pop()
+func (m *Group) Accept(v Visitor) {
+	v.VisitGroup(m)
 }

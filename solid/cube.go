@@ -10,7 +10,7 @@ package solid
 //	cube := solid.Cube(
 //	  solid.Center(0, 0, 0),
 //	  solid.Size(2, 2, 2))
-func Cube(options ...Option) *Solid {
+func Cube(options ...Option) CSG {
 	o := OptionsFrom(options)
 	faces := [][]int{
 		{0, 4, 6, 2},
@@ -41,5 +41,5 @@ func Cube(options ...Option) *Solid {
 		}
 		polygons = append(polygons, PolygonFromVertices(vertices...))
 	}
-	return SolidFromPolygons(polygons)
+	return CSG(polygons)
 }

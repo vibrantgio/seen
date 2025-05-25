@@ -1,0 +1,4 @@
+#!/bin/zsh
+# go run ./pigeon grammar.peg
+pigeon -o grammar.go -optimize-parser grammar.peg
+goimports -w grammar.go

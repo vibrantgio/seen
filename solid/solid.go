@@ -1,118 +1,36 @@
 package solid
 
-import "github.com/reactivego/seen"
+import (
+	"github.com/vibrantgio/seen"
+	"github.com/vibrantgio/seen/face"
+	"github.com/vibrantgio/seen/point"
+	"github.com/vibrantgio/seen/transform"
+)
 
-// Solid holds a binary space partition tree representing a 3D solid.
-// Two solids can be combined using the `Union()`, `Subtract()` and
-// `Intersect()` methods.
 type Solid struct {
-	Polygons Polygons
+	transform.Transform
+	kind  string
+	faces face.Faces
 }
 
-func (s *Solid) Shape() *seen.Shape {
-	var surfaces seen.Surfaces
-	for _, poly := range s.Polygons {
-		points := make(seen.Points, len(poly.Vertices))
-		for i, v := range poly.Vertices {
-			points[i] = v.Pos
+var _ seen.Object = (*Solid)(nil)
+
+func NewSolid(kind string, csg CSG) seen.Object {
+	s := Solid{transform.Default, kind, nil}
+	for _, poly := range csg {
+		points := make(point.Points, 0, len(poly.Vertices))
+		for _, v := range poly.Vertices {
+			points = append(points, point.Point{X: v.Pos.X, Y: v.Pos.Y, Z: v.Pos.Z})
 		}
-		surfaces = append(surfaces, *seen.NewSurfaceWith(points))
+		s.faces = append(s.faces, face.FaceWith(points))
 	}
-	return &seen.Shape{Type: "solid", Transform: seen.DefaultTransform, Surfaces: surfaces}
+	return &s
 }
 
-// SolidFromPolygons constructs a CSG solid from a list of `solid.Polygon` instances.
-func SolidFromPolygons(polygons Polygons) *Solid {
-	return &Solid{Polygons: polygons}
+func (s Solid) Kind() string {
+	return s.kind
 }
 
-// Union returns a new CSG solid representing space in either this solid or
-// in the solid `csg`. Neither this solid nor the solid `csg` are modified.
-//
-//	A.Union(B)
-//
-//	+-------+            +-------+
-//	|       |            |       |
-//	|   A   |            |       |
-//	|    +--+----+   =   |       +----+
-//	+----+--+    |       +----+       |
-//	     |   B   |            |       |
-//	     |       |            |       |
-//	     +-------+            +-------+
-func (s *Solid) Union(other *Solid) *Solid {
-	a, b := &BSP{}, &BSP{}
-	a.AddPolygons(s.Polygons.Clone())
-	b.AddPolygons(other.Polygons.Clone())
-	a.ClipTo(b)
-	b.ClipTo(a)
-	b.Invert()
-	b.ClipTo(a)
-	b.Invert()
-	a.AddPolygons(b.AllPolygons())
-	return SolidFromPolygons(a.AllPolygons())
-}
-
-// Subtract returns a new CSG solid representing space in this solid but not
-// in the solid `csg`. Neither this solid nor the solid `csg` are modified.
-//
-//	A.Subtract(B)
-//
-//	+-------+            +-------+
-//	|       |            |       |
-//	|   A   |            |       |
-//	|    +--+----+   =   |    +--+
-//	+----+--+    |       +----+
-//	     |   B   |
-//	     |       |
-//	     +-------+
-func (s *Solid) Subtract(other *Solid) *Solid {
-	a, b := &BSP{}, &BSP{}
-	a.AddPolygons(s.Polygons.Clone())
-	b.AddPolygons(other.Polygons.Clone())
-	a.Invert()
-	a.ClipTo(b)
-	b.ClipTo(a)
-	b.Invert()
-	b.ClipTo(a)
-	b.Invert()
-	a.AddPolygons(b.AllPolygons())
-	a.Invert()
-	return SolidFromPolygons(a.AllPolygons())
-}
-
-// Intersect returns a new CSG solid representing space both this solid and in
-// the solid `csg`. Neither this solid nor the solid `csg` are modified.
-//
-//	A.intersect(B)
-//
-//	+-------+
-//	|       |
-//	|   A   |
-//	|    +--+----+   =   +--+
-//	+----+--+    |       +--+
-//	     |   B   |
-//	     |       |
-//	     +-------+
-func (s *Solid) Intersect(other *Solid) *Solid {
-	a, b := &BSP{}, &BSP{}
-	a.AddPolygons(s.Polygons.Clone())
-	b.AddPolygons(other.Polygons.Clone())
-	a.Invert()
-	b.ClipTo(a)
-	b.Invert()
-	a.ClipTo(b)
-	b.ClipTo(a)
-	a.AddPolygons(b.AllPolygons())
-	a.Invert()
-	return SolidFromPolygons(a.AllPolygons())
-}
-
-// Inverse returns a new CSG solid with solid and empty space switched.
-// This solid is not modified.
-func (s *Solid) Inverse() *Solid {
-	polygons := s.Polygons.Clone()
-	for i := range polygons {
-		polygons[i].Flip()
-	}
-	return SolidFromPolygons(polygons)
+func (s Solid) Faces() face.Faces {
+	return s.faces
 }

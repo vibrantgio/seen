@@ -1,17 +1,20 @@
 package affine
 
-import "github.com/reactivego/seen"
+import (
+	"github.com/vibrantgio/seen/point"
+)
 
-// This is the set of points that must be used by a surface that will use an
+type Basis [3]point.Point
+
+// This is the set of points that must be used by a face that will use an
 // affine transform for rendering.
 // The coordinate system used by this basis is a right handed system where
 // the x-axis is pointing right the y-axis is pointing up and the z axis
 // is pointing out of the screen.
-var ORTHONORMAL_BASIS = []seen.Point{
+var ORTHONORMAL_BASIS = Basis{
 	{0, 0, 0},
 	{20, 0, 0},
-	{0, 20, 0},
-}
+	{0, 20, 0}}
 
 // Matrix represents a transform in 2D used in SVG and HTML5 Canvas.
 // The matrix can express rotation, skewing, scaling and translation.
@@ -35,15 +38,17 @@ type Matrix struct {
 // screen. Note that the Z component is not used for solving the affine
 // transform.
 // Returns affine transform matrix(A,B,C,D,E,F) interpreted as follows:
+//
 //	| A C E |
 //	| B D F |
 //	| 0 0 1 |
+//
 // A scale, skew and rotation is the 2x2 matrix at the upper left and
 // a translation vector is at the upper right.
 // NOTE! the coordinate system for homogeneous vectors that can be
 // transformed using this matrix have the positive x-axis going right
 // but the positive y axis going down!
-func SolveForAffineTransform(points []seen.Point) Matrix {
+func SolveForAffineTransform(points Basis) Matrix {
 	// Because we control the initial values of the points, we can re-use the
 	// state matrix. Furthermore, because we have use a special layout (upper
 	// triangular) for this matrix, we avoid any matrix factorization and can go
@@ -77,7 +82,7 @@ func SolveForAffineTransform(points []seen.Point) Matrix {
 // We further re-arranged the rows to avoid having to do any matrix factorization.
 // The matrix consists of the ORTHONORMAL_BASIS vectors minus the Z component written in a
 // different form that is appropriate for solving the affine transform.
-var _INITIAL_STATE_MATRIX = [][]float64{
+var _INITIAL_STATE_MATRIX = [6][6]float64{
 	{20, 0, 1, 0, 0, 0},
 	{0, 20, 1, 0, 0, 0},
 	{0, 0, 1, 0, 0, 0},

@@ -5,7 +5,7 @@ package solid
 //
 // Each convex polygon has a `Shared` property, which is shared between all
 // polygons that are clones of each other or were split from the same polygon.
-// This can be used to define per-polygon properties (such as surface color).
+// This can be used to define per-polygon properties (such as face color).
 type Polygon struct {
 	Vertices []Vertex
 	Plane    Plane
@@ -26,14 +26,4 @@ func (p *Polygon) Flip() {
 		p.Vertices[i].Flip()
 	}
 	p.Plane.Flip()
-}
-
-type Polygons []Polygon
-
-func (p Polygons) Clone() Polygons {
-	p = append(Polygons(nil), p...)
-	for i := range p {
-		p[i].Vertices = append([]Vertex(nil), p[i].Vertices...)
-	}
-	return p
 }

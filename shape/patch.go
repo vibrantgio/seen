@@ -3,7 +3,9 @@ package shape
 import (
 	"math"
 
-	"github.com/reactivego/seen"
+	"github.com/vibrantgio/seen"
+	"github.com/vibrantgio/seen/face"
+	"github.com/vibrantgio/seen/point"
 )
 
 // ALTITUDE of equilateral triangle for computing triangular patch size is sqrt(3)/2
@@ -12,14 +14,14 @@ const ALTITUDE = 0.86602540378443864676372317075293618347140262690519
 
 // Patch generates a triangular patch with the specified number of columns (nx) and rows (ny).
 // The patch is made up of equilateral triangles and is returned as a seen.Shape object.
-func Patch(nx, ny float64) *seen.Shape {
+func Patch(nx, ny float64) seen.Object {
 	nx = math.Round(nx)
 	ny = math.Round(ny)
-	var surfaces []seen.Points
+	var faces face.Faces
 	for x := 0.0; x < nx; x++ {
-		var triangularPatch []seen.Points
+		var triangularPatch []point.Points
 		for y := 0.0; y < ny; y++ {
-			triangles := []seen.Points{{
+			triangles := []point.Points{{
 				{X: x, Y: y},
 				{X: x + 1, Y: y - 0.5},
 				{X: x + 1, Y: y + 0.5},
@@ -45,13 +47,9 @@ func Patch(nx, ny float64) *seen.Shape {
 			triangularPatch = append(triangularPatch, triangularPatch[0])
 			triangularPatch = triangularPatch[1:]
 		}
-		surfaces = append(surfaces, triangularPatch...)
+		for _, tri := range triangularPatch {
+			faces = append(faces, face.FaceWith(tri))
+		}
 	}
-
-	var surfaceObjects seen.Surfaces
-	for _, s := range surfaces {
-		surfaceObjects = append(surfaceObjects, *seen.NewSurfaceWith(s))
-	}
-
-	return &seen.Shape{Type: "patch", Transform: seen.DefaultTransform, Surfaces: surfaceObjects}
+	return NewShapeWithFaces("patch", faces)
 }

@@ -25,7 +25,7 @@ func (p *Plane) Flip() {
 // either `coplanarFront` or `coplanarBack` depending on their orientation with
 // respect to this plane. Polygons in front or in back of this plane go into
 // either `front` or `back`.
-func (p Plane) SplitPolygon(polygon Polygon, coplanarFront, coplanarBack, front, back *Polygons) {
+func (p Plane) SplitPolygon(polygon Polygon, coplanarFront, coplanarBack, front, back *[]Polygon) {
 	type Type int
 
 	const (

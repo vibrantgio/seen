@@ -15,7 +15,7 @@ import "math"
 //	  Radius(1),
 //	  Slices(16),
 //	  Stacks(8))
-func Sphere(options ...Option) *Solid {
+func Sphere(options ...Option) CSG {
 	o := OptionsFrom(options)
 	c := o.Center
 	r := o.Radius
@@ -48,5 +48,5 @@ func Sphere(options ...Option) *Solid {
 			polygons = append(polygons, PolygonFromVertices(vertices...))
 		}
 	}
-	return SolidFromPolygons(polygons)
+	return CSG(polygons)
 }
