@@ -1,0 +1,69 @@
+  width     = 900
+  height    = 200
+  barsWidth = 800
+  bands     = 16
+  bars      = 8
+
+  # Create model and transform so we can see the frequency bands
+  model = seen.Models.default()
+    .scale(barsWidth/bands, barsWidth/bands, barsWidth/bands)
+    .translate(-barsWidth/2*1.2, -100, -100)
+    .rotx(0.2)
+
+  # Create bar colors
+  colors =
+    low  : new seen.Material(seen.Colors.hsl(0.3, 0.8, 0.5, 0.6))
+    med  : new seen.Material(seen.Colors.hsl(0.1, 0.8, 0.6, 0.6))
+    high : new seen.Material(seen.Colors.hsl(0.0, 0.7, 0.6, 0.6))
+
+  # Create the frequency band array of shapes
+  freqBands = []
+  for f in [0...bands]
+    freqBands.push [0...bars].map (b) ->
+      shape = seen.Shapes.unitcube().scale(1, 0.35, 1).translate(f*1.2, b*0.42, 0)
+      shape.visible = if b/bars < 0.5 then colors.low
+      else if b/bars < 0.7 then colors.med
+      else colors.high
+      shape.fill(null)
+      model.add(shape)
+      return shape
+
+  # Create scene and add shape to model
+  scene = new seen.Scene
+    cullBackfaces : false
+    model         : model
+    viewport      : seen.Viewports.center(width, height)
+
+  # Create render context from canvas. Render at its own speed.
+  seen.Context('seen-canvas', scene).animate().start()
+
+  # Update the scene with the frequency information
+  updateScene = (array) ->
+    for val,i in array
+      vali = Math.floor(val * bars / 256)
+      for bar, b in freqBands[i]
+        bar.fill(if vali >= b then bar.visible else null)
+
+  audio = document.getElementById('seen-audio')
+  getContextWhenReady audio, (audioContext) ->
+    # Create audio processors
+    audioSource   = audioContext.createMediaElementSource(audio)
+    audioScript   = audioContext.createScriptProcessor(512)
+    audioAnalyser = audioContext.createAnalyser()
+    audioAnalyser.smoothingTimeConstant = 0.2
+    audioAnalyser.fftSize = 32
+
+    # Connect audio to speaker output
+    audioSource.connect(audioContext.destination)
+
+    # Pipe audio through analyser
+    audioSource.connect(audioAnalyser)
+    audioAnalyser.connect(audioScript)
+    audioScript.connect(audioContext.destination)
+
+    # Update array with frequency data and update scene
+    # Pin the listener in memory otherwise it will be garbage collected in chrome
+    array = new Uint8Array(audioAnalyser.frequencyBinCount)
+    audioScript.addEventListener 'audioprocess', window.memoryPin = (e) ->
+      audioAnalyser.getByteFrequencyData(array)
+      updateScene(array)
