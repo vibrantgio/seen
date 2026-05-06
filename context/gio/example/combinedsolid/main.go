@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"gioui.org/app"
-	"gioui.org/io/system"
-	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/unit"
 
@@ -36,7 +34,8 @@ func CombinedSolid() {
 	width := unit.Dp(900)
 	height := unit.Dp(900)
 
-	window := app.NewWindow(
+	window := new(app.Window)
+	window.Option(
 		app.Title("Seen - Combined Solid"),
 		app.Size(width, height))
 
@@ -117,11 +116,14 @@ func CombinedSolid() {
 	})
 
 	ops := &op.Ops{}
-	for event := range window.Events() {
-		if frame, ok := event.(system.FrameEvent); ok {
-			gtx := layout.NewContext(ops, frame)
+	for {
+		switch e := window.Event().(type) {
+		case app.DestroyEvent:
+			os.Exit(0)
+		case app.FrameEvent:
+			gtx := app.NewContext(ops, e)
 			widget(gtx)
-			frame.Frame(ops)
+			e.Frame(ops)
 		}
 	}
 

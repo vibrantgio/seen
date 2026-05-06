@@ -1,7 +1,6 @@
 package gio
 
 import (
-	"image"
 	"math"
 	"time"
 
@@ -9,6 +8,7 @@ import (
 	"gioui.org/f32"
 	"gioui.org/io/event"
 	"gioui.org/io/pointer"
+	"gioui.org/layout"
 	"gioui.org/op"
 
 	"github.com/vibrantgio/seen"
@@ -25,7 +25,7 @@ type Context struct {
 	window   *app.Window
 	layers   []layer.Layer
 	inputs   []func(*op.Ops)
-	handlers []func(event.Queue)
+	handlers []func(layout.Context)
 }
 
 var _ context.Context = (*Context)(nil)
@@ -46,19 +46,19 @@ func (c *Context) Render() {
 	c.window.Invalidate()
 }
 
-func (c *Context) Process(ops *op.Ops, queue event.Queue) {
-	canvas := &canvas.Canvas{Ops: ops}
+func (c *Context) Process(gtx layout.Context) {
+	canvas := &canvas.Canvas{Ops: gtx.Ops}
 	for _, layer := range c.layers {
 		layer.RenderOn(canvas)
 	}
 	for _, input := range c.inputs {
-		input(ops)
+		input(gtx.Ops)
 	}
 	for _, handler := range c.handlers {
-		handler(queue)
+		handler(gtx)
 	}
 	if seen.Scheduler.Run() {
-		op.InvalidateOp{}.Add(ops)
+		gtx.Execute(op.InvalidateCmd{})
 	}
 }
 
@@ -73,56 +73,60 @@ func (c *Context) Animate() animation.Animator {
 func (c *Context) Drag(options ...drag.Option) drag.Dragger {
 	d := drag.DragWith(options...)
 	c.inputs = append(c.inputs, func(ops *op.Ops) {
-		defer pointer.PassOp{}.Push(ops).Pop()
-		const types = pointer.Press | pointer.Drag | pointer.Release
-		pointer.InputOp{Tag: d, Types: types}.Add(ops)
+		event.Op(ops, d)
 	})
 	previous := struct {
 		Position f32.Point
 		Time     time.Duration
 	}{}
-	c.handlers = append(c.handlers, func(q event.Queue) {
-		for _, event := range q.Events(d) {
-			if p, ok := event.(pointer.Event); ok {
-				switch p.Type {
-				case pointer.Press:
+	c.handlers = append(c.handlers, func(gtx layout.Context) {
+		for {
+			ev, ok := gtx.Source.Event(pointer.Filter{Target: d, Kinds: pointer.Press | pointer.Drag | pointer.Release})
+			if !ok {
+				break
+			}
+			p, ok := ev.(pointer.Event)
+			if !ok {
+				continue
+			}
+			switch p.Kind {
+			case pointer.Press:
+				d.Handle(drag.Event{
+					Type: drag.Start,
+					X:    float64(p.Position.X),
+					Y:    float64(p.Position.Y),
+					T:    p.Time,
+				})
+			case pointer.Drag:
+				if previous.Time != 0 {
+					dP := p.Position.Sub(previous.Position)
+					dT := p.Time - previous.Time
 					d.Handle(drag.Event{
-						Type: drag.Start,
+						Type: drag.Move,
 						X:    float64(p.Position.X),
 						Y:    float64(p.Position.Y),
 						T:    p.Time,
+						Dx:   float64(dP.X),
+						Dy:   float64(dP.Y),
+						Dt:   dT,
 					})
-				case pointer.Drag:
-					if previous.Time != 0 {
-						dP := p.Position.Sub(previous.Position)
-						dT := p.Time - previous.Time
-						d.Handle(drag.Event{
-							Type: drag.Move,
-							X:    float64(p.Position.X),
-							Y:    float64(p.Position.Y),
-							T:    p.Time,
-							Dx:   float64(dP.X),
-							Dy:   float64(dP.Y),
-							Dt:   dT,
-						})
-					}
-					previous.Position, previous.Time = p.Position, p.Time
-				case pointer.Release:
-					if previous.Time != 0 {
-						dP := p.Position.Sub(previous.Position)
-						dT := p.Time - previous.Time
-						d.Handle(drag.Event{
-							Type: drag.End,
-							X:    float64(p.Position.X),
-							Y:    float64(p.Position.Y),
-							T:    p.Time,
-							Dx:   float64(dP.X),
-							Dy:   float64(dP.Y),
-							Dt:   dT,
-						})
-					}
-					previous.Time = 0
 				}
+				previous.Position, previous.Time = p.Position, p.Time
+			case pointer.Release:
+				if previous.Time != 0 {
+					dP := p.Position.Sub(previous.Position)
+					dT := p.Time - previous.Time
+					d.Handle(drag.Event{
+						Type: drag.End,
+						X:    float64(p.Position.X),
+						Y:    float64(p.Position.Y),
+						T:    p.Time,
+						Dx:   float64(dP.X),
+						Dy:   float64(dP.Y),
+						Dt:   dT,
+					})
+				}
+				previous.Time = 0
 			}
 		}
 	})
@@ -132,16 +136,15 @@ func (c *Context) Drag(options ...drag.Option) drag.Dragger {
 func (c *Context) Zoom(options ...zoom.Option) zoom.Zoomer {
 	z := zoom.With(options...)
 	c.inputs = append(c.inputs, func(ops *op.Ops) {
-		pointer.PassOp{}.Push(ops).Pop()
-		pointer.InputOp{
-			Tag:          z,
-			Types:        pointer.Scroll,
-			ScrollBounds: image.Rect(-120, -120, 120, 120),
-		}.Add(ops)
+		event.Op(ops, z)
 	})
-	c.handlers = append(c.handlers, func(q event.Queue) {
-		for _, event := range q.Events(z) {
-			if p, ok := event.(pointer.Event); ok {
+	c.handlers = append(c.handlers, func(gtx layout.Context) {
+		for {
+			ev, ok := gtx.Source.Event(pointer.Filter{Target: z, Kinds: pointer.Scroll, ScrollX: pointer.ScrollRange{Min: -120, Max: 120}, ScrollY: pointer.ScrollRange{Min: -120, Max: 120}})
+			if !ok {
+				break
+			}
+			if p, ok := ev.(pointer.Event); ok {
 				dx, dy := -float64(p.Scroll.X), -float64(p.Scroll.Y)
 				dxy := math.Copysign(math.Hypot(dx, dy), dy)
 				z.Handle(zoom.Event{

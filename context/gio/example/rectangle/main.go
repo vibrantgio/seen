@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/unit"
@@ -27,21 +26,24 @@ func main() {
 }
 
 func Rectangle() {
-	window := app.NewWindow(
+	window := new(app.Window)
+	window.Option(
 		app.Title("Seen - Rectangle"),
 		app.Size(1000, 1000))
 
 	scene := Scene(gio.NewContext(window), 1000)
 
 	ops := &op.Ops{}
-	for event := range window.Events() {
-		if frame, ok := event.(system.FrameEvent); ok {
-			gtx := layout.NewContext(ops, frame)
+	for {
+		switch e := window.Event().(type) {
+		case app.DestroyEvent:
+			os.Exit(0)
+		case app.FrameEvent:
+			gtx := app.NewContext(ops, e)
 			scene(gtx)
-			frame.Frame(ops)
+			e.Frame(ops)
 		}
 	}
-	os.Exit(0)
 }
 
 func Scene(context *gio.Context, size float64) layout.Widget {

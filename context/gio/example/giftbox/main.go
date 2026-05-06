@@ -11,8 +11,6 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/gpu/headless"
-	"gioui.org/io/system"
-	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/unit"
 	"golang.org/x/image/draw"
@@ -46,7 +44,9 @@ func main() {
 func GiftBox() {
 	const SIZE = 1024
 
-	window := app.NewWindow(app.Title("Seen - Gift Box"),
+	window := new(app.Window)
+	window.Option(
+		app.Title("Seen - Gift Box"),
 		app.Size(SIZE, SIZE),
 		app.MinSize(SIZE/2, SIZE/2))
 
@@ -166,13 +166,16 @@ func GiftBox() {
 	metric := unit.Metric{PxPerDp: 1.0, PxPerSp: 1.0}
 	size := image.Point{X: SIZE, Y: SIZE}
 	ops := new(op.Ops)
-	for event := range window.Events() {
-		if frame, ok := event.(system.FrameEvent); ok {
-			metric = frame.Metric
-			size = frame.Size
-			gtx := layout.NewContext(ops, frame)
+	for {
+		switch e := window.Event().(type) {
+		case app.DestroyEvent:
+			os.Exit(0)
+		case app.FrameEvent:
+			metric = e.Metric
+			size = e.Size
+			gtx := app.NewContext(ops, e)
 			widget(gtx)
-			frame.Frame(ops)
+			e.Frame(ops)
 		}
 	}
 

@@ -4,8 +4,6 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/io/system"
-	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/unit"
 
@@ -25,7 +23,8 @@ func main() {
 }
 
 func Poem() {
-	window := app.NewWindow(
+	window := new(app.Window)
+	window.Option(
 		app.Title("Seen - Poem"),
 		app.Size(1600, 900),
 		app.MinSize(640, 480))
@@ -76,13 +75,14 @@ To where it bent in the undergrowth;`, opts)
 	})
 
 	ops := new(op.Ops)
-	for event := range window.Events() {
-		if frame, ok := event.(system.FrameEvent); ok {
-			gtx := layout.NewContext(ops, frame)
+	for {
+		switch e := window.Event().(type) {
+		case app.DestroyEvent:
+			os.Exit(0)
+		case app.FrameEvent:
+			gtx := app.NewContext(ops, e)
 			widget(gtx)
-			frame.Frame(ops)
+			e.Frame(ops)
 		}
 	}
-
-	os.Exit(0)
 }

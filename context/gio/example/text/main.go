@@ -8,8 +8,6 @@ import (
 	"time"
 
 	"gioui.org/app"
-	"gioui.org/io/system"
-	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/unit"
 
@@ -36,7 +34,8 @@ func main() {
 }
 
 func Text() {
-	window := app.NewWindow(
+	window := new(app.Window)
+	window.Option(
 		app.Title("Seen - Text"),
 		app.Size(900, 500),
 		app.MinSize(450, 250))
@@ -113,11 +112,14 @@ func Text() {
 	})
 
 	ops := &op.Ops{}
-	for event := range window.Events() {
-		if frame, ok := event.(system.FrameEvent); ok {
-			gtx := layout.NewContext(ops, frame)
+	for {
+		switch e := window.Event().(type) {
+		case app.DestroyEvent:
+			os.Exit(0)
+		case app.FrameEvent:
+			gtx := app.NewContext(ops, e)
 			view(gtx)
-			frame.Frame(ops)
+			e.Frame(ops)
 		}
 	}
 

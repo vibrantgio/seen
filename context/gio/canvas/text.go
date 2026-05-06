@@ -35,8 +35,8 @@ var ZH_CN = system.Locale{Language: "zh-CN", Direction: system.LTR}
 
 // Fonts
 
-var RegularNormal = font.Font{Typeface: "Roboto", Variant: "", Style: font.Regular, Weight: font.Normal}
-var RegularBold = font.Font{Typeface: "Roboto", Variant: "", Style: font.Regular, Weight: font.Bold}
+var RegularNormal = font.Font{Typeface: "Roboto", Style: font.Regular, Weight: font.Normal}
+var RegularBold = font.Font{Typeface: "Roboto", Style: font.Regular, Weight: font.Bold}
 
 var fontfaces struct {
 	once       sync.Once
@@ -62,7 +62,7 @@ func FontFaces() []font.FontFace {
 // Text
 type Text struct{ *op.Ops }
 
-var shaper = text.NewShaper(FontFaces())
+var shaper = text.NewShaper(text.WithCollection(FontFaces()))
 
 // FillText
 // transform is an affine matrix approximating a 3D transform of the plane on which the text is to be painted.
