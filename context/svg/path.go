@@ -8,18 +8,20 @@ import (
 // Path
 type Path struct {
 	*Styler
+	precision *int
 }
 
-func newPath(elementFactory func(tag string) *Element) *Path {
+func newPath(elementFactory func(tag string) *Element, precision *int) *Path {
 	return &Path{
 		newStyler(func() *Element { return elementFactory("path") }),
+		precision,
 	}
 }
 
 func (p *Path) Path(points []point.Point) canvas.PathPainter {
 	str := "M"
 	for _, point := range points {
-		str += Fjoin(point.X, point.Y) + "L"
+		str += Fjoin(*p.precision, point.X, point.Y) + "L"
 	}
 	p.attributes["d"] = str[:len(str)-1]
 	return p

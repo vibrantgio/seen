@@ -91,7 +91,6 @@ func Scene(context *gio.Context) (*seen.Scene, layer.Layer) {
 
 	// Create scene and add shape to group
 	scene := seen.NewDefaultScene()
-	scene.FractionalPoints = true
 	scene.ShowBackfaces = true
 	scene.Group.Add(shape)
 

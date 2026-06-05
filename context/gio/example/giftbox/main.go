@@ -120,7 +120,6 @@ func GiftBox() {
 	// Create scene and add shape to group
 	scene := seen.NewDefaultScene()
 	scene.Shader = shader.Phong
-	scene.FractionalPoints = true
 	scene.Group.Add(giftbox)
 	scene.Group.SetScale(3, 3, 3)
 

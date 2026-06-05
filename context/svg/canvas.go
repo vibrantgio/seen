@@ -14,13 +14,13 @@ type Canvas struct {
 
 var _ canvas.Canvas = (*Canvas)(nil)
 
-func NewCanvas(group *Element) *Canvas {
+func NewCanvas(group *Element, precision *int) *Canvas {
 	c := &Canvas{}
 	c.group = group
-	c.path = newPath(c.elementFactory)
-	c.text = newText(c.elementFactory)
-	c.circle = newCircle(c.elementFactory)
-	c.rect = newRect(c.elementFactory)
+	c.path = newPath(c.elementFactory, precision)
+	c.text = newText(c.elementFactory, precision)
+	c.circle = newCircle(c.elementFactory, precision)
+	c.rect = newRect(c.elementFactory, precision)
 	return c
 }
 

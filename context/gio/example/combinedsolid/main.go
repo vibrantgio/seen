@@ -81,7 +81,6 @@ func CombinedSolid() {
 	// Create scene and add shape to group
 	scene := seen.NewDefaultScene()
 	scene.ShowBackfaces = true
-	scene.FractionalPoints = true
 	scene.Group.Add(node)
 
 	// Create a layer that renders a scene by bsp-sorting the polygons

@@ -14,6 +14,12 @@ import (
 type Context struct {
 	svg    *Element
 	render []func()
+
+	// Precision is the decimal precision used when formatting coordinates into
+	// SVG attributes: 0 snaps to whole pixels, N keeps N decimal places, -1
+	// emits the shortest round-tripping string. It is read live at render time,
+	// so it may be set any time before Render. Defaults to 3.
+	Precision int
 }
 
 var _ context.Context = (*Context)(nil)
@@ -29,7 +35,7 @@ func NewContext(element *Element, layers ...layer.Layer) *Context {
 	if tag != "SVG" && tag != "G" {
 		return nil
 	}
-	context = &Context{svg: element}
+	context = &Context{svg: element, Precision: 3}
 	context.SetLayers(layers...)
 	return context
 }
@@ -40,7 +46,7 @@ func (c *Context) SetLayers(layers ...layer.Layer) {
 		layer := layer // no longer needed when go 1.22 is set in go.mod
 		group := c.svg.CreateElementNS(SVG_NS, "g")
 		c.svg.AppendChild(group)
-		canvas := NewCanvas(group)
+		canvas := NewCanvas(group, &c.Precision)
 		c.render = append(c.render, func() {
 			canvas.Reset()
 			layer.RenderOn(canvas)

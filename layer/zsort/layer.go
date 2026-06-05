@@ -61,9 +61,6 @@ func (l *Layer) RenderOn(canvas canvas.Canvas) {
 			if l.scene.Regenerate {
 				// No caching
 				coordinates = f.Coordinates(model, projection, viewport)
-				if !l.scene.FractionalPoints {
-					coordinates.ScreenSpace.Points.Round()
-				}
 			} else {
 				var updated, present bool
 				if coordinates, present = l.cache[f.Id]; !present {
@@ -78,9 +75,6 @@ func (l *Layer) RenderOn(canvas canvas.Canvas) {
 					}
 				}
 				if updated {
-					if !l.scene.FractionalPoints {
-						coordinates.ScreenSpace.Points.Round()
-					}
 					l.cache[f.Id] = coordinates
 				}
 			}

@@ -32,14 +32,6 @@ type Scene struct {
 	// individual faces with a boolean on those objects.
 	ShowBackfaces bool
 
-	// FractionalPoints bool determines if we round the face
-	// coordinates to the nearest integer. Rounding the coordinates before
-	// display speeds up path drawing  especially when using an SVG context
-	// since it cuts down on the length of path data. Anecdotally, my speedup
-	// on a complex demo scene was 10 FPS. However, it does introduce a slight
-	// jittering effect when animating.
-	FractionalPoints bool
-
 	// Regenerate is a bool that when set to true will force regeneration of render faces.
 	// A render face is generated for each face in the scene. When Regenerate is set
 	// to false (default), the generated render faces will be cached. The cache is a simple

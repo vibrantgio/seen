@@ -181,7 +181,6 @@ func TestDemoSimple(t *testing.T) {
 
 	// Create the scene to render
 	s := seen.NewDefaultScene()
-	s.FractionalPoints = true
 	s.Shader = shader.Phong
 	s.Camera = camera.Default
 	s.Camera.SetTranslation(0, 0, -550)
@@ -261,7 +260,6 @@ func TestDemoSvgCanvas(t *testing.T) {
 	for _, sphere := range spheres {
 		scene := seen.NewDefaultScene()
 		scene.Shader = shader.Phong
-		scene.FractionalPoints = true
 		scene.Group.Add(sphere)
 		scene.Viewport = viewport.Center(0, 0, width, height)
 		scenes = append(scenes, zsort.NewLayerForScene(scene))
