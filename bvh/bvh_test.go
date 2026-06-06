@@ -2,6 +2,33 @@ package bvh
 
 import "testing"
 
+// knownChannels is the set of valid channel identifiers. Parsed channels must
+// match these exactly — in particular with no surrounding whitespace, which a
+// grammar bug once left attached (e.g. "Zrotation ", "Yrotation\r\n").
+var knownChannels = map[Channel]bool{
+	Xposition: true, Yposition: true, Zposition: true,
+	Xrotation: true, Yrotation: true, Zrotation: true,
+}
+
+func TestChannelsAreClean(t *testing.T) {
+	h, err := Load("testdata/05_11.bvh")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var walk func(j Joint)
+	walk = func(j Joint) {
+		for _, ch := range j.Channels {
+			if !knownChannels[ch] {
+				t.Errorf("joint %q has unrecognised channel %q", j.Id, string(ch))
+			}
+		}
+		for _, c := range j.Joints {
+			walk(c)
+		}
+	}
+	walk(h.Root)
+}
+
 func TestLoad(t *testing.T) {
 	files := []string{
 		"testdata/Example1.bvh",

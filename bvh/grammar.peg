@@ -91,7 +91,8 @@ channel_type <- channel_type: (
     "Yrotation"i /
     "Zrotation"i
 ) _ {
-    return Channel(c.text), nil
+    // c.text spans the trailing whitespace matched by `_`, so trim it.
+    return Channel(strings.TrimSpace(string(c.text))), nil
 }
 
 motion <- "MOTION"i _ "Frames:"i _ frameCount:integer _ "Frame Time:"i _ frameTime:float _ frames:frame_data* {

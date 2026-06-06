@@ -491,74 +491,74 @@ var g = &grammar{
 		},
 		{
 			name: "motion",
-			pos:  position{line: 97, col: 1, offset: 2462},
+			pos:  position{line: 98, col: 1, offset: 2561},
 			expr: &actionExpr{
-				pos: position{line: 97, col: 11, offset: 2472},
+				pos: position{line: 98, col: 11, offset: 2571},
 				run: (*parser).callonmotion1,
 				expr: &seqExpr{
-					pos: position{line: 97, col: 11, offset: 2472},
+					pos: position{line: 98, col: 11, offset: 2571},
 					exprs: []any{
 						&litMatcher{
-							pos:        position{line: 97, col: 11, offset: 2472},
+							pos:        position{line: 98, col: 11, offset: 2571},
 							val:        "motion",
 							ignoreCase: true,
 							want:       "\"MOTION\"i",
 						},
 						&ruleRefExpr{
-							pos:  position{line: 97, col: 21, offset: 2482},
+							pos:  position{line: 98, col: 21, offset: 2581},
 							name: "_",
 						},
 						&litMatcher{
-							pos:        position{line: 97, col: 23, offset: 2484},
+							pos:        position{line: 98, col: 23, offset: 2583},
 							val:        "frames:",
 							ignoreCase: true,
 							want:       "\"Frames:\"i",
 						},
 						&ruleRefExpr{
-							pos:  position{line: 97, col: 34, offset: 2495},
+							pos:  position{line: 98, col: 34, offset: 2594},
 							name: "_",
 						},
 						&labeledExpr{
-							pos:   position{line: 97, col: 36, offset: 2497},
+							pos:   position{line: 98, col: 36, offset: 2596},
 							label: "frameCount",
 							expr: &ruleRefExpr{
-								pos:  position{line: 97, col: 47, offset: 2508},
+								pos:  position{line: 98, col: 47, offset: 2607},
 								name: "integer",
 							},
 						},
 						&ruleRefExpr{
-							pos:  position{line: 97, col: 55, offset: 2516},
+							pos:  position{line: 98, col: 55, offset: 2615},
 							name: "_",
 						},
 						&litMatcher{
-							pos:        position{line: 97, col: 57, offset: 2518},
+							pos:        position{line: 98, col: 57, offset: 2617},
 							val:        "frame time:",
 							ignoreCase: true,
 							want:       "\"Frame Time:\"i",
 						},
 						&ruleRefExpr{
-							pos:  position{line: 97, col: 72, offset: 2533},
+							pos:  position{line: 98, col: 72, offset: 2632},
 							name: "_",
 						},
 						&labeledExpr{
-							pos:   position{line: 97, col: 74, offset: 2535},
+							pos:   position{line: 98, col: 74, offset: 2634},
 							label: "frameTime",
 							expr: &ruleRefExpr{
-								pos:  position{line: 97, col: 84, offset: 2545},
+								pos:  position{line: 98, col: 84, offset: 2644},
 								name: "float",
 							},
 						},
 						&ruleRefExpr{
-							pos:  position{line: 97, col: 90, offset: 2551},
+							pos:  position{line: 98, col: 90, offset: 2650},
 							name: "_",
 						},
 						&labeledExpr{
-							pos:   position{line: 97, col: 92, offset: 2553},
+							pos:   position{line: 98, col: 92, offset: 2652},
 							label: "frames",
 							expr: &zeroOrMoreExpr{
-								pos: position{line: 97, col: 99, offset: 2560},
+								pos: position{line: 98, col: 99, offset: 2659},
 								expr: &ruleRefExpr{
-									pos:  position{line: 97, col: 99, offset: 2560},
+									pos:  position{line: 98, col: 99, offset: 2659},
 									name: "frame_data",
 								},
 							},
@@ -569,28 +569,28 @@ var g = &grammar{
 		},
 		{
 			name: "frame_data",
-			pos:  position{line: 105, col: 1, offset: 2814},
+			pos:  position{line: 106, col: 1, offset: 2913},
 			expr: &actionExpr{
-				pos: position{line: 105, col: 15, offset: 2828},
+				pos: position{line: 106, col: 15, offset: 2927},
 				run: (*parser).callonframe_data1,
 				expr: &seqExpr{
-					pos: position{line: 105, col: 15, offset: 2828},
+					pos: position{line: 106, col: 15, offset: 2927},
 					exprs: []any{
 						&labeledExpr{
-							pos:   position{line: 105, col: 15, offset: 2828},
+							pos:   position{line: 106, col: 15, offset: 2927},
 							label: "frameValues",
 							expr: &oneOrMoreExpr{
-								pos: position{line: 105, col: 27, offset: 2840},
+								pos: position{line: 106, col: 27, offset: 2939},
 								expr: &ruleRefExpr{
-									pos:  position{line: 105, col: 27, offset: 2840},
+									pos:  position{line: 106, col: 27, offset: 2939},
 									name: "frame_value",
 								},
 							},
 						},
 						&oneOrMoreExpr{
-							pos: position{line: 105, col: 40, offset: 2853},
+							pos: position{line: 106, col: 40, offset: 2952},
 							expr: &charClassMatcher{
-								pos:        position{line: 105, col: 40, offset: 2853},
+								pos:        position{line: 106, col: 40, offset: 2952},
 								val:        "[\\n\\r]",
 								chars:      []rune{'\n', '\r'},
 								ignoreCase: false,
@@ -603,25 +603,25 @@ var g = &grammar{
 		},
 		{
 			name: "frame_value",
-			pos:  position{line: 113, col: 1, offset: 3025},
+			pos:  position{line: 114, col: 1, offset: 3124},
 			expr: &actionExpr{
-				pos: position{line: 113, col: 16, offset: 3040},
+				pos: position{line: 114, col: 16, offset: 3139},
 				run: (*parser).callonframe_value1,
 				expr: &seqExpr{
-					pos: position{line: 113, col: 16, offset: 3040},
+					pos: position{line: 114, col: 16, offset: 3139},
 					exprs: []any{
 						&labeledExpr{
-							pos:   position{line: 113, col: 16, offset: 3040},
+							pos:   position{line: 114, col: 16, offset: 3139},
 							label: "value",
 							expr: &ruleRefExpr{
-								pos:  position{line: 113, col: 22, offset: 3046},
+								pos:  position{line: 114, col: 22, offset: 3145},
 								name: "float",
 							},
 						},
 						&zeroOrMoreExpr{
-							pos: position{line: 113, col: 28, offset: 3052},
+							pos: position{line: 114, col: 28, offset: 3151},
 							expr: &charClassMatcher{
-								pos:        position{line: 113, col: 28, offset: 3052},
+								pos:        position{line: 114, col: 28, offset: 3151},
 								val:        "[ ]",
 								chars:      []rune{' '},
 								ignoreCase: false,
@@ -634,14 +634,14 @@ var g = &grammar{
 		},
 		{
 			name: "id",
-			pos:  position{line: 117, col: 1, offset: 3084},
+			pos:  position{line: 118, col: 1, offset: 3183},
 			expr: &actionExpr{
-				pos: position{line: 117, col: 7, offset: 3090},
+				pos: position{line: 118, col: 7, offset: 3189},
 				run: (*parser).callonid1,
 				expr: &oneOrMoreExpr{
-					pos: position{line: 117, col: 7, offset: 3090},
+					pos: position{line: 118, col: 7, offset: 3189},
 					expr: &charClassMatcher{
-						pos:        position{line: 117, col: 7, offset: 3090},
+						pos:        position{line: 118, col: 7, offset: 3189},
 						val:        "[a-zA-Z0-9-_]",
 						chars:      []rune{'-', '_'},
 						ranges:     []rune{'a', 'z', 'A', 'Z', '0', '9'},
@@ -653,17 +653,17 @@ var g = &grammar{
 		},
 		{
 			name: "float",
-			pos:  position{line: 121, col: 1, offset: 3141},
+			pos:  position{line: 122, col: 1, offset: 3240},
 			expr: &actionExpr{
-				pos: position{line: 121, col: 10, offset: 3150},
+				pos: position{line: 122, col: 10, offset: 3249},
 				run: (*parser).callonfloat1,
 				expr: &labeledExpr{
-					pos:   position{line: 121, col: 10, offset: 3150},
+					pos:   position{line: 122, col: 10, offset: 3249},
 					label: "value",
 					expr: &oneOrMoreExpr{
-						pos: position{line: 121, col: 16, offset: 3156},
+						pos: position{line: 122, col: 16, offset: 3255},
 						expr: &charClassMatcher{
-							pos:        position{line: 121, col: 16, offset: 3156},
+							pos:        position{line: 122, col: 16, offset: 3255},
 							val:        "[-0-9.eE]",
 							chars:      []rune{'-', '.', 'e', 'E'},
 							ranges:     []rune{'0', '9'},
@@ -676,14 +676,14 @@ var g = &grammar{
 		},
 		{
 			name: "integer",
-			pos:  position{line: 125, col: 1, offset: 3222},
+			pos:  position{line: 126, col: 1, offset: 3321},
 			expr: &actionExpr{
-				pos: position{line: 125, col: 12, offset: 3233},
+				pos: position{line: 126, col: 12, offset: 3332},
 				run: (*parser).calloninteger1,
 				expr: &oneOrMoreExpr{
-					pos: position{line: 125, col: 12, offset: 3233},
+					pos: position{line: 126, col: 12, offset: 3332},
 					expr: &charClassMatcher{
-						pos:        position{line: 125, col: 12, offset: 3233},
+						pos:        position{line: 126, col: 12, offset: 3332},
 						val:        "[-0-9eE]",
 						chars:      []rune{'-', 'e', 'E'},
 						ranges:     []rune{'0', '9'},
@@ -695,14 +695,14 @@ var g = &grammar{
 		},
 		{
 			name: "_",
-			pos:  position{line: 129, col: 1, offset: 3300},
+			pos:  position{line: 130, col: 1, offset: 3399},
 			expr: &actionExpr{
-				pos: position{line: 129, col: 6, offset: 3305},
+				pos: position{line: 130, col: 6, offset: 3404},
 				run: (*parser).callon_1,
 				expr: &zeroOrMoreExpr{
-					pos: position{line: 129, col: 7, offset: 3306},
+					pos: position{line: 130, col: 7, offset: 3405},
 					expr: &charClassMatcher{
-						pos:        position{line: 129, col: 7, offset: 3306},
+						pos:        position{line: 130, col: 7, offset: 3405},
 						val:        "[ \\t\\n\\r]",
 						chars:      []rune{' ', '\t', '\n', '\r'},
 						ignoreCase: false,
@@ -789,7 +789,8 @@ func (p *parser) callonchannels1() (any, error) {
 }
 
 func (c *current) onchannel_type1(channel_type any) (any, error) {
-	return Channel(c.text), nil
+	// c.text spans the trailing whitespace matched by `_`, so trim it.
+	return Channel(strings.TrimSpace(string(c.text))), nil
 }
 
 func (p *parser) callonchannel_type1() (any, error) {
