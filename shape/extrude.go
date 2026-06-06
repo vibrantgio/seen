@@ -1,8 +1,6 @@
 package shape
 
 import (
-	"slices"
-
 	"github.com/vibrantgio/seen"
 	"github.com/vibrantgio/seen/face"
 	"github.com/vibrantgio/seen/point"
@@ -11,7 +9,7 @@ import (
 // Returns a shape that is an extrusion of the supplied points into the z axis.
 func Extrude(points point.Points, offset point.Point) seen.Object {
 	n := len(points)
-	points = slices.Grow(points, 2*n)
+	points = append(points, make(point.Points, n)...)
 	for i := range n {
 		points[n+i] = points[i].Plus(offset)
 	}
