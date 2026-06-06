@@ -8,14 +8,14 @@
 
   Adapted to Golang on March 15, 2025
 
-  To build parser:
+  To build parser (see ./p):
   > go install github.com/mna/pigeon@latest
-  > pigeon pigeon -o grammar.go -optimize-parser grammar.pigeon.peg
+  > pigeon -o grammar.go -optimize-parser grammar.peg
   > goimports -w grammar.go
 
 -----------------------------------------------*/
 {
-package main
+package bvh
 
 type Hierarchy struct {
     Root Joint
