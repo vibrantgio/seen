@@ -23,7 +23,7 @@ func Extrude(points point.Points, offset point.Point) seen.Object {
 		front = append(front, i)
 	}
 	var back face.Facet
-	for i := n - 1; i >= 0; i-- {
+	for i := 2*n - 1; i >= n; i-- {
 		back = append(back, i)
 	}
 	return NewShape("extrusion", points, append(facets, front, back))
