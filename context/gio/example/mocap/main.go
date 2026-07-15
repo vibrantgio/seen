@@ -32,7 +32,10 @@ import (
 )
 
 //go:embed 05_11.bvh
-var motion []byte
+var motion05_11 []byte
+
+//go:embed 01_06.bvh
+var motion01_06 []byte
 
 const size = 900
 
@@ -64,7 +67,7 @@ func Mocap() {
 
 func Scene(context *gio.Context) layout.Widget {
 	// Parse the embedded BVH file and build an animatable skeleton.
-	result, err := bvh.Parse("05_11.bvh", motion)
+	result, err := bvh.Parse("05_11.bvh", motion05_11)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -96,16 +99,23 @@ func Scene(context *gio.Context) layout.Widget {
 		scene.Group.SetScale(sx*e.Zoom, sy*e.Zoom, sz*e.Zoom)
 	})
 
-	// Step through the captured frames on the animation loop.
-	frame := 0
+	// Play the captured frames in real time: the animation loop ticks slower
+	// than the capture rate, so pick the frame by elapsed time rather than
+	// stepping one frame per tick.
+	var start time.Duration
 	context.Animate().OnBefore(func(t, dt time.Duration) {
-		model.Apply(frame)
-		frame++
+		if start == 0 {
+			start = t
+		}
+		model.Apply(int((t - start) / model.FrameTime))
 	}).Start()
 
 	return gio.Widget(context, func(w, h unit.Dp) {
 		background.Width, background.Height = float64(w), float64(h)
 		scene.Viewport = viewport.Center(0, 0, float64(w), float64(h))
+		// Dolly the camera in: the viewport puts the eye at distance h, so
+		// translating the world +h/2 towards the eye halves that distance.
+		scene.Camera.SetTranslation(0, 0, float64(h)/2)
 	})
 }
 

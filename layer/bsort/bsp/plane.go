@@ -22,6 +22,17 @@ type Plane struct {
 	// Normal is the normal vector that is perpendicular to the plane going
 	// through Points (in WorldSpace coordinates).
 	Normal point.Point
+
+	// Piece marks a plane produced by Split: a fragment of the face
+	// identified by Id rather than the whole face. The renderer projects a
+	// piece's own Points instead of the cached whole-face coordinates.
+	Piece bool
+
+	// NoSplit marks a plane whose polygon must never be cut (e.g. a text
+	// face, which paints its whole string from its points — each piece
+	// would repeat the text). Process routes a straddling NoSplit plane
+	// wholesale to its barycenter's side instead of splitting it.
+	NoSplit bool
 }
 
 func PlaneWith(id int, points point.Points, model matrix.Matrix) Plane {

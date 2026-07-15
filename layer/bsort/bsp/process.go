@@ -16,26 +16,45 @@ func Process(plane []Plane, i int, recursion int, report func(...any)) *Tree {
 		case Behind:
 			behind = append(behind, planej)
 		case Splits:
-			if Compare(planej, planei) != Splits {
+			if recursion < 16 && Compare(planej, planei) != Splits {
 				// Situation: plane[i] splits plane[j] but not vice versa.
-				if recursion < 16 {
-					// Try  to partition space with plane[j] instead of plane[i]
-					return Process(plane, j, recursion+1, report)
+				// Try to partition space with plane[j] instead of plane[i],
+				// which avoids cutting any polygon.
+				return Process(plane, j, recursion+1, report)
+			}
+			// Either the planes split each other or re-rooting kept
+			// looping: cut plane[j] by plane[i]'s plane and route the
+			// pieces to their own sides, so back-to-front traversal stays
+			// correct on both sides of the partition.
+			if planej.NoSplit {
+				// This polygon must stay whole (e.g. a text face): keep it
+				// on its barycenter's side. It may sort slightly wrong
+				// against the partition it straddles, but cutting it would
+				// paint its content once per piece.
+				if planei.Normal.Dot(planej.Barycenter) < planei.Normal.Dot(planei.Barycenter) {
+					before = append(before, planej)
 				} else {
-					// Situation: Were are probably looping....
-					// TBD: use plane[i] to split plane[j]
 					behind = append(behind, planej)
-					if report != nil {
-						report("split loop", i, j)
-					}
+				}
+				if report != nil {
+					report("nosplit", i, j)
+				}
+			} else if front, back, ok := planei.Split(planej); ok {
+				before = append(before, front)
+				behind = append(behind, back)
+				if report != nil {
+					report("split", i, j)
 				}
 			} else {
-				// Situation: planes[i] and planes[j] split each other.
-				// TBD: use plane[i] to split plane[j]
-				behind = append(behind, planej)
+				// Degenerate cut (Compare and Split disagree within
+				// epsilon). Keep the polygon whole on its barycenter's side.
+				if planei.Normal.Dot(planej.Barycenter) < planei.Normal.Dot(planei.Barycenter) {
+					before = append(before, planej)
+				} else {
+					behind = append(behind, planej)
+				}
 				if report != nil {
-					report("split conflict", i, j)
-					// plane.Face.FillMaterial, _ = shader.NewMaterialWith("#ff0000")
+					report("split failed", i, j)
 				}
 			}
 		}
