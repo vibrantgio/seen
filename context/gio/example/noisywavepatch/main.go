@@ -16,7 +16,7 @@ import (
 	"github.com/vibrantgio/seen/color"
 	"github.com/vibrantgio/seen/context/gio"
 	"github.com/vibrantgio/seen/context/svg"
-	"github.com/vibrantgio/seen/layer/bsort"
+	"github.com/vibrantgio/seen/layer/nsort"
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shape"
 	"github.com/vibrantgio/seen/viewport"
@@ -60,8 +60,8 @@ func NoisyWavePatch() {
 	scene.ShowBackfaces = true
 	scene.Group.Add(shape)
 
-	// Create a layer that renders a scene by bsp-sorting the polygons
-	layer := bsort.NewLayerForScene(scene)
+	// Create a layer that renders a scene by depth-sorting the polygons for the current eye
+	layer := nsort.NewLayerForScene(scene)
 	context.SetLayers(layer)
 
 	// Apply animated 3D simplex noise to patch vertices

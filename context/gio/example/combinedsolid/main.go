@@ -15,7 +15,7 @@ import (
 	"github.com/vibrantgio/seen/context/gio"
 	"github.com/vibrantgio/seen/context/svg"
 	"github.com/vibrantgio/seen/drag"
-	"github.com/vibrantgio/seen/layer/bsort"
+	"github.com/vibrantgio/seen/layer/nsort"
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/viewport"
 	"github.com/vibrantgio/seen/zoom"
@@ -83,8 +83,8 @@ func CombinedSolid() {
 	scene.ShowBackfaces = true
 	scene.Group.Add(node)
 
-	// Create a layer that renders a scene by bsp-sorting the polygons
-	layer := bsort.NewLayerForScene(scene)
+	// Create a layer that renders a scene by depth-sorting the polygons for the current eye
+	layer := nsort.NewLayerForScene(scene)
 
 	// Create a render context that hooks seen into the gio window
 	context := gio.NewContext(window, layer)

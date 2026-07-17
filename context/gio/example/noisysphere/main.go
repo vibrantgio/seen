@@ -19,7 +19,7 @@ import (
 	"github.com/vibrantgio/seen/context/svg"
 	"github.com/vibrantgio/seen/drag"
 	"github.com/vibrantgio/seen/layer"
-	"github.com/vibrantgio/seen/layer/zsort"
+	"github.com/vibrantgio/seen/layer/nsort"
 	"github.com/vibrantgio/seen/point"
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shape"
@@ -101,8 +101,8 @@ func Scene(context *gio.Context) (*seen.Scene, layer.Layer) {
 		points = append(points, slices.Clone(faces[i].Points))
 	}
 
-	// Create a layer that renders a scene by bsp-sorting the polygons
-	layer := zsort.NewLayerForScene(scene)
+	// Create a layer that renders a scene by depth-sorting the polygons for the current eye
+	layer := nsort.NewLayerForScene(scene)
 	context.SetLayers(layer)
 
 	// Create a 3D simplex noise generator

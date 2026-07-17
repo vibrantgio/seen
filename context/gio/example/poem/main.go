@@ -10,7 +10,7 @@ import (
 	"github.com/vibrantgio/seen"
 	"github.com/vibrantgio/seen/context/gio"
 	"github.com/vibrantgio/seen/drag"
-	"github.com/vibrantgio/seen/layer/bsort"
+	"github.com/vibrantgio/seen/layer/nsort"
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shape"
 	"github.com/vibrantgio/seen/viewport"
@@ -53,7 +53,7 @@ To where it bent in the undergrowth;`, opts)
 	scene.Group.SetScale(2, 2, 2)
 
 	// Create a layer that renders a scene by sorting the polygons
-	foreground := bsort.NewLayerForScene(scene)
+	foreground := nsort.NewLayerForScene(scene)
 
 	// Create a context that hooks seen into the gio window
 	context := gio.NewContext(window, foreground)

@@ -12,7 +12,7 @@ import (
 	"github.com/vibrantgio/seen/color"
 	"github.com/vibrantgio/seen/context/gio"
 	"github.com/vibrantgio/seen/drag"
-	"github.com/vibrantgio/seen/layer/bsort"
+	"github.com/vibrantgio/seen/layer/nsort"
 	"github.com/vibrantgio/seen/point"
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shape"
@@ -63,7 +63,7 @@ func Scene(context *gio.Context, size float64) layout.Widget {
 	scene.Group.Add(shape)
 
 	// Create a layer that renders a scene by sorting the polygons
-	context.SetLayers(bsort.NewLayerForScene(scene))
+	context.SetLayers(nsort.NewLayerForScene(scene))
 
 	// Enable drag-to-rotate
 	context.Drag(drag.Inertia(true)).On(func(e drag.Event) {
