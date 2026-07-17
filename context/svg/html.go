@@ -69,6 +69,18 @@ func (html *HTML) AddCanvas(id string, width, height int) (*Element, error) {
 	return canvas, nil
 }
 
+// WriteDocumentTo writes the complete html document, doctype included, to w.
+func (html *HTML) WriteDocumentTo(w io.Writer) (n int64, err error) {
+	sn, err := io.WriteString(w, `<!DOCTYPE html>`+"\n")
+	n += int64(sn)
+	if err != nil {
+		return
+	}
+	en, err := html.WriteTo(w)
+	n += en
+	return
+}
+
 // SaveToFile
 func (html *HTML) SaveToFile(filePath string) error {
 	f, err := os.Create(filePath)
@@ -76,13 +88,6 @@ func (html *HTML) SaveToFile(filePath string) error {
 		return err
 	}
 	defer f.Close()
-	_, err = io.WriteString(f, `<!DOCTYPE html>`+"\n")
-	if err != nil {
-		return err
-	}
-	_, err = html.WriteTo(f)
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err = html.WriteDocumentTo(f)
+	return err
 }

@@ -1,11 +1,13 @@
 package svg_test
 
 import (
+	"bytes"
+	"encoding/xml"
+	"io"
 	"math"
 	"math/rand"
-	"path"
-	"runtime"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -28,9 +30,44 @@ import (
 
 // Helpers
 
-func SourceFile(filename string) string {
-	_, sourcepath, _, _ := runtime.Caller(1)
-	return path.Join(path.Dir(sourcepath), filename)
+type documentWriter interface {
+	WriteDocumentTo(w io.Writer) (int64, error)
+}
+
+// renderDocument serializes doc in-memory, fails the test unless the result
+// is well-formed markup, and returns it for further assertions.
+func renderDocument(t *testing.T, doc documentWriter) string {
+	t.Helper()
+	var buf bytes.Buffer
+	if _, err := doc.WriteDocumentTo(&buf); err != nil {
+		t.Fatalf("failed to serialize document: %v", err)
+	}
+	markup := buf.String()
+	decoder := xml.NewDecoder(strings.NewReader(markup))
+	for {
+		_, err := decoder.Token()
+		if err == io.EOF {
+			return markup
+		}
+		if err != nil {
+			t.Fatalf("document is not well-formed: %v\n%s", err, markup)
+		}
+	}
+}
+
+// countElements returns the number of elements with the given tag in markup.
+func countElements(markup, tag string) int {
+	decoder := xml.NewDecoder(strings.NewReader(markup))
+	count := 0
+	for {
+		token, err := decoder.Token()
+		if err != nil {
+			return count
+		}
+		if start, ok := token.(xml.StartElement); ok && start.Name.Local == tag {
+			count++
+		}
+	}
 }
 
 // Mocks
@@ -123,11 +160,19 @@ func TestPaintLayer(t *testing.T) {
 	context.SetLayers(layer)
 	context.Render()
 
-	// Save the generated svg to file
-	err = doc.SaveToFile(SourceFile("TestPaintLayer.svg"))
-	if err != nil {
-		t.Error(err)
-		return
+	// Check the generated svg contains what the layer painted
+	markup := renderDocument(t, doc)
+	if n := countElements(markup, "rect"); n != 1 {
+		t.Errorf("expected 1 rect element, got %d", n)
+	}
+	if n := countElements(markup, "circle"); n != 1 {
+		t.Errorf("expected 1 circle element, got %d", n)
+	}
+	if n := countElements(markup, "text"); n != 1 {
+		t.Errorf("expected 1 text element, got %d", n)
+	}
+	if !strings.Contains(markup, "Hello, World!") {
+		t.Error("expected text content \"Hello, World!\"")
 	}
 }
 
@@ -218,11 +263,13 @@ func TestDemoSimple(t *testing.T) {
 	// Actually render the scene on the context
 	context.Render()
 
-	// Save the generated svg to file
-	err = doc.SaveToFile(SourceFile("TestDemoSimple.svg"))
-	if err != nil {
-		t.Error(err)
-		return
+	// Check the generated svg contains the backdrop and the visible faces
+	markup := renderDocument(t, doc)
+	if n := countElements(markup, "rect"); n != 1 {
+		t.Errorf("expected 1 backdrop rect element, got %d", n)
+	}
+	if n := countElements(markup, "path"); n == 0 {
+		t.Error("expected path elements for the icosahedron and cube faces")
 	}
 }
 
@@ -296,8 +343,17 @@ func TestDemoSvgCanvas(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 	a.Stop()
 
-	// Save the generated html element to file
-	html.SaveToFile(SourceFile("TestDemoSvgCanvas.html"))
+	// Check the generated html contains all canvases, svgs and sphere faces
+	markup := renderDocument(t, html)
+	if n := countElements(markup, "svg"); n != 4 {
+		t.Errorf("expected 4 svg elements, got %d", n)
+	}
+	if n := countElements(markup, "canvas"); n != 4 {
+		t.Errorf("expected 4 canvas elements, got %d", n)
+	}
+	if n := countElements(markup, "path"); n == 0 {
+		t.Error("expected path elements for the sphere faces")
+	}
 }
 
 func TestDemoText(t *testing.T) {
@@ -357,10 +413,12 @@ func TestDemoText(t *testing.T) {
 	}
 	context.Render()
 
-	// Save the generated svg to file
-	err = doc.SaveToFile(SourceFile("TestDemoText.svg"))
-	if err != nil {
-		t.Error(err)
-		return
+	// Check the generated svg contains a label per bar and the bar faces
+	markup := renderDocument(t, doc)
+	if n := countElements(markup, "text"); n != len(data) {
+		t.Errorf("expected %d text elements, got %d", len(data), n)
+	}
+	if n := countElements(markup, "path"); n == 0 {
+		t.Error("expected path elements for the bar faces")
 	}
 }

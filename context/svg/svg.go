@@ -32,6 +32,24 @@ func NewSVG(id string, width, height int) (*SVG, error) {
 	return &SVG{svg}, nil
 }
 
+// WriteDocumentTo writes the complete svg document, xml declaration and
+// doctype included, to w.
+func (svg *SVG) WriteDocumentTo(w io.Writer) (n int64, err error) {
+	sn, err := io.WriteString(w, `<?xml version="1.0" standalone="yes"?>`+"\n")
+	n += int64(sn)
+	if err != nil {
+		return
+	}
+	sn, err = io.WriteString(w, `<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">`+"\n")
+	n += int64(sn)
+	if err != nil {
+		return
+	}
+	en, err := svg.WriteTo(w)
+	n += en
+	return
+}
+
 // SaveToFile
 func (svg *SVG) SaveToFile(filePath string) error {
 	f, err := os.Create(filePath)
@@ -39,17 +57,6 @@ func (svg *SVG) SaveToFile(filePath string) error {
 		return err
 	}
 	defer f.Close()
-	_, err = io.WriteString(f, `<?xml version="1.0" standalone="yes"?>`+"\n")
-	if err != nil {
-		return err
-	}
-	_, err = io.WriteString(f, `<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">`+"\n")
-	if err != nil {
-		return err
-	}
-	_, err = svg.WriteTo(f)
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err = svg.WriteDocumentTo(f)
+	return err
 }
