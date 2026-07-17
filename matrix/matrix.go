@@ -202,7 +202,20 @@ func (m Matrix) Invert() (inv Matrix, ok bool) {
 		m[0][2]*minor(1, 2, 3, 0, 1, 3) -
 		m[0][3]*minor(1, 2, 3, 0, 1, 2)
 
-	if ok = !float.Equal(det, 0.0); !ok {
+	// Singularity must be judged relative to the matrix's own scale, not by
+	// an absolute epsilon: a uniform scale s contributes s^4 to det, so a
+	// perfectly invertible view matrix with a small prescale (e.g. 1/2200
+	// per axis) has det ~ 1e-11 and a raw float.Equal(det, 0) misreads it
+	// as singular. Hadamard's inequality bounds |det| by the product of the
+	// row norms; a well-conditioned matrix stays within a modest factor of
+	// that bound, while a rank-deficient one collapses to ~machine epsilon
+	// of it. Zero row norms (and NaN/Inf) are singular outright.
+	scale := 1.0
+	for r := range 4 {
+		n := math.Sqrt(m[r][0]*m[r][0] + m[r][1]*m[r][1] + m[r][2]*m[r][2] + m[r][3]*m[r][3])
+		scale *= n
+	}
+	if ok = scale > 0 && !math.IsNaN(det) && !math.IsInf(det, 0) && math.Abs(det) > 1e-12*scale; !ok {
 		return
 	}
 

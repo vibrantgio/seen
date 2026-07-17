@@ -69,3 +69,37 @@ func TestMatrixExtractScale(t *testing.T) {
 		t.Errorf("EqualPairs:\nExp: {2,3,4}\nGot: {%.5v,%.5v,%.5v}", sx, sy, sz)
 	}
 }
+
+// TestMatrixInvertSmallScale: a view matrix with a small uniform prescale
+// (1/2200 per axis, as viewport.Center builds for a fixed reference distance)
+// has det ~ 1e-11 — far below any absolute epsilon, yet perfectly invertible.
+// The singularity test must be relative to the matrix's own scale.
+func TestMatrixInvertSmallScale(t *testing.T) {
+	s := 1.0 / 2200.0
+	view := matrix.Scale(s, s, s).Translate(0, 0, -2200)
+	inv, ok := view.Invert()
+	if !ok {
+		t.Fatal("small-prescale view matrix reported singular")
+	}
+	if I := view.Mul(inv); !I.Equal(matrix.Identity) {
+		t.Errorf("view * view^-1 != I, got %.4v", I)
+	}
+	// The eye recovery this exists for: the preimage of the origin.
+	x, y, z := inv.Transform3(0, 0, 0)
+	if math.Abs(x) > 1e-9 || math.Abs(y) > 1e-9 || math.Abs(z-2200) > 1e-6 {
+		t.Errorf("eye = (%v, %v, %v), want (0, 0, 2200)", x, y, z)
+	}
+}
+
+// TestMatrixInvertSingular: genuinely rank-deficient matrices must still be
+// rejected under the scale-relative test.
+func TestMatrixInvertSingular(t *testing.T) {
+	if _, ok := matrix.Scale(0, 1, 1).Invert(); ok {
+		t.Error("zero-scale matrix reported invertible")
+	}
+	collapsed := matrix.Identity
+	collapsed[2] = collapsed[1] // two identical rows: det = 0 at unit scale
+	if _, ok := collapsed.Invert(); ok {
+		t.Error("rank-deficient matrix reported invertible")
+	}
+}

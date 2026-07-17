@@ -56,7 +56,10 @@ func (s *Layer) RenderOn(canvas canvas.Canvas) {
 	viewport := s.scene.Viewport.Postscale
 
 	shader := NewShader(s.cache)
-	if shader.Shade(s.scene, projection, viewport) || s.tree == nil {
+	// The tree is built from world-space planes, so it only goes stale when
+	// world geometry changes; camera/viewport-only changes reuse it — the
+	// eye passed to Display below adapts the traversal to the new view.
+	if _, world := shader.Shade(s.scene, projection, viewport); world || s.tree == nil {
 		var planes Planes
 		s.scene.Accept(&planes)
 		if s.noSplit {
