@@ -2,6 +2,7 @@ package solid
 
 import (
 	"fmt"
+	"math"
 	"slices"
 	"strings"
 )
@@ -19,11 +20,16 @@ type BSP struct {
 }
 
 // Invert converts solid space to empty space and empty space to solid space.
+// Inverting an empty tree is a no-op: with no plane there is no orientation
+// to flip (the CSG operations never get here with an empty tree — they
+// resolve empty operands algebraically — but intermediate results may).
 func (n *BSP) Invert() {
 	for i := range n.Polygons {
 		n.Polygons[i].Flip()
 	}
-	n.Plane.Flip()
+	if n.Plane != nil {
+		n.Plane.Flip()
+	}
 	if n.Front != nil {
 		n.Front.Invert()
 	}
@@ -81,13 +87,30 @@ func (n BSP) AllPolygons() []Polygon {
 // AddPolygons builds a BSP tree out of `polygons`. When called on an existing
 // tree, the new polygons are filtered down to the bottom of the tree and become
 // new nodes there. Each set of polygons is partitioned using the first polygon
-// (no heuristic is used to pick a good split).
+// that spans a plane (no heuristic is used to pick a good split beyond that).
 func (n *BSP) AddPolygons(polygons []Polygon) {
 	if len(polygons) == 0 {
 		return
 	}
 	if n.Plane == nil {
-		p := polygons[0].Plane
+		// A degenerate polygon (collinear or duplicated points) has a NaN
+		// normal; every dot product against it is NaN, every comparison
+		// false, so partitioning on it would silently swallow the whole set
+		// into this one unsorted node — and later clips against the NaN
+		// plane would classify everything COPLANAR and delete nothing. Pick
+		// the first polygon that actually spans a plane; if none does, the
+		// set is all zero-area debris and is dropped.
+		pivot := -1
+		for i := range polygons {
+			if !math.IsNaN(polygons[i].Plane.Normal.X) {
+				pivot = i
+				break
+			}
+		}
+		if pivot < 0 {
+			return
+		}
+		p := polygons[pivot].Plane
 		n.Plane = &p
 	}
 	var front, back []Polygon
@@ -109,6 +132,10 @@ func (n *BSP) AddPolygons(polygons []Polygon) {
 }
 
 func (n *BSP) print(level int, sb *strings.Builder) {
+	if n.Plane == nil {
+		sb.WriteString(fmt.Sprintf("%*sempty\n", level*2, ""))
+		return
+	}
 	sb.WriteString(fmt.Sprintf("%*s%s:%+v\n", level*2, "", "plane", n.Plane.Normal))
 	if n.Front != nil {
 		n.Front.print(level+1, sb)
