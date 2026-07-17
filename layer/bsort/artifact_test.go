@@ -1,27 +1,29 @@
 package bsort_test
 
 // This file is a deterministic repro + regression harness for the painter-order
-// (visibility) artifacts produced by the bsort layer's BSP-based painter's
-// algorithm. The bsort tree (layer/bsort/bsp) does NOT split polygons that
-// straddle a partitioning plane; it dumps the straddler wholesale into one
-// branch (see bsp/process.go). As a result it can only ever emit a single
-// linear, whole-polygon paint order. Whenever the correct image requires a
-// polygon to be in front of a second polygon in one screen region and behind it
-// in another (interpenetration, "cross") or requires a depth ordering that is
-// non-transitive (an occlusion "cycle"), no single paint order is correct and
-// the rendered image is wrong in at least one place.
+// (visibility) artifacts the bsort layer's BSP-based painter's algorithm used
+// to produce before polygon splitting. The splitting tree (bsp.NewTree, the
+// NewLayerForScene default) cuts a polygon that straddles a partitioning plane
+// into front/back pieces (bsp/process.go, bsp/split.go), so a polygon can be
+// painted behind one face in one screen region and in front of it in another —
+// which is exactly what interpenetration ("cross") and non-transitive occlusion
+// ("cycle") require. The whole-polygon mode (bsp.NewTreeNoSplit, used by
+// NewNoSplitLayerForScene) deliberately reintroduces the single linear paint
+// order — and with it these artifacts — in exchange for never drawing the cut
+// edges, each of which renders as an antialiasing seam across the face's fill.
+// This harness therefore pins the SPLITTING mode.
 //
 // Each scene is built from explicit world-space faces, rendered through the very
 // same SVG pipeline used by mocap/render_test.go, with the DEFAULT IDENTITY
-// CAMERA (no camera translation) so the splitting bug is isolated from any
-// eye-position concern. We then parse the emitted SVG paths (document order ==
-// paint order) and, for chosen screen sample points, compare the polygon painted
-// LAST over that point against the analytically-correct nearest face (computed
-// by intersecting the eye ray with each covering face's plane).
+// CAMERA (no camera translation) so ordering is isolated from any eye-position
+// concern. We then parse the emitted SVG paths (document order == paint order)
+// and, for chosen screen sample points, compare the polygon painted LAST over
+// that point against the analytically-correct nearest face (computed by
+// intersecting the eye ray with each covering face's plane).
 //
-// EXPECTED STATE TODAY: "cross" and "cycle" FAIL (artifacts present);
-// "coplanar-control" PASSES (a guard against false positives). The cross/cycle
-// assertions become green once polygon splitting is implemented in the BSP.
+// EXPECTED STATE: all three scenes PASS — "cross" and "cycle" because the BSP
+// splits straddling polygons, "coplanar-control" as a guard against harness
+// false positives.
 
 import (
 	"math"

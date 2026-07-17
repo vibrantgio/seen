@@ -32,6 +32,28 @@ func NewTree(planes []Plane) *Tree {
 	return bsp
 }
 
+// NewTreeNoSplit builds the tree in whole-polygon mode: no polygon is ever
+// cut. Every polygon is treated the way Process treats a NoSplit text face —
+// a straddler stays whole on its barycenter's side of the partition (Process
+// still re-roots onto a cut-free partition first when one exists). Paint
+// order is then only approximate where polygons genuinely interpenetrate or
+// occlude cyclically; in exchange no cut edges exist, so antialiased fills
+// never show seams where a polygon was split. Use it for scenes that cannot
+// sort wrong by construction (height fields, convex hulls) or where crawling
+// split seams cost more than an occasional misordered pixel; NewTree remains
+// the exact, splitting builder. The input slice is left unmodified.
+func NewTreeNoSplit(planes []Plane) *Tree {
+	if len(planes) == 0 {
+		return nil
+	}
+	whole := make([]Plane, len(planes))
+	copy(whole, planes)
+	for i := range whole {
+		whole[i].NoSplit = true
+	}
+	return Process(whole, len(whole)/2, 0, nil)
+}
+
 func (tree *Tree) Display(eye point.Point, f func([]Plane)) {
 	if tree == nil || len(tree.Plane) == 0 {
 		return

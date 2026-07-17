@@ -11,9 +11,10 @@ import (
 
 // Layer implements the layer.Layer interface.
 type Layer struct {
-	scene *seen.Scene
-	cache ShaderCache
-	tree  *bsp.Tree
+	scene   *seen.Scene
+	cache   ShaderCache
+	tree    *bsp.Tree
+	noSplit bool
 }
 
 var _ layer.Layer = (*Layer)(nil)
@@ -22,6 +23,25 @@ func NewLayerForScene(scene *seen.Scene) layer.Layer {
 	return &Layer{
 		scene: scene,
 		cache: make(ShaderCache),
+	}
+}
+
+// NewNoSplitLayerForScene returns the bsort layer in whole-polygon mode: the
+// BSP keeps every straddling face whole on its barycenter's side instead of
+// cutting it (bsp.NewTreeNoSplit). Ordering is then approximate for
+// interpenetrating or cyclically occluding faces, but no cut edges are ever
+// introduced — each cut edge in the splitting mode renders as a visible
+// antialiasing seam across the face's fill, and on animated geometry the
+// tree (and so the seam pattern) is rebuilt every frame, making the seams
+// crawl. Prefer this mode for scenes whose depth order cannot cycle from any
+// eye position (height fields, non-intersecting meshes); use
+// NewLayerForScene when faces genuinely interpenetrate and exact order is
+// worth the seams.
+func NewNoSplitLayerForScene(scene *seen.Scene) layer.Layer {
+	return &Layer{
+		scene:   scene,
+		cache:   make(ShaderCache),
+		noSplit: true,
 	}
 }
 
@@ -39,7 +59,11 @@ func (s *Layer) RenderOn(canvas canvas.Canvas) {
 	if shader.Shade(s.scene, projection, viewport) || s.tree == nil {
 		var planes Planes
 		s.scene.Accept(&planes)
-		s.tree = bsp.NewTree(planes)
+		if s.noSplit {
+			s.tree = bsp.NewTreeNoSplit(planes)
+		} else {
+			s.tree = bsp.NewTree(planes)
+		}
 		// fmt.Printf("#planes %d\n", len(collector.Planes))
 	}
 
