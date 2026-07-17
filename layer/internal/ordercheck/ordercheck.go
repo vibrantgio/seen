@@ -21,10 +21,10 @@
 //     guarding the harness against false positives.
 //
 // A layer passes only by CUTTING polygons where the view demands it: bsort
-// does so view-independently in its splitting mode (bsp.NewTree), nsort
-// view-dependently when it detects a cycle. bsort's no-split mode
-// deliberately fails these scenes — that is its documented trade-off — and
-// is therefore not run against this harness.
+// does so view-independently at tree-build time (bsp.NewTree), nsort
+// view-dependently when it detects a cycle from the current eye. zsort,
+// which never cuts, is approximate by design and is not run against this
+// harness.
 package ordercheck
 
 import (

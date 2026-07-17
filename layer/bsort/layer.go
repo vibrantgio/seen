@@ -11,37 +11,24 @@ import (
 
 // Layer implements the layer.Layer interface.
 type Layer struct {
-	scene   *seen.Scene
-	cache   ShaderCache
-	tree    *bsp.Tree
-	noSplit bool
+	scene *seen.Scene
+	cache ShaderCache
+	tree  *bsp.Tree
 }
 
 var _ layer.Layer = (*Layer)(nil)
 
+// NewLayerForScene returns the splitting-BSP layer: exact painter's order
+// from ANY eye, with polygons that straddle a partition plane cut into
+// pieces at build time. The tree is world-space and rebuilt only when world
+// geometry changes, so its build cost amortises across camera motion —
+// which makes this the layer for STATIC geometry under a moving eye. For
+// per-frame dynamic geometry (noise fields, mocap) use layer/nsort, which
+// orders for the current eye and cuts only on genuine occlusion cycles.
 func NewLayerForScene(scene *seen.Scene) layer.Layer {
 	return &Layer{
 		scene: scene,
 		cache: make(ShaderCache),
-	}
-}
-
-// NewNoSplitLayerForScene returns the bsort layer in whole-polygon mode: the
-// BSP keeps every straddling face whole on its barycenter's side instead of
-// cutting it (bsp.NewTreeNoSplit). Ordering is then approximate for
-// interpenetrating or cyclically occluding faces, but no cut edges are ever
-// introduced — each cut edge in the splitting mode renders as a visible
-// antialiasing seam across the face's fill, and on animated geometry the
-// tree (and so the seam pattern) is rebuilt every frame, making the seams
-// crawl. Prefer this mode for scenes whose depth order cannot cycle from any
-// eye position (height fields, non-intersecting meshes); use
-// NewLayerForScene when faces genuinely interpenetrate and exact order is
-// worth the seams.
-func NewNoSplitLayerForScene(scene *seen.Scene) layer.Layer {
-	return &Layer{
-		scene:   scene,
-		cache:   make(ShaderCache),
-		noSplit: true,
 	}
 }
 
@@ -62,11 +49,7 @@ func (s *Layer) RenderOn(canvas canvas.Canvas) {
 	if _, world := shader.Shade(s.scene, projection, viewport); world || s.tree == nil {
 		var planes Planes
 		s.scene.Accept(&planes)
-		if s.noSplit {
-			s.tree = bsp.NewTreeNoSplit(planes)
-		} else {
-			s.tree = bsp.NewTree(planes)
-		}
+		s.tree = bsp.NewTree(planes)
 		// fmt.Printf("#planes %d\n", len(collector.Planes))
 	}
 
