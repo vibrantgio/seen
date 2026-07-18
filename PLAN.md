@@ -300,9 +300,9 @@ update NewScene/NewDefaultScene defaults. Port the doc comments from the old
 Center/Origin (the dist-locking explanation is load-bearing — the launcher
 depends on it) onto the Fit methods.
 
-- [ ] Rewrite the viewport package; move the fitting formulas into
+- [x] Rewrite the viewport package; move the fitting formulas into
       `Scene.FitCenter` / `Scene.FitOrigin`.
-- [ ] Equivalence test (in `seen` root package or `viewport`): for FitCenter
+- [x] Equivalence test (in `seen` root package or `viewport`): for FitCenter
       and FitOrigin over several tuples incl. `(0,0,1100,760,2200)` and a
       non-square `(10,20,600,300)`, new `Projection·View` equals old
       `Projection·Prescale·CameraM` (old formulas hardcoded in the test) to
