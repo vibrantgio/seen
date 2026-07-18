@@ -13,7 +13,6 @@ import (
 	"github.com/vibrantgio/seen/layer/nsort"
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shape"
-	"github.com/vibrantgio/seen/viewport"
 	"github.com/vibrantgio/seen/zoom"
 )
 
@@ -71,7 +70,7 @@ To where it bent in the undergrowth;`, opts)
 	})
 
 	widget := gio.Widget(context, func(w, h unit.Dp) {
-		scene.Viewport = viewport.Center(0, 0, float64(w), float64(h))
+		scene.FitCenter(0, 0, float64(w), float64(h))
 	})
 
 	ops := new(op.Ops)

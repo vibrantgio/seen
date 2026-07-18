@@ -17,7 +17,6 @@ import (
 	"github.com/vibrantgio/seen/drag"
 	"github.com/vibrantgio/seen/layer/nsort"
 	"github.com/vibrantgio/seen/quaternion"
-	"github.com/vibrantgio/seen/viewport"
 	"github.com/vibrantgio/seen/zoom"
 
 	. "github.com/vibrantgio/seen/solid"
@@ -111,7 +110,7 @@ func CombinedSolid() {
 
 	widget := gio.Widget(context, func(w, h unit.Dp) {
 		width, height = w, h
-		scene.Viewport = viewport.Center(0, 0, float64(w), float64(h))
+		scene.FitCenter(0, 0, float64(w), float64(h))
 	})
 
 	ops := &op.Ops{}

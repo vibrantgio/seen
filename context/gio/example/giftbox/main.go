@@ -25,7 +25,6 @@ import (
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shader"
 	"github.com/vibrantgio/seen/shape"
-	"github.com/vibrantgio/seen/viewport"
 	"github.com/vibrantgio/seen/zoom"
 )
 
@@ -147,7 +146,7 @@ func GiftBox() {
 	widget := gio.Widget(context, func(w, h unit.Dp) {
 		background.Width, background.Height = float64(w), float64(h)
 		curtain.Width, curtain.Height = float64(w), float64(h)/2
-		scene.Viewport = viewport.Center(0, 0, float64(w), float64(h))
+		scene.FitCenter(0, 0, float64(w), float64(h))
 	})
 
 	metric := unit.Metric{PxPerDp: 1.0, PxPerSp: 1.0}

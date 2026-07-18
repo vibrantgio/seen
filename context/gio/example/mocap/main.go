@@ -27,7 +27,6 @@ import (
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shader"
 	"github.com/vibrantgio/seen/shape"
-	"github.com/vibrantgio/seen/viewport"
 	"github.com/vibrantgio/seen/zoom"
 )
 
@@ -112,7 +111,7 @@ func Scene(context *gio.Context) layout.Widget {
 
 	return gio.Widget(context, func(w, h unit.Dp) {
 		background.Width, background.Height = float64(w), float64(h)
-		scene.Viewport = viewport.Center(0, 0, float64(w), float64(h))
+		scene.FitCenter(0, 0, float64(w), float64(h))
 		// Dolly the camera in: the viewport puts the eye at distance h, so
 		// translating the world +h/2 towards the eye halves that distance.
 		scene.Camera.SetTranslation(0, 0, float64(h)/2)

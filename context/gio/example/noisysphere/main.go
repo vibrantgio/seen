@@ -23,7 +23,6 @@ import (
 	"github.com/vibrantgio/seen/point"
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shape"
-	"github.com/vibrantgio/seen/viewport"
 	"github.com/vibrantgio/seen/zoom"
 )
 
@@ -48,7 +47,7 @@ func NoisySphere() {
 	scene, layer := Scene(context)
 	widget := gio.Widget(context, func(w, h unit.Dp) {
 		width, height = w, h
-		scene.Viewport = viewport.Center(0, 0, float64(w), float64(h))
+		scene.FitCenter(0, 0, float64(w), float64(h))
 	})
 
 	var ops op.Ops

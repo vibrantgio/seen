@@ -378,11 +378,11 @@ REF-call-sites (module seen/context/gio).
 
 #### G2.1.1: Sweep the ten mechanical example call sites
 
-- [ ] Replace `scene.Viewport = viewport.Center(0,0,w,h)` with
+- [x] Replace `scene.Viewport = viewport.Center(0,0,w,h)` with
       `scene.FitCenter(0, 0, w, h)` in helloworld, combinedsolid,
       noisywavepatch, mocap, rectangle, giftbox, text, noisysphere, solids,
       poem; drop unused viewport imports.
-- [ ] `go build ./...` green in context/gio.
+- [x] `go build ./...` green in context/gio.
 
 #### G2.1.2: Rewrite multipleangles on real cameras
 
