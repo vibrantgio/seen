@@ -424,12 +424,12 @@ semantics; the equivalence test covers the `(0,0,1100,760,2200)` tuple).
 
 #### G3.1.1: Sweep launcher field.go and verify
 
-- [ ] `launcher/field.go:140` → `f.scene.FitCenter(0, 0, float64(w),
+- [x] `launcher/field.go:140` → `f.scene.FitCenter(0, 0, float64(w),
       float64(h), cameraDist)`; drop the viewport import.
-- [ ] Build, run, screenshot per REF-verification: triangle field covers the
+- [x] Build, run, screenshot per REF-verification: triangle field covers the
       window including the top edge at the default size AND after resizing
       the window larger (the regrow path exercises Fit on every resize).
-- [ ] Commit in the workbench repo.
+- [x] Commit in the workbench repo.
 
 #### G3.1.2: Final consistency gates
 
