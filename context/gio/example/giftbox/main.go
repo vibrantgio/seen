@@ -1,8 +1,6 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"image"
 	"image/png"
 	"log"
@@ -21,10 +19,8 @@ import (
 	"github.com/vibrantgio/seen/context/svg"
 	"github.com/vibrantgio/seen/drag"
 	"github.com/vibrantgio/seen/face"
-	"github.com/vibrantgio/seen/layer"
 	"github.com/vibrantgio/seen/layer/backdrop"
-	"github.com/vibrantgio/seen/layer/bsort"
-	"github.com/vibrantgio/seen/layer/zsort"
+	"github.com/vibrantgio/seen/layer/nsort"
 	"github.com/vibrantgio/seen/point"
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shader"
@@ -127,17 +123,9 @@ func GiftBox() {
 	background := backdrop.NewLayer(SIZE, SIZE, 0, 0, backdropfill)
 	curtain := backdrop.NewLayer(SIZE, SIZE/2, 0, 0, curtainfill)
 
-	// Create a layer that renders a scene by sorting the polygons
-	var foreground layer.Layer
-
-	flag.Parse()
-	if flag.NArg() > 0 && flag.Arg(0) == "zsort" {
-		fmt.Println("zsort")
-		foreground = zsort.NewLayerForScene(scene)
-	} else {
-		fmt.Println("bsort")
-		foreground = bsort.NewLayerForScene(scene)
-	}
+	// Create a layer that renders a scene by depth-sorting the polygons for
+	// the current eye
+	foreground := nsort.NewLayerForScene(scene)
 
 	// Create a context that renders into the gio window
 	context := gio.NewContext(window, background, curtain, foreground)

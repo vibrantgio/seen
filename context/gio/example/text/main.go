@@ -15,16 +15,12 @@ import (
 	"github.com/vibrantgio/seen/context/gio"
 	"github.com/vibrantgio/seen/context/svg"
 	"github.com/vibrantgio/seen/drag"
-	"github.com/vibrantgio/seen/layer"
-	"github.com/vibrantgio/seen/layer/bsort"
-	"github.com/vibrantgio/seen/layer/zsort"
+	"github.com/vibrantgio/seen/layer/nsort"
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shape"
 	"github.com/vibrantgio/seen/viewport"
 	"github.com/vibrantgio/seen/zoom"
 )
-
-const should_use_bsp_sorter = true
 
 const should_save_to_svg = false
 
@@ -77,13 +73,9 @@ func Text() {
 
 	group.SetScale(2, 2, 2)
 
-	// Create a layer that renders a scene by sorting the polygons
-	var layer layer.Layer
-	if should_use_bsp_sorter {
-		layer = bsort.NewLayerForScene(scene)
-	} else {
-		layer = zsort.NewLayerForScene(scene)
-	}
+	// Create a layer that renders a scene by depth-sorting the polygons for
+	// the current eye
+	layer := nsort.NewLayerForScene(scene)
 
 	// Create a context that hooks seen into the gio window
 	context := gio.NewContext(window, layer)

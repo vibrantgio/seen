@@ -21,7 +21,7 @@ import (
 	"github.com/vibrantgio/seen/context/gio"
 	"github.com/vibrantgio/seen/drag"
 	"github.com/vibrantgio/seen/layer/backdrop"
-	"github.com/vibrantgio/seen/layer/zsort"
+	"github.com/vibrantgio/seen/layer/nsort"
 	"github.com/vibrantgio/seen/mocap"
 	"github.com/vibrantgio/seen/point"
 	"github.com/vibrantgio/seen/quaternion"
@@ -83,7 +83,7 @@ func Scene(context *gio.Context) layout.Widget {
 
 	// A dark backdrop behind the sorted skeleton polygons.
 	background := backdrop.NewLayer(size, size, 0, 0, mustColor("#444444"))
-	context.SetLayers(background, zsort.NewLayerForScene(scene))
+	context.SetLayers(background, nsort.NewLayerForScene(scene))
 
 	// Drag-to-rotate the whole skeleton.
 	context.Drag(drag.Inertia(true)).On(func(e drag.Event) {
