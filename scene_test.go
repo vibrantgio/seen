@@ -8,8 +8,8 @@ import (
 )
 
 // TestFitEquivalence proves that FitCenter/FitOrigin reproduce the legacy
-// viewport Center/Origin pipeline exactly. The legacy formulas are hardcoded
-// here (they no longer exist in the viewport package):
+// centered/origin-anchored viewport pipeline exactly. The legacy formulas are
+// hardcoded here (they no longer exist in the viewport package):
 //
 //	prescale         = Scale(1/W, 1/H, 1/D).Translate(-x, -y, -D)
 //	postscale center = Translate(x+w/2, y+h/2, D).Scale(W, -H, D)

@@ -433,11 +433,11 @@ semantics; the equivalence test covers the `(0,0,1100,760,2200)` tuple).
 
 #### G3.1.2: Final consistency gates
 
-- [ ] Workspace-wide: `grep -rn "viewport.Center\|viewport.Origin\|Prescale\|
+- [x] Workspace-wide: `grep -rn "viewport.Center\|viewport.Origin\|Prescale\|
       Postscale" --include="*.go" /Users/rene/code/w/vibrantgio | grep -v
       ref/` returns nothing.
-- [ ] Full test suites one last time: seen `go test ./...`, context/gio
+- [x] Full test suites one last time: seen `go test ./...`, context/gio
       `go build ./... && go test ./...`, launcher `go build ./...`.
-- [ ] Final commit in seen: note in the body that consumers outside go.work
+- [x] Final commit in seen: note in the body that consumers outside go.work
       need a seen tag (v0.0.5) plus context/gio and workbench go.mod bumps
       before this is consumable remotely.
