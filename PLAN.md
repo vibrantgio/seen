@@ -398,9 +398,9 @@ main view's `SetScale(2,2,2)`.
 
 #### G2.1.3: Visual verification of giftbox and solids
 
-- [ ] Run giftbox and solids per the REF-verification recipe and confirm the
+- [x] Run giftbox and solids per the REF-verification recipe and confirm the
       described images; screenshots seen, binaries killed.
-- [ ] Commit closes Phase P2.
+- [x] Commit closes Phase P2.
 
 ## Phase P3: workbench launcher and wrap-up
 
