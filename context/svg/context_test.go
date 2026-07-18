@@ -25,7 +25,6 @@ import (
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shader"
 	"github.com/vibrantgio/seen/shape"
-	"github.com/vibrantgio/seen/viewport"
 )
 
 // Helpers
@@ -256,7 +255,7 @@ func TestDemoSimple(t *testing.T) {
 	}
 	s.Group.Add(cube)
 
-	s.Viewport = viewport.Center(0, 0, width, height)
+	s.FitCenter(0, 0, width, height)
 	// Add scene as a layer to the render context
 	context.SetLayers(backdrop, zsort.NewLayerForScene(s))
 
@@ -308,7 +307,7 @@ func TestDemoSvgCanvas(t *testing.T) {
 		scene := seen.NewDefaultScene()
 		scene.Shader = shader.Phong
 		scene.Group.Add(sphere)
-		scene.Viewport = viewport.Center(0, 0, width, height)
+		scene.FitCenter(0, 0, width, height)
 		scenes = append(scenes, zsort.NewLayerForScene(scene))
 	}
 
@@ -402,7 +401,7 @@ func TestDemoText(t *testing.T) {
 	// Create scene
 	scene.Group.SetTranslation(-150, -50, 0)
 	scene.Group.SetScale(2, 2, 2)
-	scene.Viewport = viewport.Center(0, 0, width, height)
+	scene.FitCenter(0, 0, width, height)
 	scene.Camera.SetRotation(quaternion.AxisAngle(0.1, 1, 0, math.Pi*0.2))
 
 	// Create render context from canvas

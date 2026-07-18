@@ -70,10 +70,10 @@ func TestMatrixExtractScale(t *testing.T) {
 	}
 }
 
-// TestMatrixInvertSmallScale: a view matrix with a small uniform prescale
-// (1/2200 per axis, as viewport.Center builds for a fixed reference distance)
-// has det ~ 1e-11 — far below any absolute epsilon, yet perfectly invertible.
-// The singularity test must be relative to the matrix's own scale.
+// TestMatrixInvertSmallScale: a view matrix with a small uniform scale
+// (1/2200 per axis, as Scene.FitCenter sets Camera.Norm for a fixed reference
+// distance) has det ~ 1e-11 — far below any absolute epsilon, yet perfectly
+// invertible. The singularity test must be relative to the matrix's own scale.
 func TestMatrixInvertSmallScale(t *testing.T) {
 	s := 1.0 / 2200.0
 	view := matrix.Scale(s, s, s).Translate(0, 0, -2200)

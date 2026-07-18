@@ -8,15 +8,15 @@ import (
 )
 
 // TestFitEquivalence proves that FitCenter/FitOrigin reproduce the legacy
-// viewport.Center/viewport.Origin pipeline exactly. The legacy formulas are
-// hardcoded here (they no longer exist in the viewport package):
+// viewport Center/Origin pipeline exactly. The legacy formulas are hardcoded
+// here (they no longer exist in the viewport package):
 //
-//	Prescale         = Scale(1/W, 1/H, 1/D).Translate(-x, -y, -D)
-//	Postscale center = Translate(x+w/2, y+h/2, D).Scale(W, -H, D)
-//	Postscale origin = Translate(x, y, D).Scale(W, -H, D)
+//	prescale         = Scale(1/W, 1/H, 1/D).Translate(-x, -y, -D)
+//	postscale center = Translate(x+w/2, y+h/2, D).Scale(W, -H, D)
+//	postscale origin = Translate(x, y, D).Scale(W, -H, D)
 //
 // with W, H, D = w, h, h — or dist, dist, dist when dist is given — and the
-// legacy render pipeline composing Projection · Prescale · Camera.Matrix().
+// legacy render pipeline composing Projection · prescale · Camera.Matrix().
 // The new pipeline composes Projection · Camera.View() and maps to pixels
 // with Viewport.Screen.
 func TestFitEquivalence(t *testing.T) {
@@ -97,7 +97,7 @@ func TestFitEquivalence(t *testing.T) {
 
 					postscale := fit.postscale(tc.x, tc.y, tc.w, tc.h, W, H, D)
 					if s.Viewport.Screen != postscale {
-						t.Errorf("Screen = %v, want legacy Postscale %v", s.Viewport.Screen, postscale)
+						t.Errorf("Screen = %v, want legacy postscale %v", s.Viewport.Screen, postscale)
 					}
 				})
 			}
@@ -106,11 +106,11 @@ func TestFitEquivalence(t *testing.T) {
 }
 
 // TestDefaultViewportEquivalence pins viewport.Default to the screen mapping
-// of the legacy Origin(0, 0, 1, 1) viewport's Postscale.
+// of the legacy Origin(0, 0, 1, 1) viewport's postscale.
 func TestDefaultViewportEquivalence(t *testing.T) {
 	s := NewScene()
 	legacy := matrix.Translate(0, 0, 1).Scale(1, -1, 1)
 	if s.Viewport.Screen != legacy {
-		t.Errorf("default Screen = %v, want legacy Origin(0,0,1,1) Postscale %v", s.Viewport.Screen, legacy)
+		t.Errorf("default Screen = %v, want legacy Origin(0,0,1,1) postscale %v", s.Viewport.Screen, legacy)
 	}
 }

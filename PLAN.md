@@ -349,9 +349,9 @@ compose `Projection·View`, `EyeInWorld` for the analytic rays). Then the
 mechanical sweep: scene.go defaults, context/svg/context_test.go,
 mocap/render_test.go, matrix_test comment (all listed in REF-call-sites).
 
-- [ ] Rewrite ordercheck's projection/eye helpers on the new model.
-- [ ] Sweep the remaining seen-module call sites to FitCenter.
-- [ ] Full `go test ./...` green, goldens byte-identical (ADR-004), grep gate
+- [x] Rewrite ordercheck's projection/eye helpers on the new model.
+- [x] Sweep the remaining seen-module call sites to FitCenter.
+- [x] Full `go test ./...` green, goldens byte-identical (ADR-004), grep gate
       clean for the seen module; commit closes Phase P1.
 
 ## Phase P2: context/gio module sweep

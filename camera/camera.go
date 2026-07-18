@@ -34,8 +34,8 @@ type Camera struct {
 
 	// Norm is the view normalization — the fit scale that maps the region
 	// of interest into the canonical view volume. matrix.Identity when
-	// unused. It is the scale half of what the legacy Viewport.Prescale
-	// used to carry.
+	// unused. It is the scale half of what the legacy viewport prescale
+	// matrix used to carry.
 	Norm matrix.Matrix
 }
 
@@ -60,7 +60,7 @@ func CameraWithProjection(projection matrix.Matrix) Camera {
 //
 // Transform first (world-transform semantics, ADR-003), then the eye
 // translation, then the fit normalization — exactly the factor order of the
-// legacy Viewport.Prescale · Camera.Matrix() product, so a camera configured
+// legacy viewport prescale · Camera.Matrix() product, so a camera configured
 // by the fitting helpers renders identically to the old pipeline.
 func (c Camera) View() matrix.Matrix {
 	return c.Norm.Mul(matrix.Translate(-c.Eye.X, -c.Eye.Y, -c.Eye.Z)).Mul(c.Matrix())

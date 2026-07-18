@@ -7,11 +7,10 @@ import (
 
 	"github.com/vibrantgio/seen"
 	"github.com/vibrantgio/seen/bvh"
-	"github.com/vibrantgio/seen/mocap"
 	"github.com/vibrantgio/seen/context/svg"
 	"github.com/vibrantgio/seen/layer/bsort"
+	"github.com/vibrantgio/seen/mocap"
 	"github.com/vibrantgio/seen/shader"
-	"github.com/vibrantgio/seen/viewport"
 )
 
 // TestRenderFrame poses the skeleton and renders one frame through the real
@@ -31,7 +30,7 @@ func TestRenderFrame(t *testing.T) {
 	scene := seen.NewDefaultScene()
 	scene.Shader = shader.Phong
 	scene.Group.Add(m.Group)
-	scene.Viewport = viewport.Center(0, 0, 500, 500)
+	scene.FitCenter(0, 0, 500, 500)
 
 	doc, err := svg.NewSVG("seen-svg", 500, 500)
 	if err != nil {

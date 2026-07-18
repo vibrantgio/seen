@@ -61,36 +61,35 @@ type faceSpec struct {
 // Projection math, mirrored from the layers' RenderOn.
 // ---------------------------------------------------------------------------
 
+// fitView returns the camera and viewport configured exactly as renderScene
+// configures the rendered scenes: the default identity-transform camera
+// fitted to the square view with Scene.FitCenter.
+func fitView() (camera.Camera, viewport.Viewport) {
+	s := seen.NewScene() // Camera is camera.Default
+	s.FitCenter(0, 0, viewSize, viewSize)
+	return s.Camera, s.Viewport
+}
+
 // projectPoint maps a world point to screen coordinates exactly as the
 // renderers do: projection -> clip (reject when clip-space z <= -2) ->
-// perspective divide -> postscale.
+// perspective divide -> screen mapping.
 func projectPoint(p point.Point) (sx, sy float64, ok bool) {
-	cam := camera.Default
-	vp := viewport.Center(0, 0, viewSize, viewSize)
-	proj := cam.Projection.Mul(vp.Prescale).Mul(cam.Matrix())
-	post := vp.Postscale
+	cam, vp := fitView()
+	proj := cam.Projection.Mul(cam.View())
 	x, y, z, w := proj.Transform(p.X, p.Y, p.Z, 1.0)
 	if z <= -2 {
 		return 0, 0, false
 	}
-	rx, ry, _ := post.Transform3(x/w, y/w, z/w)
+	rx, ry, _ := vp.Screen.Transform3(x/w, y/w, z/w)
 	return rx, ry, true
 }
 
 // eyePoint recovers the eye location the renderers use for back-to-front
-// order: the preimage of the eye-space origin under the view transform, with
-// the legacy -1/proj[2][2] estimate as the same fallback the renderers keep
-// for degenerate views.
+// order: Camera.EyeInWorld, the preimage of the view-space origin under the
+// view transform, with the same degenerate-view fallback the renderers keep.
 func eyePoint() point.Point {
-	cam := camera.Default
-	vp := viewport.Center(0, 0, viewSize, viewSize)
-	view := vp.Prescale.Mul(cam.Matrix())
-	if inv, ok := view.Invert(); ok {
-		x, y, z := inv.Transform3(0, 0, 0)
-		return point.Pt(x, y, z)
-	}
-	proj := cam.Projection.Mul(vp.Prescale).Mul(cam.Matrix())
-	return point.Pt(0, 0, -1.0/proj[2][2])
+	cam, _ := fitView()
+	return cam.EyeInWorld()
 }
 
 // projectPoly projects all the points of a face to screen space.
@@ -196,7 +195,7 @@ func renderScene(t *testing.T, id string, faces []faceSpec, layerFor func(*seen.
 	scene.Shader = shader.Flat
 	scene.ShowBackfaces = true
 	scene.Camera = camera.Default // explicit: default identity-transform camera
-	scene.Viewport = viewport.Center(0, 0, viewSize, viewSize)
+	scene.FitCenter(0, 0, viewSize, viewSize)
 
 	for _, fs := range faces {
 		pts := make(point.Points, len(fs.world))
