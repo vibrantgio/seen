@@ -40,12 +40,13 @@ func NewLayerForScene(scene *seen.Scene) layer.Layer {
 // When encountering a TextShape use a TextPainter to render.
 // When encountering any other shape assign a PathPainter to render.
 func (l *Layer) RenderOn(canvas canvas.Canvas) {
-	// projection matrix transforms points from world space into camera space and then
-	// through viewport prescale and projection matrix into normalized screen space.
-	projection := l.scene.Camera.Projection.Mul(l.scene.Viewport.Prescale).Mul(l.scene.Camera.Matrix())
+	// projection matrix transforms points from world space through the
+	// camera's view (world transform, eye, normalization) and projection
+	// into normalized screen space.
+	projection := l.scene.Camera.Projection.Mul(l.scene.Camera.View())
 
 	// Last transformation from normalized screen space into real screen space.
-	viewport := l.scene.Viewport.Postscale
+	viewport := l.scene.Viewport.Screen
 
 	// Clear out the fragments, but reuse the already existing array backing the slice
 	l.zfragments = l.zfragments[:0]

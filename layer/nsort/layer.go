@@ -44,11 +44,11 @@ func NewLayerForScene(scene *seen.Scene) layer.Layer {
 // RenderOn renders all faces of the scene back to front in an order that is
 // exact for the current eye (see the package comment).
 func (l *Layer) RenderOn(canvas canvas.Canvas) {
-	// projection matrix transforms points from world space into camera space
-	// and then through viewport prescale and projection matrix into
-	// normalized screen space; viewport maps that to real screen space.
-	projection := l.scene.Camera.Projection.Mul(l.scene.Viewport.Prescale).Mul(l.scene.Camera.Matrix())
-	viewport := l.scene.Viewport.Postscale
+	// projection matrix transforms points from world space through the
+	// camera's view (world transform, eye, normalization) and projection
+	// into normalized screen space; viewport maps that to real screen space.
+	projection := l.scene.Camera.Projection.Mul(l.scene.Camera.View())
+	viewport := l.scene.Viewport.Screen
 
 	// The shared bsort shader caches world/screen coordinates per face and
 	// resolves fill/stroke colors; nsort re-sorts every frame regardless, so
@@ -56,17 +56,9 @@ func (l *Layer) RenderOn(canvas canvas.Canvas) {
 	shader := bsort.NewShader(l.cache)
 	shader.Shade(l.scene, projection, viewport)
 
-	// The eye in world space: the preimage of the eye-space origin under the
-	// view transform (see layer/bsort/layer.go for the derivation).
-	view := l.scene.Viewport.Prescale.Mul(l.scene.Camera.Matrix())
-	var eye point.Point
-	if inv, ok := view.Invert(); ok {
-		ex, ey, ez := inv.Transform3(0, 0, 0)
-		eye = point.Pt(ex, ey, ez)
-	} else {
-		// Degenerate view (e.g. zero scale). Fall back to the legacy estimate.
-		eye = point.Pt(0, 0, -1.0/projection[2][2])
-	}
+	// The eye in world space: the preimage of the view-space origin under
+	// the camera's view transform (see camera.EyeInWorld for the derivation).
+	eye := l.scene.Camera.EyeInWorld()
 
 	// Collect the renderable records: world plane from the scene walk,
 	// screen projection from the shader cache, culled the same way bsort

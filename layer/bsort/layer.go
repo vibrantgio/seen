@@ -35,12 +35,13 @@ func NewLayerForScene(scene *seen.Scene) layer.Layer {
 // RenderOn renders all faces that are part of the shapes and objects
 // in the scene on to the given canvas
 func (s *Layer) RenderOn(canvas canvas.Canvas) {
-	// projection matrix transforms points from world space into camera space and then
-	// through viewport prescale and projection matrix into normalized screen space.
-	projection := s.scene.Camera.Projection.Mul(s.scene.Viewport.Prescale).Mul(s.scene.Camera.Matrix())
+	// projection matrix transforms points from world space through the
+	// camera's view (world transform, eye, normalization) and projection
+	// into normalized screen space.
+	projection := s.scene.Camera.Projection.Mul(s.scene.Camera.View())
 
 	// Last transformation from normalized screen space into real screen space.
-	viewport := s.scene.Viewport.Postscale
+	viewport := s.scene.Viewport.Screen
 
 	shader := NewShader(s.cache)
 	// The tree is built from world-space planes, so it only goes stale when
@@ -53,30 +54,10 @@ func (s *Layer) RenderOn(canvas canvas.Canvas) {
 		// fmt.Printf("#planes %d\n", len(collector.Planes))
 	}
 
-	// Find out where the eye (center of projection) is located in world space.
-	//
-	// The BSP planes, their barycenters and normals are all in world space, so
-	// Display needs the eye in world space too. The center of projection is the
-	// world point that maps to the eye-space origin under the view transform
-	// Prescale * Camera.Matrix() (the projection matrix's row 3 of [0,0,-1,0]
-	// makes w_clip vanish exactly there). It is therefore the preimage of the
-	// origin under that affine view transform, i.e. (Prescale * Camera)^-1 * 0.
-	//
-	// This is independent of the frustum's near/far and correctly accounts for
-	// camera dolly and viewport offset. The previous formula
-	//   point.Pt(0, 0, -1.0/projection[2][2])
-	// ignored all translations and was additionally off by a (f-n)/(f+n) factor
-	// even for an identity camera with a symmetric viewport.
-	view := s.scene.Viewport.Prescale.Mul(s.scene.Camera.Matrix())
-	var eye point.Point
-	if inv, ok := view.Invert(); ok {
-		ex, ey, ez := inv.Transform3(0, 0, 0)
-		eye = point.Pt(ex, ey, ez)
-	} else {
-		// Degenerate view (e.g. zero scale). Fall back to the legacy estimate.
-		eye = point.Pt(0, 0, -1.0/projection[2][2])
-	}
-	// fmt.Printf("eye: %v\n", eye)
+	// The eye (center of projection) in world space. The BSP planes, their
+	// barycenters and normals are all in world space, so Display needs the
+	// eye in world space too (see camera.EyeInWorld for the derivation).
+	eye := s.scene.Camera.EyeInWorld()
 
 	// Walk the bsp tree and render the render face back to front
 	s.tree.Display(eye, func(plane []bsp.Plane) {

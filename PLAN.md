@@ -333,11 +333,11 @@ shader, ordering) untouched. bsort's world-only rebuild trigger reads the
 camera matrices via the shader — verify a camera Eye/Norm change does NOT
 count as a world change (it must not: world planes are pre-view).
 
-- [ ] Convert bsort, nsort, zsort RenderOn to `Projection·View` +
+- [x] Convert bsort, nsort, zsort RenderOn to `Projection·View` +
       `Viewport.Screen`.
-- [ ] Replace the two eye-recovery blocks with EyeInWorld and delete the
+- [x] Replace the two eye-recovery blocks with EyeInWorld and delete the
       local fallbacks.
-- [ ] `go test ./layer/...` green (ordercheck still fails here if not yet
+- [x] `go test ./layer/...` green (ordercheck still fails here if not yet
       converted — that is G1.2.2's box; run the non-harness tests).
 
 #### G1.2.2: Rewrite the ordercheck harness math and sweep seen call sites
