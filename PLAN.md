@@ -284,9 +284,9 @@ REF-current-pipeline) including the degenerate-view fallback, against
 `c.View()` and `c.Projection.Mul(c.View())`. Update `camera.Default` (Eye
 `(0,0,1)`, Norm `matrix.Identity`).
 
-- [ ] Add the `Eye`/`Norm` fields, `View()`, `EyeInWorld()`, and the new
+- [x] Add the `Eye`/`Norm` fields, `View()`, `EyeInWorld()`, and the new
       `Default`; document each with the rationale from ADR-003.
-- [ ] Unit tests in `camera/`: View() factor order against a hand-built
+- [x] Unit tests in `camera/`: View() factor order against a hand-built
       matrix; EyeInWorld() for identity transform (returns Eye), for a
       translated camera (mocap dolly case), and the fallback path for a
       zero-scale Norm.
