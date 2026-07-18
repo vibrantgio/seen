@@ -392,8 +392,8 @@ Per REF-call-sites: FitCenter per region, then override `Camera.Eye` to
 model now expresses the intent directly); keep the per-view rotations and the
 main view's `SetScale(2,2,2)`.
 
-- [ ] Rewrite the five-view setup; the compensation hack and comment are gone.
-- [ ] Visual check per REF-verification: bunny in all five views, drag on the
+- [x] Rewrite the five-view setup; the compensation hack and comment are gone.
+- [x] Visual check per REF-verification: bunny in all five views, drag on the
       main view rotates all five in lockstep.
 
 #### G2.1.3: Visual verification of giftbox and solids

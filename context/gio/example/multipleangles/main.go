@@ -31,7 +31,6 @@ import (
 	"github.com/vibrantgio/seen/point"
 	"github.com/vibrantgio/seen/quaternion"
 	"github.com/vibrantgio/seen/shape"
-	"github.com/vibrantgio/seen/viewport"
 )
 
 //go:embed bunny-low.obj
@@ -87,12 +86,11 @@ func MultipleAngles() {
 			if i > 0 {
 				ox, oy, vw, vh = float64(i-1)*mini, float64(h)-mini, mini, mini
 			}
-			// Center(ox, oy, …) parks the eye above the world point
-			// (ox, oy), so steering each camera to that same point
-			// puts the model — at the world origin — in the middle
-			// of the region whose top-left corner is at (ox, oy).
-			scene.Viewport = viewport.Center(ox, oy, vw, vh)
-			scene.Camera.SetTranslation(ox, oy, 0)
+			// Fit each scene to its region, then move the eye over
+			// the world origin so every camera looks at the shared
+			// model while the pixels stay in the offset region.
+			scene.FitCenter(ox, oy, vw, vh)
+			scene.Camera.Eye = point.Pt(0, 0, vh)
 		}
 	})
 
