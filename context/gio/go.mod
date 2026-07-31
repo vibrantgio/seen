@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	eliasnaur.com/font v0.0.0-20230308162249-dd43949cb42d
-	gioui.org v0.10.0
+	gioui.org v0.10.1
 	github.com/vibrantgio/noise v0.0.2
 	github.com/vibrantgio/seen v0.0.5
 	github.com/zserge/lorca v0.1.10
