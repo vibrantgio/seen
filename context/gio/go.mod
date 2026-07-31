@@ -6,7 +6,7 @@ require (
 	eliasnaur.com/font v0.0.0-20230308162249-dd43949cb42d
 	gioui.org v0.10.1
 	github.com/vibrantgio/noise v0.0.3
-	github.com/vibrantgio/seen v0.0.6
+	github.com/vibrantgio/seen v0.0.7
 	github.com/zserge/lorca v0.1.10
 	golang.org/x/exp v0.0.0-20260727155853-b88d891fe743
 	golang.org/x/image v0.44.0
