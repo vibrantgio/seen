@@ -1,7 +1,7 @@
 # seen
 
 A 3-D scene graph and software renderer in pure Go, for
-[VibrantGio](https://github.com/vibrantgio), a design system for native desktop
+[Vibrant Gio](https://github.com/vibrantgio), a design system for native desktop
 applications on macOS, Windows and Linux, written in pure Go on
 [Gio](https://gioui.org). Ported from Gabe Lerner's CoffeeScript library
 [seen.js](https://github.com/themadcreator/seen).
