@@ -13,12 +13,10 @@ writes SVG.
 binds in one direction only — every tier may import it, and it may import
 nothing in the table itself. Its root module imports nothing else in the
 organization. Its nested `seen/context/gio` module adds `noise` — that edge
-is the nested module's and not the root's. No other repository's root
-module imports it; outside the tier table it is imported by the adapter
-module `svg/driver/seen` and the workbench application `launcher`. Both
-directions are measured rather than typed — `scripts/check-layers.sh
---edges` reports the graph and `scripts/sync-agents.sh` renders these
-sentences from it — so correcting them here changes nothing.
+is the nested module's and not the root's. Both directions are measured
+rather than typed — `scripts/check-layers.sh --edges` reports the graph and
+`scripts/sync-agents.sh` renders these sentences from it — so correcting
+them here changes nothing.
 
 **Read the canonical guide before you write code against this module.** It is
 the organization's one agent guide — the module inventory with current tags,
