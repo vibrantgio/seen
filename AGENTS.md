@@ -39,13 +39,13 @@ module directory — `./...` does not cross a module boundary:
 **`PLAN.md` here is seen's own plan, not the organization's.** It covers one
 refactor of the camera and viewport pipeline and every task in it is checked
 off — `mdplan next PLAN.md` prints DONE, which is how to re-check that. Its
-header then describes a working tree that is not the one you are in: sibling
-checkouts directly under `~/code/w/vibrantgio` with no repository at that
-root, wired by a `go.work` it says is missing. Both halves are wrong now. That
-root is the `vibrantgio/.github` repository, the clones sit under its
-`.repos/`, and B2.1 put a `go.work` there that wires every module in the
-organization — so the paths in that header resolve to nothing. The
-organization's plan lives in that root. Do not follow this one unless the task
+header describes sibling checkouts directly under the workspace root with no
+repository at that root — which was wrong for the whole span when the clones
+hid under `.github`'s gitignored `.repos/` (B2.1 through G0E.1), and this note
+said so. G0E.1 flattened the tree back to exactly that shape, so the header's
+paths resolve again; only its claim that `go.work` is missing stays wrong —
+`clone-all.sh` generates one at the workspace root. The organization's plan
+lives in the `.github` sibling. Do not follow this one unless the task
 you were handed is one of its tasks.
 
 **`solid/` is an adaptation of `vibrantgio/csg`, not a dependency on it.** The
