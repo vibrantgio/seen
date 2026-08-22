@@ -1,6 +1,7 @@
 package canvas
 
 import (
+	_ "embed"
 	"fmt"
 	"image"
 	"strconv"
@@ -17,9 +18,6 @@ import (
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 	"gioui.org/text"
-
-	"eliasnaur.com/font/roboto/robotobold"
-	"eliasnaur.com/font/roboto/robotoregular"
 
 	"github.com/vibrantgio/seen/affine"
 	"github.com/vibrantgio/seen/canvas"
@@ -38,6 +36,16 @@ var ZH_CN = system.Locale{Language: "zh-CN", Direction: system.LTR}
 var RegularNormal = font.Font{Typeface: "Roboto", Style: font.Regular, Weight: font.Normal}
 var RegularBold = font.Font{Typeface: "Roboto", Style: font.Regular, Weight: font.Bold}
 
+// Regular and Bold live here, not in github.com/vibrantgio/font: ADR-001's
+// support row forbids that import. Apache License 2.0 is in LICENSE beside
+// the files.
+//
+//go:embed Roboto-Regular.ttf
+var robotoRegularTTF []byte
+
+//go:embed Roboto-Bold.ttf
+var robotoBoldTTF []byte
+
 var fontfaces struct {
 	once       sync.Once
 	collection []font.FontFace
@@ -52,8 +60,8 @@ func FontFaces() []font.FontFace {
 		fontfaces.collection = append(fontfaces.collection, font.FontFace{Font: f, Face: face})
 	}
 	fontfaces.once.Do(func() {
-		register(RegularNormal, robotoregular.TTF)
-		register(RegularBold, robotobold.TTF)
+		register(RegularNormal, robotoRegularTTF)
+		register(RegularBold, robotoBoldTTF)
 	})
 	n := len(fontfaces.collection)
 	return fontfaces.collection[0:n:n]
