@@ -45,7 +45,7 @@ go get github.com/vibrantgio/seen/context/gio
 
 Two modules. `github.com/vibrantgio/seen` at the root, on Go 1.25.1 with no
 dependencies; `github.com/vibrantgio/seen/context/gio` nested, which adds
-gioui.org v0.10.1 like the rest of the organization. Nested-module tags carry
+gioui.org v0.10.2 like the rest of the organization. Nested-module tags carry
 the directory as a prefix: `context/gio/v0.0.7`, not `v0.0.7`.
 
 ## Packages
