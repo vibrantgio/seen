@@ -3,8 +3,7 @@ package bvh
 import "testing"
 
 // knownChannels is the set of valid channel identifiers. Parsed channels must
-// match these exactly — in particular with no surrounding whitespace, which a
-// grammar bug once left attached (e.g. "Zrotation ", "Yrotation\r\n").
+// match these exactly, with no surrounding whitespace attached.
 var knownChannels = map[Channel]bool{
 	Xposition: true, Yposition: true, Zposition: true,
 	Xrotation: true, Yrotation: true, Zrotation: true,
