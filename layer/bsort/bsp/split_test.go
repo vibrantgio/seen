@@ -160,9 +160,7 @@ func TestSplitNonStraddling(t *testing.T) {
 
 // TestCompareAbsoluteEpsilon pins the classification tolerance to a world
 // distance: a polygon jittering 1e-6 units about a plane 300 units from the
-// origin is coplanar noise, not a straddler. The previous relative epsilon
-// (1e-10 of a ~300-unit dot product, a ~3e-8 dead zone) classified this as
-// Splits and sent the polygon through the conflict path.
+// origin is coplanar noise, not a straddler.
 func TestCompareAbsoluteEpsilon(t *testing.T) {
 	const z, jitter = 300, 1e-6
 	l := planeWith(1,
@@ -178,9 +176,7 @@ func TestCompareAbsoluteEpsilon(t *testing.T) {
 // TestProcessInvariant builds trees from interpenetrating geometry and
 // verifies the defining BSP invariant on every node: planes in the Front
 // subtree lie entirely on the partition plane's negative-normal side and
-// planes in the Back subtree entirely on the positive side. Before polygon
-// splitting was implemented, straddlers were dumped wholesale into the
-// behind list and this invariant did not hold.
+// planes in the Back subtree entirely on the positive side.
 func TestProcessInvariant(t *testing.T) {
 	quad := func(id int, c point.Point, u, v point.Point) bsp.Plane {
 		return planeWith(id,
