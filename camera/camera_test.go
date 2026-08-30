@@ -34,7 +34,7 @@ func TestViewFactorOrder(t *testing.T) {
 	}
 
 	// Independent scalar-path check: transform the point first (world
-	// transform, ADR-003), then subtract the eye, then apply the fit scale
+	// transform), then subtract the eye, then apply the fit scale
 	// componentwise.
 	px, py, pz := 1.0, -2.0, 3.0
 	wx, wy, wz := cam.Transform.Transform(px, py, pz)
@@ -60,8 +60,8 @@ func TestEyeInWorldIdentityTransform(t *testing.T) {
 	}
 }
 
-// The mocap dolly case: SetTranslation moves WORLD points (ADR-003), so the
-// world point that lands at the eye is Eye minus the camera translation.
+// SetTranslation moves WORLD points, so the world point that lands at the
+// eye is Eye minus the camera translation.
 func TestEyeInWorldTranslatedCamera(t *testing.T) {
 	cam := camera.Default
 	cam.SetTranslation(0, 0, 5) // dolly: world points move +5 in z
@@ -72,7 +72,7 @@ func TestEyeInWorldTranslatedCamera(t *testing.T) {
 }
 
 // A zero-scale Norm makes View() singular; EyeInWorld must then fall back to
-// the legacy −1/proj[2][2] estimate against the COMPOSED projection
+// the −1/proj[2][2] estimate against the COMPOSED projection
 // Projection · View(). The transform's z-scale of 2 doubles proj[2][2]
 // relative to the raw Projection, so using the wrong matrix would be caught.
 func TestEyeInWorldFallback(t *testing.T) {
