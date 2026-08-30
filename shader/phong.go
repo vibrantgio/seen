@@ -51,10 +51,8 @@ func PhongDiffuseAndSpecularShade(lights []light.ShaderData, material *Material,
 			return c
 		}
 
-		// Apply diffuse phong shading
 		c = c.AddChannels(lsd.Color.Scale(dot))
 
-		// Compute and apply specular phong shading
 		reflectionNormal := faceNormal.Times(dot * 2.0).Minus(lightNormal)
 		specularIntensity := intensity.Intensity(math.Pow(0.5+reflectionNormal.Dot(point.Pt(0, 0, 1)), material.SpecularExponent) / 255.0)
 		specularColor := material.SpecularColor.Scale(float64(specularIntensity * lsd.Intensity))

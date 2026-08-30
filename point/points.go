@@ -9,7 +9,6 @@ func (points Points) MulB(m matrix.Matrix, outPoints Points) (barycenter Point) 
 		panic("internal error, slice lengths don't match")
 	}
 
-	// Apply transform to points
 	for i, p := range points {
 		p.X, p.Y, p.Z = m.Transform3(p.X, p.Y, p.Z)
 		outPoints[i] = p
