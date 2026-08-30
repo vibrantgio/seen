@@ -26,12 +26,6 @@ func Q(x, y, z, w float64) Quat {
 	return Quat{x, y, z, w}
 }
 
-// # Convert the x and y pixel offsets into a rotation matrix
-// @xyToTransform : (x, y) ->
-//   quatX = seen.Quaternion.pointAngle(seen.Points.Y(), x / seen.Quaternion.pixelsPerRadian)
-//   quatY = seen.Quaternion.pointAngle(seen.Points.X(), y / seen.Quaternion.pixelsPerRadian)
-//   return quatX.multiply(quatY).toMatrix()
-
 // AxisAngle returns a quaternion representing a rotation about an axis. The
 // axis is defined by the vector (x, y, z) and the rotation angle is specified
 // in radians. If the axis vector is zero, the function returns the Identity
@@ -105,32 +99,14 @@ func (q Quat) Normalize() Quat {
 // Mul calculates the Hamilton product of two quaternions. This can be seen as a rotation.
 // Note that Multiplication is NOT commutative, meaning q1.Mul(q2) does not necessarily
 // equal q2.Mul(q1).
-// This operation takes 16 muls and 12 adds or an alternative implemnentation can
-// do it in 9 muls and 27 adds. It's not known whether adds on modern x86 cpu's are still
-// faster than muls.
+// This operation takes 16 muls and 12 adds.
 func (lhs Quat) Mul(rhs Quat) Quat {
-	// 16 muls and 12 adds
 	return Quat{
 		lhs.W*rhs.X + lhs.X*rhs.W + lhs.Y*rhs.Z - lhs.Z*rhs.Y,
 		lhs.W*rhs.Y - lhs.X*rhs.Z + lhs.Y*rhs.W + lhs.Z*rhs.X,
 		lhs.W*rhs.Z + lhs.X*rhs.Y - lhs.Y*rhs.X + lhs.Z*rhs.W,
 		lhs.W*rhs.W - lhs.X*rhs.X - lhs.Y*rhs.Y - lhs.Z*rhs.Z,
 	}
-
-	// Alternative implementation
-	// 9 muls, 27 adds
-	/*	ww := (lhs.Z + lhs.X) * (rhs.X + rhs.Y)
-		yy := (lhs.W - lhs.Y) * (rhs.W + rhs.Z)
-		zz := (lhs.W + lhs.Y) * (rhs.W - rhs.Z)
-		xx := ww + yy + zz
-		qq := 0.5 * (xx + (lhs.Z-lhs.X)*(rhs.X-rhs.Y))
-
-		x := qq - xx + (lhs.X+lhs.W)*(rhs.X+rhs.W)
-		y := qq - yy + (lhs.W-lhs.X)*(rhs.Y+rhs.Z)
-		z := qq - zz + (lhs.Z+lhs.Y)*(rhs.W-rhs.X)
-		w := qq - ww + (lhs.Z-lhs.Y)*(rhs.Y-rhs.Z)
-		return &Quaternion{x, y, z, w}
-	*/
 }
 
 // RotX multiplies a quaternion with a Rotation around the x-axis. q' = qqX
@@ -159,14 +135,6 @@ func (q Quat) Transform(vx, vy, vz float64) (x, y, z float64) {
 		return ay*bz - az*by, az*bx - ax*bz, ax*by - ay*bx
 	}
 
-	// Standard implementation
-	// 32 muls, 24 adds
-	/*	t := q.Mul(Quat{x, y, z, 0}).Mul(q.Conjugate())
-		return t.X, t.Y, t.Z
-	*/
-
-	// Alternative implementation
-	// 18 muls and 12 adds
 	tx, ty, tz := cross(2*q.X, 2*q.Y, 2*q.Z, vx, vy, vz) // 9 muls, 3 adds
 	ux, uy, uz := cross(q.X, q.Y, q.Z, tx, ty, tz)       // 6 muls, 3 adds
 	x = vx + q.W*tx + ux                                 // 1 mul, 2 adds
@@ -179,14 +147,11 @@ func (q Quat) Transform(vx, vy, vz float64) (x, y, z float64) {
 // contains the rotation. Computing the 4x4 homogeneous matrix from the quaternion
 // takes 18 muls and 12 adds
 func (q Quat) Matrix() matrix.Matrix {
-	// Returns the homogeneous 3D rotation matrix corresponding to the quaternion.
 	x, y, z, w := q.X, q.Y, q.Z, q.W
-	// Pre-multiply resused products
 	xx, yy, zz := x*x, y*y, z*z // 3 muls
 	xy, wz := x*y, w*z          // 2 muls
 	xz, wy := x*z, w*y          // 2 muls
 	yz, wx := y*z, w*x          // 2 muls
-	// Return a homogenous matrix
 	return [4][4]float64{
 		{1 - 2*(yy+zz), 2 * (xy - wz), 2 * (xz + wy), 0}, // 3 muls, 4 adds
 		{2 * (xy + wz), 1 - 2*(xx+zz), 2 * (yz - wx), 0}, // 3 muls, 4 adds
