@@ -26,8 +26,8 @@ type CSG []Polygon
 func (s CSG) Union(other CSG) CSG {
 	// Empty operands are handled algebraically: an empty BSP tree cannot
 	// represent the difference between "empty solid" and "universe", so
-	// inverting one inside the boolean pipeline is meaningless (and used to
-	// panic on the nil root plane). Emptiness is judged AFTER dropping
+	// inverting one inside the boolean pipeline is meaningless and
+	// dereferences a nil root plane. Emptiness is judged AFTER dropping
 	// degenerate polygons — a solid of zero-area debris is empty too.
 	sp, op := s.cloneSpanning(), other.cloneSpanning()
 	if len(sp) == 0 {

@@ -84,9 +84,8 @@ func TestVolumeSelfOperations(t *testing.T) {
 }
 
 // TestEmptyOperands: booleans with empty operands resolve algebraically and
-// never panic — Subtract and Intersect used to dereference the empty tree's
-// nil root plane in Invert. Chained emptiness (the result of A−A feeding the
-// next operation) is the realistic route into that crash.
+// never panic on the empty tree's nil root plane. Chained emptiness (the
+// result of A−A feeding the next operation) is the realistic route in.
 func TestEmptyOperands(t *testing.T) {
 	a := solid.Cube()
 	empty := solid.CSG{}

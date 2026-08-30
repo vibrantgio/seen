@@ -35,8 +35,6 @@ func (p Plane) SplitPolygon(polygon Polygon, coplanarFront, coplanarBack, front,
 		SPANNING
 	)
 
-	// Classify each point as well as the entire polygon into one of the above
-	// four classes.
 	var polygonType = COPLANAR
 	var types []Type
 	for _, v := range polygon.Vertices {
@@ -51,7 +49,6 @@ func (p Plane) SplitPolygon(polygon Polygon, coplanarFront, coplanarBack, front,
 		types = append(types, vType)
 	}
 
-	// Put the polygon in the correct list, splitting it when necessary.
 	switch polygonType {
 	case COPLANAR:
 		if p.Normal.Dot(polygon.Plane.Normal) > 0 {
