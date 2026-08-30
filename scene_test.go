@@ -7,18 +7,18 @@ import (
 	"github.com/vibrantgio/seen/matrix"
 )
 
-// TestFitEquivalence proves that FitCenter/FitOrigin reproduce the legacy
-// centered/origin-anchored viewport pipeline exactly. The legacy formulas are
-// hardcoded here (they no longer exist in the viewport package):
+// TestFitEquivalence pins FitCenter/FitOrigin to the reference
+// centered/origin-anchored viewport pipeline. The reference formulas are
+// hardcoded here, being defined nowhere else:
 //
 //	prescale         = Scale(1/W, 1/H, 1/D).Translate(-x, -y, -D)
 //	postscale center = Translate(x+w/2, y+h/2, D).Scale(W, -H, D)
 //	postscale origin = Translate(x, y, D).Scale(W, -H, D)
 //
-// with W, H, D = w, h, h — or dist, dist, dist when dist is given — and the
-// legacy render pipeline composing Projection · prescale · Camera.Matrix().
-// The new pipeline composes Projection · Camera.View() and maps to pixels
-// with Viewport.Screen.
+// with W, H, D = w, h, h — or dist, dist, dist when dist is given — composed
+// as Projection · prescale · Camera.Matrix(). The pipeline under test
+// composes Projection · Camera.View() and maps to pixels with
+// Viewport.Screen.
 func TestFitEquivalence(t *testing.T) {
 	tuples := []struct {
 		name       string
@@ -106,7 +106,7 @@ func TestFitEquivalence(t *testing.T) {
 }
 
 // TestDefaultViewportEquivalence pins viewport.Default to the screen mapping
-// of the legacy Origin(0, 0, 1, 1) viewport's postscale.
+// of the reference Origin(0, 0, 1, 1) viewport's postscale.
 func TestDefaultViewportEquivalence(t *testing.T) {
 	s := NewScene()
 	legacy := matrix.Translate(0, 0, 1).Scale(1, -1, 1)

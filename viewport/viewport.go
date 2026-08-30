@@ -10,10 +10,9 @@ import "github.com/vibrantgio/seen/matrix"
 // Camera; Screen is applied after projection and the perspective divide.
 //
 // Scene.FitCenter and Scene.FitOrigin configure Screen together with the
-// camera's Eye and Norm to reproduce the legacy fill-the-view behaviour.
+// camera's Eye and Norm so the scene fills the view.
 type Viewport struct{ Screen matrix.Matrix }
 
-// Default maps the unit region with the scene origin at the view's origin
-// — the screen mapping of the legacy Origin(0, 0, 1, 1) viewport. It pairs
-// with camera.Default, which supplies the matching eye at (0, 0, 1).
+// Default maps the unit region with the scene origin at the view's origin.
+// It pairs with camera.Default, which supplies the matching eye at (0, 0, 1).
 var Default = Viewport{Screen: matrix.Translate(0, 0, 1).Scale(1, -1, 1)}
