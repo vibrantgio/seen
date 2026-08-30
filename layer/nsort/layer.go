@@ -1,18 +1,10 @@
 // Package nsort renders a scene with a Newell–Newell–Sancha depth sort: a
 // view-DEPENDENT painter's order recomputed per frame for the current eye.
 //
-// Position in the layer family:
-//   - zsort paints by barycenter depth alone — cheapest, approximate.
-//   - bsort builds a view-INDEPENDENT splitting BSP — exact from any eye,
-//     but it cuts polygons that straddle partition planes regardless of
-//     whether the current view could ever notice, and every cut edge draws
-//     as an antialiasing seam. Its build amortises only when world geometry
-//     is static and the camera moves.
-//   - nsort is exact FOR THE CURRENT EYE and cuts only when an actual
-//     occlusion cycle is on screen. On scenes without interpenetration it
-//     is a plain depth sort with zero cuts, which makes it the fit for
-//     per-frame dynamic geometry (noise fields, mocap) where bsort would
-//     rebuild — and re-split — every frame.
+// It cuts a polygon only when an actual occlusion cycle is on screen, so a
+// scene without interpenetration costs a plain depth sort with zero cuts.
+// That suits per-frame dynamic geometry, where the view-independent
+// splitting BSP of layer/bsort would rebuild — and re-split — every frame.
 package nsort
 
 import (

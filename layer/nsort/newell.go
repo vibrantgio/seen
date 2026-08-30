@@ -9,15 +9,11 @@ import (
 	"github.com/vibrantgio/seen/point"
 )
 
-// This file is the view-dependent ordering core: a Newell–Newell–Sancha
-// depth sort. Polygons are emitted farthest-first; a polygon may be emitted
-// once it provably occludes no other unemitted polygon FROM THE CURRENT EYE.
-// Proofs escalate from cheap to precise per overlapping pair, and only a
-// genuine occlusion cycle — mutual overlap no linear order can satisfy —
-// forces a polygon to be cut. On scenes without interpenetration this
-// degenerates to a plain depth sort with zero cuts, which is exactly why it
-// suits per-frame dynamic geometry where the view-independent splitting BSP
-// (layer/bsort) cuts almost everything it touches.
+// Polygons are emitted farthest-first; a polygon may be emitted once it
+// provably occludes no other unemitted polygon FROM THE CURRENT EYE. Proofs
+// escalate from cheap to precise per overlapping pair, and only a genuine
+// occlusion cycle — mutual overlap no linear order can satisfy — forces a
+// polygon to be cut.
 
 // SideEpsilon is the world-space on-plane tolerance, shared with the BSP
 // (bsp.SideEpsilon): vertices within it count as lying on the plane, so
@@ -232,7 +228,6 @@ func occludes(P, Q *record, eye point.Point) bool {
 	if wholeSideSame(Q.plane.Points, P.plane, eye) {
 		return false
 	}
-	// Precise test: do the screen projections actually share area?
 	return polyOverlap(P.scr, Q.scr)
 }
 
