@@ -44,7 +44,6 @@ func (html *HTML) AddSVG(id string, width, height int) (*Element, error) {
 	svg.SetAttribute("id", id)
 	html.body.AppendChild(svg)
 
-	// Put a colored background inside the svg
 	rect := html.CreateElementNS(SVG_NS, "rect")
 	rect.SetAttribute("width", "100%")
 	rect.SetAttribute("height", "100%")

@@ -130,11 +130,9 @@ func (l MockCanvasLayer) RenderOn(c canvas.Canvas) {
 }
 
 func TestPaintLayer(t *testing.T) {
-	// create simple svg file
 	const width = 450
 	const height = 400
 
-	// Create the context to render to (svg in this case) and put a colored background in.
 	svgId := "my-3d-svg"
 	doc, err := svg.NewSVG(svgId, width, height)
 	if err != nil {
@@ -202,11 +200,9 @@ func TestDemoEmpty(t *testing.T) {
 }
 
 func TestDemoSimple(t *testing.T) {
-	// create simple svg file
 	const width = 450
 	const height = 400
 
-	// Create the context to render to (svg in this case) and put a colored background in.
 	svgId := "my-3d-svg"
 	doc, err := svg.NewSVG(svgId, width, height)
 	if err != nil {
@@ -223,7 +219,6 @@ func TestDemoSimple(t *testing.T) {
 	blueish, _ := color.ColorWithString("#eeddff")
 	backdrop := backdrop.NewLayer(width, height, 8, 8, blueish)
 
-	// Create the scene to render
 	s := seen.NewDefaultScene()
 	s.Shader = shader.Phong
 	s.Camera = camera.Default
@@ -231,7 +226,6 @@ func TestDemoSimple(t *testing.T) {
 
 	source := color.NewDriftingSourceWith(color.Drift(0.03), color.Sat(0.5))
 
-	// Add icosahedron to the scene
 	icosahedron := shape.Icosahedron()
 	scale := float64(400) * 0.3
 	icosahedron.SetScale(scale, scale, scale)
@@ -243,7 +237,6 @@ func TestDemoSimple(t *testing.T) {
 	}
 	s.Group.Add(icosahedron)
 
-	// Add a cube to the scene
 	cube := shape.UnitCube()
 	cube.SetScale(scale, scale, scale)
 	cube.SetRotation(quaternion.AxisAngle(0.1, 1, 0, 0.1*math.Pi))
@@ -256,10 +249,8 @@ func TestDemoSimple(t *testing.T) {
 	s.Group.Add(cube)
 
 	s.FitCenter(0, 0, width, height)
-	// Add scene as a layer to the render context
 	context.SetLayers(backdrop, zsort.NewLayerForScene(s))
 
-	// Actually render the scene on the context
 	context.Render()
 
 	// Check the generated svg contains the backdrop and the visible faces
@@ -286,7 +277,6 @@ func TestDemoSvgCanvas(t *testing.T) {
 		html.AddSVG("seen-svg-"+strconv.Itoa(i), width, height)
 	}
 
-	// Create one shape to be shared between the SVG and Canvas
 	spheres := []seen.Node(nil)
 	for i := range 4 {
 		sphere := shape.Sphere(i)
@@ -301,7 +291,6 @@ func TestDemoSvgCanvas(t *testing.T) {
 		spheres = append(spheres, sphere)
 	}
 
-	// Create one scene for each shape
 	scenes := []layer.Layer{}
 	for _, sphere := range spheres {
 		scene := seen.NewDefaultScene()
@@ -311,7 +300,6 @@ func TestDemoSvgCanvas(t *testing.T) {
 		scenes = append(scenes, zsort.NewLayerForScene(scene))
 	}
 
-	// Create a render context for each SVG and Canvas
 	contexts := []*svg.Context{}
 	for i, scene := range scenes {
 		for _, kind := range []string{ /*"canvas",*/ "svg"} {
@@ -365,16 +353,13 @@ func TestDemoText(t *testing.T) {
 		return
 	}
 
-	// Generate some random data points
 	var data []float64
 	for range 10 {
 		data = append(data, rand.Float64()*80.0+20.0)
 	}
 
-	// Create scene
 	scene := seen.NewDefaultScene()
 
-	// Draw bars for data
 	for i, d := range data {
 		uc := shape.UnitCube()
 		uc.SetScale(20.0, d, 20.0)
@@ -383,10 +368,8 @@ func TestDemoText(t *testing.T) {
 		scene.Group.Add(uc)
 	}
 
-	// Draw text above bars
 	for i, d := range data {
 		opts := map[string]string{
-			//"font": "10px Roboto",
 			"font-family": "Roboto",
 			"font-size":   "10px",
 			"anchor":      "middle",
@@ -398,13 +381,11 @@ func TestDemoText(t *testing.T) {
 		scene.Group.Add(t)
 	}
 
-	// Create scene
 	scene.Group.SetTranslation(-150, -50, 0)
 	scene.Group.SetScale(2, 2, 2)
 	scene.FitCenter(0, 0, width, height)
 	scene.Camera.SetRotation(quaternion.AxisAngle(0.1, 1, 0, math.Pi*0.2))
 
-	// Create render context from canvas
 	context := svg.NewContext(doc.GetElementById("seen-svg"), zsort.NewLayerForScene(scene))
 	if context == nil {
 		t.Error("Render context is nil")

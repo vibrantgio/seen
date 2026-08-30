@@ -21,10 +21,8 @@ func newText(elementFactory func(tag string) *Element, precision *int) *Text {
 func (p *Text) FillText(t affine.Matrix, text string, style canvas.Style) {
 	el := p.makeElement()
 
-	// set the transform attribute given the matrix m
 	el.SetAttribute("transform", "matrix("+Fjoin(*p.precision, t.A, t.B, t.C, t.D, t.E, t.F)+")")
 
-	// serialize the style map.
 	str := ""
 	for key, value := range style {
 		if value != "" {

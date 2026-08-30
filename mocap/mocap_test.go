@@ -8,8 +8,7 @@ import (
 )
 
 // TestApplyRotates guards against a frozen skeleton: a mid-capture frame must
-// actually rotate joints. (A parser bug once left whitespace on channel names
-// so no rotation channel matched, posing every frame in the rest position.)
+// actually rotate joints.
 func TestApplyRotates(t *testing.T) {
 	h, err := bvh.Load("../bvh/testdata/05_11.bvh")
 	if err != nil {
