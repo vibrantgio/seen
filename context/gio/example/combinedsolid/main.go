@@ -50,18 +50,6 @@ func CombinedSolid() {
 	const bluehue = 0.666666
 	_, _, _ = redhue, greenhue, bluehue
 
-	// a := solid.Cube()
-	// b := solid.Sphere(solid.Radius(1.35), solid.Stacks(12))
-	// c := solid.Cylinder(solid.Radius(0.7), solid.Start(-1, 0, 0), solid.End(1, 0, 0))
-	// d := solid.Cylinder(solid.Radius(0.7), solid.Start(0, -1, 0), solid.End(0, 1, 0))
-	// e := solid.Cylinder(solid.Radius(0.7), solid.Start(0, 0, -1), solid.End(0, 0, 1))
-
-	// cylinder := Cylinder(Start(0, .7, 0), End(0, -.7, 0), Radius(.7))
-	// core := Cylinder(Start(0, .8, 0), End(0, -.8, 0), Radius(.1))
-	// cube := Cube(Center(-0.5, 0, 0), Size(0.5, 1.5, 0.7))
-	// sphere := Sphere(Center(0.7, 0, 0), Radius(0.4))
-	// solid := cylinder.Subtract(core).Subtract(cube).Subtract(sphere)
-
 	a := Cube()
 	b := Sphere(Radius(1.35), Stacks(12))
 	c := Cylinder(Radius(0.7), Start(-1, 0, 0), End(1, 0, 0))

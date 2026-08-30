@@ -1,6 +1,6 @@
-// Command solids showcases the three CSG boolean operations from the csg
-// package README (now seen/solid): the union, difference and intersection of
-// the same cube and sphere, side by side —
+// Command solids showcases the three CSG boolean operations of the solid
+// package: the union, difference and intersection of the same cube and
+// sphere, side by side —
 //
 //	cube := Cube()
 //	sphere := Sphere(Radius(1.3))
@@ -48,8 +48,8 @@ func Solids() {
 
 	size := float64(height)
 
-	// The README's operands: a 2x2x2 cube and a sphere that pokes through
-	// its faces. All three operations combine the SAME two solids.
+	// A 2x2x2 cube and a sphere that pokes through its faces. All three
+	// operations combine the SAME two solids.
 	cube := Cube()
 	sphere := Sphere(Radius(1.3))
 

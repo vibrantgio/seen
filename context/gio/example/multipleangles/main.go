@@ -123,10 +123,9 @@ func Bunny() *seen.Group {
 	faces.SetShowBackfaces(true) // the coffee loads the obj with cullBackfaces=false
 	faces.SetColorFrom(&hueWalk{rng: rand.New(rand.NewSource(6)), hue: 0.35, step: 0.02})
 
-	// The coffee scales and translates the shape before rotating it, an
-	// order Transform's T*R*S cannot express in one node: bake the scale
-	// and translation into the shape and the rotations into a wrapping
-	// group.
+	// The scale and translation apply before the rotations, an order
+	// Transform's T*R*S cannot express in one node: bake the scale and
+	// translation into the shape and the rotations into a wrapping group.
 	node := shape.NewShapeWithFaces("bunny", faces)
 	node.SetScale(8, 8, 8)
 	node.SetTranslation(0, -30, 0)

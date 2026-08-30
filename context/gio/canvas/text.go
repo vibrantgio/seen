@@ -36,9 +36,9 @@ var ZH_CN = system.Locale{Language: "zh-CN", Direction: system.LTR}
 var RegularNormal = font.Font{Typeface: "Roboto", Style: font.Regular, Weight: font.Normal}
 var RegularBold = font.Font{Typeface: "Roboto", Style: font.Regular, Weight: font.Bold}
 
-// Regular and Bold live here, not in github.com/vibrantgio/font: ADR-001's
-// support row forbids that import. Apache License 2.0 is in LICENSE beside
-// the files.
+// Regular and Bold are embedded here rather than pulled from a shared font
+// module: this package must not take that dependency. Apache License 2.0 is
+// in LICENSE beside the files.
 //
 //go:embed Roboto-Regular.ttf
 var robotoRegularTTF []byte
@@ -129,7 +129,6 @@ func (p *Text) FillText(t affine.Matrix, txt string, style canvas.Style) {
 		}
 	}
 
-	// Layout the txt string given font, size and max width.
 	params := text.Parameters{
 		Font:     fnt,
 		PxPerEm:  fixed.I(size),
@@ -138,7 +137,6 @@ func (p *Text) FillText(t affine.Matrix, txt string, style canvas.Style) {
 	}
 	shaper.LayoutString(params, txt)
 
-	// Determine the size of the layout rectangle dx,dy
 	dx, dy := 0, 0
 	lines := [][]text.Glyph(nil)
 	line := []text.Glyph(nil)
@@ -155,7 +153,6 @@ func (p *Text) FillText(t affine.Matrix, txt string, style canvas.Style) {
 		}
 	}
 
-	// Actually paint the txt
 	offset := image.Pt(int(-ax*float32(dx)), int(-ay*float32(dy)))
 	for _, line := range lines {
 		shape := clip.Outline{Path: shaper.Shape(line)}.Op()

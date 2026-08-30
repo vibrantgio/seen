@@ -108,7 +108,6 @@ func GiftBox() {
 	qcorn4.SetRotation(quaternion.RotY(1.5 * math.Pi))
 
 	// A Gift Box has a lid and a ribbon around it
-	//giftbox := seen.GroupWith(box , ribbon)
 	giftbox := seen.NewGroup(qrib, qrib2, qrib3, qrib4, qcorn, qcorn2, qcorn3, qcorn4)
 	giftbox.SetRotation(quaternion.RotX(0.25 * math.Pi).RotY(-0.25 * math.Pi))
 

@@ -70,7 +70,6 @@ func NoisyWavePatch() {
 		for i, surf := range faces {
 			for j, p := range surf.Points {
 				tms := float64(t.Milliseconds())
-				//shape.Faces[i].Points[j].Z = 4.0 * noiser.Noise(p.X/8.0, p.Y/8.0, tms*1e-4)
 				faces[i].Points[j].Z = noiser.Noise(p.X/8.0, p.Y/8.0, tms*1e-4) / 2
 			}
 			// Since we're modifying the point directly, we need to mark the face dirty
