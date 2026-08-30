@@ -51,16 +51,13 @@ func (l *Layer) RenderOn(canvas canvas.Canvas) {
 	// Clear out the fragments, but reuse the already existing array backing the slice
 	l.zfragments = l.zfragments[:0]
 
-	// Process all renderable objects
 	l.scene.Group.EachRenderable(func(object seen.Object, lights []light.ShaderData, model matrix.Matrix) {
 		faces := object.Faces()
 		for i := range faces {
 			f := &faces[i]
 
-			// Get or create the coordinates for the given face.
 			var coordinates face.Coordinates
 			if l.scene.Regenerate {
-				// No caching
 				coordinates = f.Coordinates(model, projection, viewport)
 			} else {
 				var updated, present bool
@@ -81,13 +78,11 @@ func (l *Layer) RenderOn(canvas canvas.Canvas) {
 			}
 			f.Dirty = false
 
-			// Test projected normal's z-coordinate for culling (if enabled).
 			if (l.scene.ShowBackfaces || f.ShowBackfaces || coordinates.ScreenSpace.Normal.Z < 0.0) && coordinates.InViewFrustum {
 				var zfrag zfragment
 				zfrag.z = coordinates.ScreenSpace.Barycenter.Z
 				zfrag.fragment.Points = coordinates.ScreenSpace.Points
 
-				// Render fill and stroke using material and shader.
 				barycenter := coordinates.WorldSpace.Barycenter
 				normal := coordinates.WorldSpace.Normal
 				if f.FillMaterial != nil {
@@ -111,8 +106,6 @@ func (l *Layer) RenderOn(canvas canvas.Canvas) {
 		}
 	})
 
-	// Now for every fragment, render its layer.Fragment on the given canvas.
-	// The faces farthest from the eye are painted first. (Painter's Algorithm)
 	for _, zf := range l.zfragments {
 		layer.RenderOn(canvas, zf.fragment)
 	}

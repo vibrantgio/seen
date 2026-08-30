@@ -51,7 +51,6 @@ func (s *Layer) RenderOn(canvas canvas.Canvas) {
 		var planes Planes
 		s.scene.Accept(&planes)
 		s.tree = bsp.NewTree(planes)
-		// fmt.Printf("#planes %d\n", len(collector.Planes))
 	}
 
 	// The eye (center of projection) in world space. The BSP planes, their

@@ -13,7 +13,6 @@ func RenderOn(canvas canvas.Canvas, fragment Fragment) {
 	fill := fragment.Fill
 	stroke := fragment.Stroke
 
-	// Special case is rendering text...
 	if text, present := options["text"]; present {
 		style := map[string]string{
 			"fill":        "none",
@@ -45,7 +44,6 @@ func RenderOn(canvas canvas.Canvas, fragment Fragment) {
 		return
 	}
 
-	// Default case is to render a path.
 	path := canvas.Path()
 	path.Path(points)
 
