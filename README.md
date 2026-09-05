@@ -12,7 +12,7 @@ to hand-roll the projection with `clip.Path` or to bring a GPU stack into a
 process that did not need one. seen is the third choice: it runs the whole
 pipeline — transform, project, light, shade, depth-order — on the CPU in Go, and
 then emits the result as ordinary Gio `clip` and `paint` operations into the
-`op.Ops` it was handed. The output is a widget. It composites with the rest of
+`op.Ops` it was handed. The output is a component. It composites with the rest of
 the tree exactly like a button does, honours the layout constraints it is given,
 and adds no dependency beyond Gio itself.
 
@@ -64,7 +64,7 @@ which twelve are example commands.
 | `light`, `intensity`, `shader`, `color` | Shading. `light` has ambient, directional and point lights; `shader` has `Ambient`, `Flat`, `Phong` and the two diffuse variants; `color` adds HSL, named colours, and the random and drifting `Source`s that give an untextured mesh its per-face colour. |
 | `layer` | Painter's-algorithm ordering, three ways. `nsort` is the Newell–Newell–Sancha view-dependent sort with cycle cutting — the one everything actually uses. `zsort` sorts on barycentre z and never splits. `bsort` builds a BSP tree and splits. `backdrop` is a solid rounded rectangle behind them. |
 | `canvas` | The backend contract: `Canvas`, `PathPainter`, `RectPainter`, `CirclePainter`, `TextPainter`. Implement these and seen renders to your target. |
-| `context` | `Context` — five methods: `SetLayers`, `Render`, `Animate`, `Drag`, `Zoom`. `context/svg` writes an SVG document. `context/gio` (the nested module) draws into `op.Ops` and supplies `Widget`. |
+| `context` | `Context` has five methods — `SetLayers`, `Render`, `Animate`, `Drag`, `Zoom`. `context/svg` writes SVG; `context/gio` supplies `Widget`. |
 | `animation`, `drag`, `zoom` | Interaction. `drag` has inertia; `zoom` maps scroll deltas to a scale factor. |
 
 ## Usage
@@ -101,7 +101,7 @@ return gio.Widget(context, func(w, h unit.Dp) {
 ```
 
 `gio.Widget` is the whole Gio integration. It returns a `layout.Widget`; the
-callback it takes runs once per frame with the widget's own size in `unit.Dp`,
+callback it takes runs once per frame with the component's own size in `unit.Dp`,
 which is where `FitCenter` belongs — the scene refits itself to whatever the
 layout gave it. `context.Render()` is `window.Invalidate()`, nothing more:
 seen never draws outside a frame.
@@ -121,7 +121,7 @@ f.view = func(gtx layout.Context) layout.Dimensions {
 }
 ```
 
-The identity `op.Offset` push and pop discards any transform the seen widget
+The identity `op.Offset` push and pop discards any transform the seen component
 leaves behind, so the UI drawn above the background can never be disturbed by
 it. Without it, a scene used as a backdrop can move the layers on top of it.
 

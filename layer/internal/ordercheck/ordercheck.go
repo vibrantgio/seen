@@ -147,7 +147,7 @@ func pointInPoly(px, py float64, poly [][2]float64) bool {
 }
 
 // ---------------------------------------------------------------------------
-// Analytic ground truth.
+// The analytically correct answer.
 // ---------------------------------------------------------------------------
 
 // expectedFace returns the name of the face that is actually nearest the eye
@@ -393,7 +393,7 @@ func controlFaces() []faceSpec {
 type sample struct {
 	label  string
 	world  point.Point // a world point on the intended-visible face
-	expect string      // analytic ground truth face name
+	expect string      // the analytically correct face name
 }
 
 // ---------------------------------------------------------------------------
@@ -455,8 +455,8 @@ func Run(t *testing.T, tag string, layerFor func(*seen.Scene) layer.Layer) {
 						tc.scene, s.label, s.world)
 				}
 
-				// Cross-check the declared expectation against the independent
-				// analytic ground truth. A mismatch is a harness bug, not an
+				// Cross-check the declared expectation against the independent,
+				// analytically correct answer. A mismatch is a harness bug, not an
 				// artifact; surface it as Fatal so it can never masquerade as a
 				// visibility failure.
 				analytic, covering := expectedFace(s.world, tc.faces)
