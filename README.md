@@ -33,8 +33,8 @@ Outside ADR-001's tier table — a support library the design system consumes an
 never depends on. The [organization page](https://github.com/vibrantgio) has the
 full tier table.
 
-No tier of the design system imports seen. Its two consumers are
-`workbench/launcher`, whose animated background is a seen scene, and
+No tier of the design system imports seen. Its two consumers are an
+application whose animated background is a seen scene, and
 [svg](https://github.com/vibrantgio/svg)'s `driver/seen`, which turns SVG paths
 into seen geometry.
 
@@ -106,8 +106,8 @@ which is where `FitCenter` belongs — the scene refits itself to whatever the
 layout gave it. `context.Render()` is `window.Invalidate()`, nothing more:
 seen never draws outside a frame.
 
-The production consumer is `workbench/launcher`, which puts a seen scene behind
-a whole application. Its `field.go:138` is the same shape with one addition
+The production consumer is an application that puts a seen scene behind
+its whole window. Its `field.go:138` is the same shape with one addition
 worth copying — the scene is isolated from the op list it renders into:
 
 ```go
@@ -127,11 +127,8 @@ it. Without it, a scene used as a backdrop can move the layers on top of it.
 
 ## For coding assistants
 
-Read the canonical guide before writing code against this module — the module
-inventory with current tags, the application skeleton, MVU and rx semantics,
-typography, and the pitfalls that are not guessable:
-
-<https://raw.githubusercontent.com/vibrantgio/workbench/master/llms.txt>
+Read the org guide before you write code against this module: the plan
+root's [`AGENTS.md`](https://github.com/vibrantgio/.github/blob/master/AGENTS.md).
 
 [`AGENTS.md`](./AGENTS.md) in this repository has the build and test commands.
 
@@ -147,8 +144,8 @@ Honest about what does not work yet. Every count below is measured.
   deeper. Do not follow it, and do not trust a build that it says was verified —
   a workspace would have masked exactly the version pins that break the
   consumers below. The organization's plan lives in `vibrantgio/.github`.
-- **`svg/driver/seen` does not build**, and neither does `workbench/launcher`.
-  Both fail identically on `verifying github.com/vibrantgio/seen/context/gio@v0.0.7:
+- **`svg/driver/seen` does not build**, and neither does its other consuming
+  application. Both fail identically on `verifying github.com/vibrantgio/seen/context/gio@v0.0.7:
   checksum mismatch`. This is a stale `go.sum` pin on the *consumer* side, not a
   defect in seen — seen's own two modules build and test clean — but it means
   the module's only two real consumers are currently red, and nothing exercises
@@ -169,7 +166,7 @@ Honest about what does not work yet. Every count below is measured.
   different type in a different package, and the one sorter nothing uses.
   `nsort` and `bsort` cache too, and neither offers any way to flush.
 - **Two of the three sorters are effectively dead.** Every one of the eleven Go
-  examples and the launcher use `nsort`. `zsort` and `bsort` are reached only
+  examples and the application consumer use `nsort`. `zsort` and `bsort` are reached only
   from seen's own tests and from `svg/driver/seen`, which does not build. `bsort`
   survives because the order-checking harness pins it; `zsort` has no tests, no
   package comment, and its own harness notes say it "never cuts, is approximate
