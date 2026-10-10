@@ -29,7 +29,7 @@ one.
 
 ## Where it sits
 
-Outside ADR-001's tier table — a support library the design system consumes and
+Outside the tier table — a support library the design system consumes and
 never depends on. The [organization page](https://github.com/vibrantgio) has the
 full tier table.
 
