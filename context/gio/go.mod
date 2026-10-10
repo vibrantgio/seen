@@ -4,8 +4,8 @@ go 1.25.1
 
 require (
 	gioui.org v0.10.2
-	github.com/vibrantgio/noise v0.0.5
-	github.com/vibrantgio/seen v0.1.0
+	github.com/vibrantgio/noise v0.0.6
+	github.com/vibrantgio/seen v0.1.1
 	github.com/zserge/lorca v0.1.10
 	golang.org/x/exp v0.0.0-20260727155853-b88d891fe743
 	golang.org/x/image v0.44.0
