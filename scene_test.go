@@ -25,7 +25,7 @@ func TestFitEquivalence(t *testing.T) {
 		x, y, w, h float64
 		dist       []float64
 	}{
-		{"launcher", 0, 0, 1100, 760, []float64{2200}},
+		{"workbench", 0, 0, 1100, 760, []float64{2200}},
 		{"non-square", 10, 20, 600, 300, nil},
 		{"unit", 0, 0, 1, 1, nil},
 		{"offset-locked", 5, -3, 400, 250, []float64{100}},

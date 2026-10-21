@@ -321,7 +321,7 @@ func TestPolyOverlap(t *testing.T) {
 	}
 }
 
-// BenchmarkOrderField measures the full ordering pass on launcher-like
+// BenchmarkOrderField measures the full ordering pass on workbench-like
 // geometry: a 30×20-cell triangulated field (1200 faces), tilted back, with
 // sine relief standing in for the noise displacement. This is the scene class
 // nsort exists for; it must stay a plain sort — zero swaps, zero splits.
