@@ -128,7 +128,7 @@ it. Without it, a scene used as a backdrop can move the layers on top of it.
 ## For coding assistants
 
 Read the org guide before you write code against this module: the plan
-root's [`AGENTS.md`](https://github.com/vibrantgio/.github/blob/master/AGENTS.md).
+root's [`AGENTS.md`](https://github.com/vibrantgio/organisation/blob/master/AGENTS.md).
 
 [`AGENTS.md`](./AGENTS.md) in this repository has the build and test commands.
 
@@ -143,7 +143,7 @@ Honest about what does not work yet. Every count below is measured.
   by a `go.work`. There is no such `go.work` and the clones live one directory
   deeper. Do not follow it, and do not trust a build that it says was verified —
   a workspace would have masked exactly the version pins that break the
-  consumers below. The organization's plan lives in `vibrantgio/.github`.
+  consumers below. The organization's plan is in `vibrantgio/organisation`.
 - **`svg/driver/seen` does not build**, and neither does its other consuming
   application. Both fail identically on `verifying github.com/vibrantgio/seen/context/gio@v0.0.7:
   checksum mismatch`. This is a stale `go.sum` pin on the *consumer* side, not a
