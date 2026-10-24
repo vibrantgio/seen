@@ -14,7 +14,8 @@ pipeline — transform, project, light, shade, depth-order — on the CPU in Go,
 then emits the result as ordinary Gio `clip` and `paint` operations into the
 `op.Ops` it was handed. The output is a component. It composites with the rest of
 the tree exactly like a button does, honours the layout constraints it is given,
-and adds no dependency beyond Gio itself.
+and its library packages add no dependency beyond Gio and the
+`golang.org/x/image` Gio already requires.
 
 The root module is the strongest statement of that: `go.mod` has no `require`
 block at all and `go.sum` is empty. Scene graph, matrices, quaternions,
@@ -29,14 +30,8 @@ one.
 
 ## Where it sits
 
-Outside the tier table — a support library the design system consumes and
-never depends on. The [organization page](https://github.com/vibrantgio) has the
-full tier table.
-
-No tier of the design system imports seen. Its two consumers are an
-application whose animated background is a seen scene, and
-[svg](https://github.com/vibrantgio/svg)'s `driver/seen`, which turns SVG paths
-into seen geometry.
+Outside the tier table — a support library. The
+[organization page](https://github.com/vibrantgio) has the full tier table.
 
 ```sh
 go get github.com/vibrantgio/seen
@@ -44,25 +39,24 @@ go get github.com/vibrantgio/seen/context/gio
 ```
 
 Two modules. `github.com/vibrantgio/seen` at the root, on Go 1.25.1 with no
-dependencies; `github.com/vibrantgio/seen/context/gio` nested, which adds
-gioui.org v0.10.2 like the rest of the organization. Nested-module tags carry
-the directory as a prefix: `context/gio/v0.0.7`, not `v0.0.7`.
+dependencies; `github.com/vibrantgio/seen/context/gio` nested, whose library packages
+add gioui.org v0.10.2; its examples also require `vibrantgio/noise`,
+`zserge/lorca` and `golang.org/x/exp`. Nested-module tags carry the directory as a prefix:
+`context/gio/vX.Y.Z`.
 
 ## Packages
 
-Thirty-three packages in the root module, fourteen more in `context/gio` — of
-which twelve are example commands.
-
 | Package | |
 | --- | --- |
-| `seen` | The scene graph. `Scene` holds a `Group`, a `camera.Camera`, a `viewport.Viewport` and a `shader.Shader`; `NewDefaultScene` adds three-point lighting. `FitCenter` and `FitOrigin` set up the view for a given pixel rectangle. `Group` nests, carries lights, and holds `Node`s. |
+| `seen` | The scene graph. `Scene` holds a `Group`, a `camera.Camera`, a `viewport.Viewport` and a `shader.Shader`; `NewDefaultScene` adds three-point lighting. `FitCenter` and `FitOrigin` set up the view for a given pixel rectangle. `Group` nests, holds lights, and holds `Node`s. |
 | `shape` | Geometry: `Cube`, `Sphere(subdivisions)`, `Icosahedron`, `Rectangle`, `Patch`, `Pipe`, `Extrude`, `Text`. |
-| `solid` | Constructive solid geometry — `Union`, `Subtract`, `Intersect` over BSP trees, with `Cube`, `Sphere` and `Cylinder` primitives. An adaptation of [csg](https://github.com/vibrantgio/csg), not a dependency on it: the algorithm is the same, the types are seen's, so a `*Solid` is a `seen.Object` that drops straight into a `Group`. |
+| `face` | The faces a shape is built from: `Face` and `Faces`, `Facet` and `Facets` (the point indices of a face), and `Coordinates`. |
+| `solid` | Constructive solid geometry — `Union`, `Subtract`, `Intersect` over BSP trees, with `Cube`, `Sphere` and `Cylinder` primitives. An adaptation of [csg](https://github.com/vibrantgio/csg), not a dependency on it: the algorithm is the same, the types are seen's, so a solid from `NewSolid` is a `seen.Object` that drops straight into a `Group`. |
 | `obj`, `bvh`, `mocap` | Loading. `obj.Parse` reads Wavefront meshes; `bvh` parses Biovision motion capture; `mocap` turns a BVH hierarchy into a seen skeleton. |
 | `point`, `matrix`, `quaternion`, `transform`, `affine`, `float` | The maths. `Point` is three `float64`s; `Matrix` is 4×4; `quaternion` has both plain and dual quaternions; `transform.Transform` is the translate/rotate/scale block every node embeds. |
 | `camera`, `projection`, `viewport` | The view pipeline. `projection` has `Perspective`, `Ortho` and `Frustum`; `viewport` is purely the NDC-to-pixel mapping. |
-| `light`, `intensity`, `shader`, `color` | Shading. `light` has ambient, directional and point lights; `shader` has `Ambient`, `Flat`, `Phong` and the two diffuse variants; `color` adds HSL, named colours, and the random and drifting `Source`s that give an untextured mesh its per-face colour. |
-| `layer` | Painter's-algorithm ordering, three ways. `nsort` is the Newell–Newell–Sancha view-dependent sort with cycle cutting — the one everything actually uses. `zsort` sorts on barycentre z and never splits. `bsort` builds a BSP tree and splits. `backdrop` is a solid rounded rectangle behind them. |
+| `light`, `intensity`, `shader`, `color` | Shading. `light` has ambient, directional and point lights; `shader` has the shading functions `AmbientShade`, `FlatShade`, `PhongDiffuseShade` and `PhongDiffuseAndSpecularShade`, each also exported as a `Shader` value, with `Default` the diffuse-and-specular one; `color` adds HSL, named colours, and the random and drifting `Source`s that give an untextured mesh its per-face colour. |
+| `layer` | Painter's-algorithm ordering, three ways. `nsort` is the Newell–Newell–Sancha view-dependent sort with cycle cutting, and the one the examples use. `zsort` sorts on barycentre z and never splits. `bsort` builds a BSP tree and splits; `layer/bsort/bsp` is that tree: `Plane`, `NewTree` and `Compare`. `backdrop` is a solid rounded rectangle behind them. |
 | `canvas` | The backend contract: `Canvas`, `PathPainter`, `RectPainter`, `CirclePainter`, `TextPainter`. Implement these and seen renders to your target. |
 | `context` | `Context` has five methods — `SetLayers`, `Render`, `Animate`, `Drag`, `Zoom`. `context/svg` writes SVG; `context/gio` supplies `Widget`. |
 | `animation`, `drag`, `zoom` | Interaction. `drag` has inertia; `zoom` maps scroll deltas to a scale factor. |
@@ -70,9 +64,8 @@ which twelve are example commands.
 ## Usage
 
 Every scene is the same four steps: build geometry, add it to a scene, wrap the
-scene in a layer, hand the layer to a context. From
-`context/gio/example/helloworld/main.go:54` — a randomly coloured sphere you can
-spin with the pointer and scale with the wheel:
+scene in a layer, hand the layer to a context. A randomly coloured sphere you
+can spin with the pointer:
 
 ```go
 shape := shape.Sphere(2)
@@ -106,106 +99,81 @@ which is where `FitCenter` belongs — the scene refits itself to whatever the
 layout gave it. `context.Render()` is `window.Invalidate()`, nothing more:
 seen never draws outside a frame.
 
-The production consumer is an application that puts a seen scene behind
-its whole window. Its `field.go:138` is the same shape with one addition
-worth copying — the scene is isolated from the op list it renders into:
+`gio.Widget` adds a scale transform to the ops it renders into and leaves it
+there. A scene drawn behind other content is therefore isolated from the op
+list it renders into:
 
 ```go
-view := seengio.Widget(f.ctx, func(w, h unit.Dp) {
-	f.scene.FitCenter(0, 0, float64(w), float64(h), cameraDist)
+view := seengio.Widget(ctx, func(w, h unit.Dp) {
+	scene.FitCenter(0, 0, float64(w), float64(h), cameraDist)
 })
 
-f.view = func(gtx layout.Context) layout.Dimensions {
+background := func(gtx layout.Context) layout.Dimensions {
 	defer op.Offset(image.Point{}).Push(gtx.Ops).Pop()
 	return view(gtx)
 }
 ```
 
-The identity `op.Offset` push and pop discards any transform the seen component
-leaves behind, so the UI drawn above the background can never be disturbed by
-it. Without it, a scene used as a backdrop can move the layers on top of it.
+The identity `op.Offset` push and pop discards the transform the seen component
+leaves behind, so the content drawn above the background is never moved by it.
+
+## Examples
+
+`context/gio/example` has eleven Go programs: `combinedsolid`, `giftbox`,
+`helloworld`, `mocap`, `multipleangles`, `noisysphere`, `noisywavepatch`,
+`poem`, `rectangle`, `solids` and `text`. Six of them keep the seen.js
+CoffeeScript demo they port beside the Go. Seven more directories — `2048`,
+`audioequalizer`, `canvasvssvg`, `depthoffield`, `gallery`, `masksandeffects`
+and `nbody` — hold the CoffeeScript demo and a screenshot and no Go. The
+directories also hold a minified `seen.min.js` (in `gallery`) and a compiled
+`main.wasm` (in `combinedsolid`).
 
 ## For coding assistants
 
 Read the org guide before you write code against this module: the plan
 root's [`AGENTS.md`](https://github.com/vibrantgio/organisation/blob/master/AGENTS.md).
-
-[`AGENTS.md`](./AGENTS.md) in this repository has the build and test commands.
+The build and test commands are reached from that file.
 
 ## Status
 
-Honest about what does not work yet. Every count below is measured.
+The gaps in what ships.
 
-- **`PLAN.md` at the root is not the organization's plan, and it is finished.**
-  It covers one refactor of the camera and viewport pipeline, all twenty-two of
-  its boxes are checked, and its header describes a workspace that does not
-  exist: sibling checkouts directly under `~/code/w/vibrantgio` wired together
-  by a `go.work`. There is no such `go.work` and the clones live one directory
-  deeper. Do not follow it, and do not trust a build that it says was verified —
-  a workspace would have masked exactly the version pins that break the
-  consumers below. The organization's plan is in `vibrantgio/organisation`.
-- **`svg/driver/seen` does not build**, and neither does its other consuming
-  application. Both fail identically on `verifying github.com/vibrantgio/seen/context/gio@v0.0.7:
-  checksum mismatch`. This is a stale `go.sum` pin on the *consumer* side, not a
-  defect in seen — seen's own two modules build and test clean — but it means
-  the module's only two real consumers are currently red, and nothing exercises
-  the Gio render path end to end.
-- **The Gio rendering path has no tests at all.** All fourteen packages in
-  `context/gio` report `[no test files]`, including `context/gio/canvas`, which
-  is the code that turns a scene into `clip` and `paint` operations. In the root
-  module sixteen of thirty-three packages are untested — among them the whole of
-  `shader` (all four shading models), all of `light`, all of `face`, all of
-  `transform`, and `layer/zsort`. Seventeen packages do have tests and all pass.
-- **`context/gio/canvas/text.go:50` panics inside a render path** when a font
-  fails to parse. A library that is called once per frame should return an
-  error, not take the process down. `point/points.go` panics twice more on a
+- **The Gio rendering path has no tests.** No package in `context/gio` has a
+  test file, including `context/gio/canvas`, which is the code that turns a
+  scene into `clip` and `paint` operations. In the root module `animation`,
+  `canvas`, `drag`, `face`, `intensity`, `layer`, `layer/backdrop`,
+  `layer/zsort`, `light`, `obj`, `shader`, `transform`, `viewport` and `zoom`
+  have no tests either.
+- **Panics instead of errors.** `canvas.FontFaces` in `context/gio` panics when
+  one of its embedded fonts fails to parse, and it runs when the package is
+  initialised. `Points.MulB` and `Points.Clip` in `point` panic on a
   slice-length mismatch.
-- **`Scene.Regenerate`'s doc points at a method that is not there.** `scene.go:41`
+- **The doc of `Scene.Regenerate` points at a method that is not there.** It
   says "To flush the cache, call FlushCache()", but `Scene` has no such method.
-  The only `FlushCache` in the repository is on `layer/zsort.Layer` — a
-  different type in a different package, and the one sorter nothing uses.
-  `nsort` and `bsort` cache too, and neither offers any way to flush.
-- **Two of the three sorters are effectively dead.** Every one of the eleven Go
-  examples and the application consumer use `nsort`. `zsort` and `bsort` are reached only
-  from seen's own tests and from `svg/driver/seen`, which does not build. `bsort`
-  survives because the order-checking harness pins it; `zsort` has no tests, no
-  package comment, and its own harness notes say it "never cuts, is approximate
-  by design and is not run against this harness".
-- **Other packages with no consumer anywhere in the organization:** `solid`,
-  `mocap`, `bvh`, `affine`, `canvas` and `layer/backdrop`. `obj` has exactly one,
-  the `multipleangles` example.
-- **There are no golden-image tests, and nothing to regenerate.** What exists
-  instead is better and worth knowing about: `layer/internal/ordercheck` renders
-  three scenes — a cross, an occlusion cycle and a coplanar control — through the
-  SVG context, parses the emitted `<path>` elements back (document order is paint
-  order), and checks the last-painted polygon at sample points against a
-  ray/plane intersection computed in the test. It is analytic, so there is no
-  reference artifact and no `-update` flag; `go test ./...` is the whole story.
-  `mocap/render_test.go` is a smoke test that counts paths, not a pixel
-  comparison.
-- **The package documentation is close to absent.** `doc.go` is two lines long
-  and its entire content is `// Package seen` — so pkg.go.dev's front page for
-  the module says nothing at all. Eight of thirty-three root packages carry a
-  package comment; the other twenty-five have none, and neither of `context/gio`'s
+  The only `FlushCache` in the repository is on `zsort.Layer` — a different
+  type in a different package. `nsort` and `bsort` cache too, and neither
+  offers any way to flush.
+- **`zsort` is approximate.** It never cuts a polygon, has no tests and no
+  package comment, and the order-checking harness does not run it.
+- **There are no golden-image tests, and nothing to regenerate.**
+  `layer/internal/ordercheck` renders three scenes — a cross, an occlusion
+  cycle and a coplanar control — through the SVG context, parses the emitted
+  `<path>` elements back (document order is paint order), and checks the
+  last-painted polygon at sample points against a ray/plane intersection
+  computed in the test. It is analytic, so there is no reference artifact and
+  no `-update` flag; `go test ./...` is the whole story.
+  `mocap/render_test.go` is a smoke test, not a pixel comparison.
+- **The package documentation is close to absent.** `doc.go` says only
+  `// Package seen`, so pkg.go.dev's front page for the module says nothing.
+  Most root packages have no package comment, and neither of `context/gio`'s
   two library packages has one.
 - **The LICENSE is Apache-2.0 with the template placeholder left in** —
   `Copyright [yyyy] [name of copyright owner]`, unfilled — and there is no
-  NOTICE file. Neither seen.js nor csg.js is credited there. That second one
-  matters: `solid/` is a derivative of csg.js, which is MIT, and the attribution
-  did not travel with the code. The provenance is recorded only in `AGENTS.md`
-  and in scattered example comments.
-- **Seven of the eighteen example directories were never ported.** `2048`,
-  `audioequalizer`, `canvasvssvg`, `depthoffield`, `gallery`, `masksandeffects`
-  and `nbody` contain a `main.coffee` and a screenshot and no Go at all. Nine
-  more keep the original `.coffee` alongside the Go port. The repository also
-  carries a checked-in minified `seen.min.js` build and a checked-in
-  `main.wasm`.
+  NOTICE file. Neither seen.js nor csg.js is credited there, although `solid`
+  is an adaptation of csg.js, which is MIT. seen.js is credited in this README
+  and in comments of the `mocap` package and the `mocap` and
+  `multipleangles` examples; csg.js is credited nowhere in the repository.
 - **The animation clock is a package-level global.** `seen.Scheduler` and the
   interval table in `interval.go` are `var`s in the root package, so two scenes
   in one process share one scheduler. Nothing in the API lets you give a scene
   its own.
-- **`go vet` is not clean.** The root module reports ten unkeyed struct literals
-  (`affine/affine.go` and `shape/shape_test.go`); `context/gio` reports
-  unreachable code in five of the example mains. `solid/vector.go` also keeps
-  sixty lines of csg's original `Vector` type in a block comment, beneath the
-  `type Vector = point.Point` alias that replaced it.
